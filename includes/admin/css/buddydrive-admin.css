@@ -1,0 +1,100 @@
+#buddydrive-edit-form input {
+	outline: medium none;
+	padding: 3px 8px;
+}
+#buddydrive-edit-form input#buddydrive-item-title {
+	font-size: 1.7em;
+	width: 100%;
+}
+
+#buddydrive-edit-form textarea, #buddydrive-edit-form label{
+	width:100%;
+}
+
+#buddydrive-edit-form label{
+	display:block;
+	margin-top:1em!important;
+	font-weight:bold;
+}
+
+
+#buddydrive-admin-item .button, 
+#buddydrive-admin-item .button-primary, 
+#buddydrive-admin-item .button-secondary {
+	height:inherit;
+	line-height:inherit;
+}
+
+.buddydrive-load-more {
+	background: #f0f0f0;
+	font-size: 110%;
+	margin: 15px 0;
+	padding: 10px 15px;
+	text-align: center;
+}
+
+.buddydrive-load-more a {
+	color: #4D4D4D;
+	text-decoration:none;
+}
+
+i.icon {
+	font-family: 'dashicons';
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	line-height: 1;
+	font-size: 24px;
+	font-weight: normal;
+	font-style: normal;
+	vertical-align: top;
+	text-align: center;
+	-webkit-transition: color .1s ease-in 0;
+	transition: color .1s ease-in 0;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+i.icon.bd-icon-newfile:before {
+	content: "\f133";
+}
+
+i.icon.bd-icon-newfolder:before,
+i.icon.bd-icon-folder:before {
+	content:"\f322";
+}
+
+i.icon.bd-icon-delete:before {
+	content: "\f182";
+}
+
+i.icon.bd-icon-edit:before {
+	content:"\f464";
+}
+
+i.icon.bd-icon-analytics:before{
+	content: "\f185";
+}
+
+i.icon.bd-icon-root:before{
+	content: "\f102";
+}
+i.icon.bd-icon-lock:before{
+	content: "\f160";
+}
+
+i.icon.bd-icon-users:before{
+	content: "\f307";
+}
+
+i.icon.bd-icon-key:before{
+	content: "\f112";
+}
+
+i.icon.bd-icon-unlocked:before{
+	content: "\f177";
+}
+
+i.icon.bd-icon-file:before{
+	content: "\f498";
+}
