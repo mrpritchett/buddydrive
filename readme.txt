@@ -51,7 +51,7 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * List all user's groups setting the per_page argument to false
 * Improves javascripts and corrects some bugs in this area
 * Uses dashicons
-* Improves theme compatibility using BuddyPress members/single/plugins.php template and a new screen class
+* Improves theme "adaptability" using BuddyPress members/single/plugins.php template and a new screen class
 * Allowes the use of custom fields for BuddyDrive Files
 * Adds an action to track downloads
 * Adds filters to add a custom column in WP List Table

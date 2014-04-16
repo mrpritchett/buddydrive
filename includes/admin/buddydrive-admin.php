@@ -233,7 +233,9 @@ class BuddyDrive_Admin {
 			}
 
 			body.branch-3-9 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image:before,
-			body.branch-3-9 .buddydrive-profile-stats:before {
+			body.branch-4 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image:before,
+			body.branch-3-9 .buddydrive-profile-stats:before,
+			body.branch-4 .buddydrive-profile-stats:before {
 				font-family: 'buddydrive-dashicons';
 				speak: none;
 				font-style: normal;
@@ -247,18 +249,21 @@ class BuddyDrive_Admin {
 				content:"\d001";
 			}
 
-			body.branch-3-9 .buddydrive-profile-stats:before {
+			body.branch-3-9 .buddydrive-profile-stats:before,
+			body.branch-4 .buddydrive-profile-stats:before {
 				font-size: 18px;
 				vertical-align: bottom;
 				margin-right: 5px;
 			}
 
-			body.branch-3-9 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image {
+			body.branch-3-9 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image,
+			body.branch-4 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image {
 				content: "";
 			}
 
 
-			body.branch-3-9 .buddydrive-badge {
+			body.branch-3-9 .buddydrive-badge,
+			body.branch-4 .buddydrive-badge {
 				font: normal 150px/1 'buddydrive-dashicons' !important;
 				/* Better Font Rendering =========== */
 				-webkit-font-smoothing: antialiased;
@@ -269,7 +274,8 @@ class BuddyDrive_Admin {
 				content:'';
 			}
 
-			body.branch-3-9 .buddydrive-badge:before{
+			body.branch-3-9 .buddydrive-badge:before,
+			body.branch-4 .buddydrive-badge:before{
 				content: "\d001";
 			}
 
