@@ -735,8 +735,8 @@ class BuddyDrive_Uploader {
 				'file_data_name'      => 'buddyfile-upload',
 				'multi_selection'     => false,
 				'url'                 => admin_url( 'admin-ajax.php', 'relative' ),
-				'flash_swf_url'       => includes_url( 'js/plupload/Moxie.swf' ),
-				'silverlight_xap_url' => includes_url( 'js/plupload/Moxie.xap' ),
+				'flash_swf_url'       => includes_url( 'js/plupload/plupload.flash.swf' ),
+				'silverlight_xap_url' => includes_url( 'js/plupload/plupload.silverlight.xap' ),
 				'filters'             => array( 
 					array( 
 						'title'         => __( 'Allowed Files' ), 
