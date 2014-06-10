@@ -549,6 +549,7 @@ function wp_embed_handler_buddydrive( $matches, $attr, $url, $rawattr ) {
 		$embed .= '<p style="margin:0">'.$content.'</p>';
 
 	if ( $matches[1] == 'folder' ) {
+		global $buddydrive_template;
 
 		if ( buddydrive_has_items( array( 'buddydrive_parent' => $buddyfile->ID ) ) ) {
 			$filelist = '<p style="margin-top:1em;margin-bottom:0">'.__('Files included in this folder :', 'buddydrive') .'</p><ul>';
@@ -557,6 +558,7 @@ function wp_embed_handler_buddydrive( $matches, $attr, $url, $rawattr ) {
 				$filelist .= '<li><a href="'.buddydrive_get_action_link().'" title="'.buddydrive_get_item_title().'">'.buddydrive_get_item_title().'</a></li>';
 			}
 			$filelist .= '</ul>';
+			$buddydrive_template = false;
 		}
 		wp_reset_postdata();
 		$embed .= $filelist;
