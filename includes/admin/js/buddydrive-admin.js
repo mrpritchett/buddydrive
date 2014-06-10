@@ -6,7 +6,7 @@ function buddyDriveListGroups( element, user ) {
     };
 
     jQuery.post(ajaxurl, data, function(response) {
-        jQuery(element).html( '<label for="buddygroup">Choose the group</label>' + response);
+        jQuery(element).html( '<label for="buddygroup">' + buddydrive_admin.label_group + '</label>' + response);
     });
 }
 
@@ -26,7 +26,7 @@ jQuery(document).ready(function($){
 				if( id_detail_old_html.indexOf('buddydrive-password') != -1 ) 
 					$(id_details).html( id_detail_old_html);
 				else
-					$(id_details).html('<label for="buddydrive-password">Password</label><input type="text" name="buddydrive-edit[password]" id="buddydrive-password"/>');
+					$(id_details).html('<label for="buddydrive-password">' + buddydrive_admin.label_pwd + '</label><input type="text" name="buddydrive-edit[password]" id="buddydrive-password"/>');
 				break;
 			case 'groups':
 				if( id_detail_old_html.indexOf('buddygroup') != -1 ) 

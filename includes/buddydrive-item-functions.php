@@ -21,7 +21,9 @@ function buddydrive_get_js_l10n() {
 				'title_needed'         => __( 'The title is required', 'buddydrive' ),
 				'group_needed'         => __( 'Please choose a group in the list', 'buddydrive' ),
 				'pwd_needed'           => __( 'Please choose a password', 'buddydrive' ),
-				'define_pwd'           => __( 'Define your password', 'buddydrive' )
+				'define_pwd'           => __( 'Define your password', 'buddydrive' ),
+				'label_pwd'            => __( 'Password', 'buddydrive' ),
+				'label_group'          => __( 'Choose the group', 'buddydrive' ),
 		);
 
 	return $buddydrivel10n;

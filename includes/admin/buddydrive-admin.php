@@ -381,8 +381,11 @@ class BuddyDrive_Admin {
 		if( in_array( $hook, $this->hook_suffixes ) )
 			wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url .'buddydrive-admin.css' );
 
-		if( !empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && !empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' )
-			wp_enqueue_script( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
+		if( !empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && !empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
+			wp_enqueue_script ( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
+			wp_localize_script( 'buddydrive-admin-js', 'buddydrive_admin', buddydrive_get_js_l10n() );
+		}
+			
 	}
 
 	/**

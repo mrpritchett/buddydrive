@@ -218,7 +218,7 @@ function buddyDriveListGroups( element ) {
     };
 
     jQuery.post(ajaxurl, data, function(response) {
-        jQuery(element).html( '<label for="buddygroup">Choose the group</label>' + response);
+        jQuery(element).html( '<label for="buddygroup">' + pluploadL10n.label_group + '</label>' + response);
     });
 }
 
