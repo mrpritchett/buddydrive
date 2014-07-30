@@ -778,7 +778,6 @@ class BuddyDrive_List_Table extends WP_List_Table {
 	 * @uses WP_List_Table::display_rows_or_placeholder()
 	*/
 	function display() {
-		extract( $this->_args );
 
 		$this->display_tablenav( 'top' ); ?>
 
