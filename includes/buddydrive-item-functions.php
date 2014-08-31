@@ -393,7 +393,7 @@ function buddydrive_get_buddyfile( $name = false, $type = false ) {
 		
 	$buddydrive_file->get( $args );
 	
-	if ( empty( $buddydrive_file->query->post->ID ) )
+	if ( empty( $buddydrive_file->query->post ) )
 		return false;
 	
 	$buddyfile = new stdClass();
