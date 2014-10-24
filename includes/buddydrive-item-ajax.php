@@ -41,6 +41,9 @@ function buddydrive_save_new_buddyfile() {
 	add_filter( 'upload_dir', 'buddydrive_temporarly_filters_wp_upload_dir', 10, 1);
 	add_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes', 10, 1 );
 	add_filter( 'wp_handle_upload_prefilter', 'buddydrive_check_upload_size', 10, 1 );
+
+	// Accents can be problematic.
+	add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
 	
 	$buddydrive_file = wp_handle_upload( $_FILES['buddyfile-upload'], array( 'action' => 'buddydrive_file_upload', 'test_form' => false ) );
 	
@@ -128,6 +131,9 @@ function buddydrive_save_new_buddyfile() {
 	remove_filter( 'upload_dir', 'buddydrive_temporarly_filters_wp_upload_dir', 10, 1);
 	remove_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes', 10, 1 );
 	remove_filter( 'wp_handle_upload_prefilter', 'buddydrive_check_upload_size', 10, 1 );
+
+	// Stop filtering.
+	remove_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
 	
 	die();
 }
