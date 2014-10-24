@@ -3,8 +3,8 @@ Contributors: imath
 Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 3.9
-Tested up to: 3.9
-Stable tag: 1.2.0
+Tested up to: 4.0
+Stable tag: 1.2.1
 License: GPLv2
 
 Share files the BuddyPress way!
@@ -46,6 +46,12 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 
 == Changelog ==
 
+= 1.2.1 =
+* Fixes a problem when sharing folders in the activity stream
+* Improves translation by better localizing javascript files
+* Fixes a notice error in the BuddyDrive Administration
+* Fixes a notice error in case the file does not exist anymore
+
 = 1.2.0 =
 * Adapts to changes introduced in plupload feature by WordPress 3.9
 * List all user's groups setting the per_page argument to false
@@ -79,6 +85,9 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 1.2.1 =
+As usual, backup your database before upgrading
 
 = 1.2.0 =
 !Important: Requires WordPress 3.9 & BuddyPress 2.0. You really should backup your database before upgrading, as some changes occured in the way BuddyDrive loads.
