@@ -26,7 +26,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * Starts the screens class
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -76,7 +76,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * Filter the located template
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -91,19 +91,19 @@ class BuddyDrive_Screens {
 		/**
 		 * Current theme do use theme compat, no need to carry on
 		 * Retuning false will fire bp_setup_theme_compat action
-		 */ 
+		 */
 		if ( $bp->theme_compat->use_with_current_theme )
 			return false;
 
 		/**
 		 * Current theme is BP Default or a chilf theme of it
-		 * 
+		 *
 		 * Let's handle BP Default theme (or child themes)
 		 * This theme helped BuddyPress growth, so it desearves
-		 * support ;) 
-		 */ 
+		 * support ;)
+		 */
 		if ( $this->is_bp_default && bp_is_directory() ) {
-			
+
 			foreach ( $templates as $template ) {
 				$bp_default_template = $template;
 
@@ -119,7 +119,7 @@ class BuddyDrive_Screens {
 		/**
 		 * If we're here this means we're probably on the directory in
 		 * a Theme that is using it's own BuddyPress support.
-		 */  
+		 */
 		if ( bp_is_directory() && ! $this->is_bp_default ) {
 
 			// This happens to work in some BuddyPress standalone theme !!
@@ -132,7 +132,7 @@ class BuddyDrive_Screens {
 				'is_page'        => true,
 				'comment_status' => 'closed'
 			) );
-			
+
 			add_filter( 'the_content', array( $this, 'directory_content' ) );
 		}
 
@@ -141,7 +141,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * Add the plugin's template to the end of the BuddyPress templates stack
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -154,7 +154,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * User's files
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -170,7 +170,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * Shared by friends screen
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -187,25 +187,26 @@ class BuddyDrive_Screens {
 	 * load_template()
 	 *
 	 * Choose the best way to load your plugin's content
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
 	 */
 	public static function load_template( $template = '', $screen = '' ) {
+
 		$buddydrive = buddydrive();
 		/****
 		 * Displaying Content
 		 */
 		$buddydrive->screens->template       = $template;
 		$buddydrive->screens->current_screen = $screen;
-		
+
 		if ( buddypress()->theme_compat->use_with_current_theme && ! empty( $template ) ) {
 			add_filter( 'bp_get_template_part', array( __CLASS__, 'template_part' ), 10, 3 );
 		} else {
 			// You can only use this method for users profile pages
 			if ( ! bp_is_directory() ) {
-				
+
 				$buddydrive->screens->template = 'members/single/plugins';
 				add_action( 'bp_template_title',   "buddydrive_{$screen}_title"   );
 				add_action( 'bp_template_content', "buddydrive_{$screen}_content" );
@@ -217,7 +218,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * Filter the templates part for user's screens
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -234,7 +235,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * Manage the directory page
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -266,7 +267,7 @@ class BuddyDrive_Screens {
 
 	/**
 	 * Theme compat is used
-	 * 
+	 *
 	 * @package BuddyDrive Component
 	 * @subpackage Screens
 	 * @since 1.2.0
@@ -297,7 +298,7 @@ class BuddyDrive_Screens {
 			'post_author'    => 0,
 			'post_date'      => 0,
 			'post_content'   => '',
-			'post_type'      => 'buddydrive_dir',
+			'post_type'      => 'page',
 			'post_status'    => 'publish',
 			'is_page'        => true,
 			'comment_status' => 'closed'
@@ -327,10 +328,10 @@ function buddydrive_user_files_title() {
 function buddydrive_user_files_content() {
 	?>
 	<div id="buddydrive-forms">
-		<div class="buddydrive-crumbs"><a href="<?php buddydrive_component_home_url();?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php _e( 'Root folder', 'buddydrive' );?></span></a></div>		
-		
+		<div class="buddydrive-crumbs"><a href="<?php buddydrive_component_home_url();?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php _e( 'Root folder', 'buddydrive' );?></span></a></div>
+
 		<?php if ( buddydrive_is_user_buddydrive() ):?>
-		
+
 			<div id="buddydrive-file-uploader" class="hide">
 				<?php buddydrive_upload_form();?>
 			</div>
@@ -338,9 +339,9 @@ function buddydrive_user_files_content() {
 				<?php buddydrive_folder_form()?>
 			</div>
 			<div id="buddydrive-edit-item" class="hide"></div>
-		
+
 		<?php endif;?>
-		
+
 	</div>
 
 	<?php do_action( 'buddydrive_after_member_upload_form' ); ?>
@@ -349,7 +350,7 @@ function buddydrive_user_files_content() {
 	<div class="buddydrive single-member" role="main">
 		<?php bp_get_template_part( 'buddydrive-loop' );?>
 	</div><!-- .buddydrive.single-member -->
-	
+
 	<?php do_action( 'buddydrive_after_member_body' );
 }
 
@@ -369,7 +370,7 @@ function buddydrive_friends_files_content() {
 	<div class="buddydrive single-member" role="main">
 		<?php bp_get_template_part( 'buddydrive-loop' );?>
 	</div><!-- .buddydrive.single-member -->
-	
+
 	<?php do_action( 'buddydrive_after_member_body' );
 }
 
@@ -395,7 +396,7 @@ function buddydrive_is_bp_default() {
 
 /**
  * Chooses the best way to load BuddyDrive templates
- * 
+ *
  * @param string $template the template needed
  * @param boolean $require_once if we need to load it only once or more
  * @uses buddydrive_is_bp_default() to check for BP Default
@@ -405,7 +406,7 @@ function buddydrive_is_bp_default() {
 function buddydrive_get_template( $template = false, $require_once = true ) {
 	if ( empty( $template ) )
 		return false;
-	
+
 	if ( buddydrive_is_bp_default() ) {
 
 		$template = $template . '.php';
@@ -414,9 +415,9 @@ function buddydrive_get_template( $template = false, $require_once = true ) {
 			$filtered_templates = STYLESHEETPATH . '/' . $template;
 		else
 			$filtered_templates = buddydrive_get_plugin_dir() . '/templates/' . $template;
-		
+
 		load_template( apply_filters( 'buddydrive_get_template', $filtered_templates ),  $require_once);
-		
+
 	} else {
 		bp_get_template_part( $template );
 	}
