@@ -14,7 +14,7 @@ function fileQueued(fileObj) {
 	var items = jQuery('#media-items').children(), postid = 0;
 
 	// Create a progress bar containing the filename
-	jQuery('#buddydrive-dir tbody').prepend('<tr><td colspan="4"><div id="media-item-' + fileObj.id + '" class="media-item child-of-' + postid + '"><div class="progress"><div class="percent">0%</div><div class="bar"></div></div><div class="filename original"> ' + fileObj.name + '</div></div></td></tr>');
+	jQuery('#buddydrive-dir tbody').prepend('<tr><td colspan="5"><div id="media-item-' + fileObj.id + '" class="media-item child-of-' + postid + '"><div class="progress"><div class="percent">0%</div><div class="bar"></div></div><div class="filename original"> ' + fileObj.name + '</div></div></td></tr>');
 
 }
 
@@ -208,7 +208,7 @@ function uploadSizeError( up, file, over100mb ) {
 	else
 		message = pluploadL10n.file_exceeds_size_limit.replace('%s', file.name);
 
-	jQuery('#buddydrive-dir tbody').prepend('<tr><td colspan="4"><div id="media-item-' + file.id + '" class="media-item error"><div class="error-div"><a class="dismiss" href="#">' + pluploadL10n.dismiss + '</a> <strong>' + message + '</strong></div></div></td></tr>');
+	jQuery('#buddydrive-dir tbody').prepend('<tr><td colspan="5"><div id="media-item-' + file.id + '" class="media-item error"><div class="error-div"><a class="dismiss" href="#">' + pluploadL10n.dismiss + '</a> <strong>' + message + '</strong></div></div></td></tr>');
 	up.removeFile(file);
 }
 
