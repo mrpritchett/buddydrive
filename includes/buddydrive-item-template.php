@@ -303,19 +303,19 @@ function buddydrive_has_items( $args = '' ) {
 			);
 
 		$r = wp_parse_args( $args, $defaults );
-		extract( $r, EXTR_SKIP );
 
 		$buddydrive_template = new BuddyDrive_Item();
 
+		if ( ! empty( $search ) ) {
+			$buddydrive_template->get( array( 'per_page' => $r['per_page'], 'paged' => $r['paged'], 'type' => $r['type'], 'buddydrive_scope' => $r['buddydrive_scope'], 'search' => $r['search'], 'orderby' => $r['orderby'], 'order' => $r['order'] ) );
+		} else {
+			$buddydrive_template->get( array( 'id' => $r['id'], 'name' => $r['name'], 'group_id' => $r['group_id'], 'user_id' => $r['user_id'], 'per_page' => $r['per_page'], 'paged' => $r['paged'], 'type' => $r['type'], 'buddydrive_scope' => $r['buddydrive_scope'], 'buddydrive_parent' => $r['buddydrive_parent'], 'exclude' => $r['exclude'], 'orderby' => $r['orderby'], 'order' => $r['order'] ) );
+		}
 
-		if ( ! empty( $search ) )
-			$buddydrive_template->get( array( 'per_page' => $per_page, 'paged' => $paged, 'type' => $type, 'buddydrive_scope' => $buddydrive_scope, 'search' => $search, 'orderby' => $orderby, 'order' => $order ) );
-		else
-			$buddydrive_template->get( array( 'id' => $id, 'name' => $name, 'group_id' => $group_id, 'user_id' => $user_id, 'per_page' => $per_page, 'paged' => $paged, 'type' => $type, 'buddydrive_scope' => $buddydrive_scope, 'buddydrive_parent' => $buddydrive_parent, 'exclude' => $exclude, 'orderby' => $orderby, 'order' => $order ) );
-
+		do_action( 'buddydrive_has_items_catch_total_count', $buddydrive_template->query->found_posts );
 	}
 
-	return $buddydrive_template->have_posts();
+	return apply_filters( 'buddydrive_has_items', $buddydrive_template->have_posts() );
 }
 
 

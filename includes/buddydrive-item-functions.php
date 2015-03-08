@@ -646,3 +646,32 @@ function buddydrive_get_sharing_options() {
 
 	return apply_filters( 'buddydrive_get_sharing_options', $options );
 }
+
+/**
+ * Get a user's file count
+ *
+ * @since 1.2.2
+ *
+ * @param  int $user_id the user id
+ * @return int          the files count
+ */
+function buddydrive_count_user_files( $user_id = 0 ) {
+	$bd = buddydrive();
+
+	if ( empty( $user_id ) ) {
+		$user_id = bp_loggedin_user_id();
+	}
+
+	if ( empty( $user_id ) || ! bp_is_root_blog() ) {
+		return false;
+	}
+
+	// Count only once per page load.
+	if ( ! empty( $bp->users_file_count[ $user_id ] ) ) {
+		return $bp->users_file_count[ $user_id ];
+	}
+
+	$bp->users_file_count[ $user_id ] = count_user_posts( $user_id, buddydrive_get_file_post_type() );
+
+	return $bp->users_file_count[ $user_id ];
+}

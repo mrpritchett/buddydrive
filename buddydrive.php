@@ -135,8 +135,9 @@ class BuddyDrive {
 
 		/** Misc **************************************************************/
 
-		$this->domain         = 'buddydrive';
-		$this->errors         = new WP_Error(); // Feedback
+		$this->domain           = 'buddydrive';
+		$this->errors           = new WP_Error(); // Feedback
+		$this->users_file_count = array();
 
 	}
 

@@ -23,19 +23,19 @@ function openFolder( srcstring ) {
     	jQuery('#buddydrive-dir tbody').html('<tr><td colspan="5"><p class="buddydrive-opening-dir"><a class="loading">'+buddydrive_view.loading+'</a></p></td></tr>');
 
 		jQuery.post(ajaxurl, data, function(response) {
-			
+
 			jQuery('#buddy-new-folder').hide();
 
 			jQuery('.buddytree').each(function(){
 				jQuery(this).removeClass('current');
 			});
-			
+
 			if( response.length > 1)
 				jQuery('.buddydrive-crumbs').append( ' / <span id="folder-'+folder_id+'" class="buddytree current"><input type="hidden" id="buddydrive-open-folder" value="'+folder_id+'">'+response[1]+'</span>' );
-			
+
 			jQuery('#buddydrive-dir tbody').html('');
 	        jQuery("#buddydrive-dir tbody").prepend(response[0]);
-			
+
 	    }, 'json' );
 	}
 }
@@ -43,22 +43,28 @@ function openFolder( srcstring ) {
 jQuery(document).ready(function($){
 	$.cookie( 'buddydrive-oldestpage', 1, {path: '/'} );
 
-	if ( '-1' != window.location.search.indexOf('folder-') )
+	if ( '-1' != window.location.search.indexOf('folder-') ) {
 		openFolder( window.location.search );
+	}
 
-	if ( null != $.cookie('buddydrive_filter') && $( '#buddydrive-filter' ).length )
+	if ( null != $.cookie('buddydrive_filter') && $( '#buddydrive-filter' ).length ) {
 		$('#buddydrive-filter option[value="' + $.cookie('buddydrive_filter') + '"]').prop( 'selected', true );
-	
+	}
+
+	if ( 'undefined' != typeof BuddyDriveFilesCount ) {
+		$( '#' + BuddyDriveFilesCount.id ).append( '<span class="count">' + BuddyDriveFilesCount.count + '</span>' );
+	}
+
 	$('#buddydrive-dir').on('click', '.buddydrive-load-more a', function( event ){
 		event.preventDefault();
 
 		var currentfolder = group_id = 0;
-		
+
 		$('.buddytree').each(function(){
 			if( $(this).hasClass('current') )
 				currentfolder = $(this).attr('id').replace('folder-', '');
 		});
-		
+
 		var buddyscope = 'groups';
 
 		if( $('#subnav.item-list-tabs li.current a').length )
@@ -66,16 +72,16 @@ jQuery(document).ready(function($){
 
 		if( buddyscope == 'groups' && $('#buddydrive-home').attr('data-group') )
 			group_id = $('#buddydrive-home').attr('data-group');
-		
+
 		var loadmore_tr = $(this).parent().parent();
-		
+
 		$(this).addClass('loading');
-		
+
 		if ( null == $.cookie('buddydrive-oldestpage') )
 	        $.cookie('buddydrive-oldestpage', 1, {path: '/'} );
 
 	    var oldest_page = ( $.cookie('buddydrive-oldestpage') * 1 ) + 1;
-		
+
 		var data = {
 	      action:'buddydrive_loadmore',
 	      page: oldest_page,
@@ -89,29 +95,29 @@ jQuery(document).ready(function($){
 	        $("#buddydrive-dir tbody").append(response);
 			loadmore_tr.hide();
 	    });
-		
+
 		return;
 	});
-	
+
 	$('#buddydrive-dir').on('click', '.buddyfolder', function( event ){
 		event.preventDefault();
 
 		var buddyscope = false;
-		
+
 		$.cookie( 'buddydrive-oldestpage', 1, {path: '/'} );
 
 		if( $('#subnav.item-list-tabs li.current a').length )
 			buddyscope = $('#subnav.item-list-tabs li.current a').attr('id');
-		
+
 		parent_id = $(this).attr('data-folder');
 		$('#buddy-new-folder').hide();
 
 		$('.buddytree').each(function(){
 			$(this).removeClass('current');
 		});
-		
+
 		$('.buddydrive-crumbs').append( ' / <span id="folder-'+parent_id+'" class="buddytree current"><input type="hidden" id="buddydrive-open-folder" value="'+parent_id+'">'+$(this).html()+'</span>' );
-		
+
 		var data = {
 	      action:'buddydrive_openfolder',
 		  folder: parent_id,
@@ -119,14 +125,14 @@ jQuery(document).ready(function($){
 	    };
 
 	    $('#buddydrive-dir tbody').html('<tr><td colspan="5"><p class="buddydrive-opening-dir"><a class="loading">'+buddydrive_view.loading+'</a></p></td></tr>');
-	
+
 		$.post(ajaxurl, data, function(response) {
 			$('#buddydrive-dir tbody').html('');
 	        $("#buddydrive-dir tbody").prepend(response[0]);
 	    }, 'json' );
-		
+
 		return;
-		
+
 	});
 
 	$('#buddydrive-dir').on('click', '.buddydrive-row-actions a', function( event ){
@@ -141,21 +147,21 @@ jQuery(document).ready(function($){
 				return;
 
 			target = $(this).parent().parent().parent().find('a').first().attr('data-file');
-			
+
 			if( !target )
 				target = $(this).parent().parent().parent().find('a').first().attr('data-folder');
-			
+
 			link = $(this).parent().parent().parent().find('a').first().attr('href');
 			var shared = $(this);
 			$(this).addClass('loading');
-			
+
 			var data = {
 		      action:'buddydrive_groupupdate',
 			  itemid: target,
 			  url:link,
 			  '_wpnonce_buddydrive_actions': $("input#_wpnonce_buddydrive_actions").val()
 		    };
-		
+
 			$.post(ajaxurl, data, function(response) {
 				if( response == 1 ) {
 					shared.html( buddydrive_view.shared );
@@ -168,23 +174,23 @@ jQuery(document).ready(function($){
 		if( $(this).hasClass('buddydrive-remove-group') ) {
 			if( $(this).hasClass('loading') )
 				return;
-			
+
 			target = $(this).parent().parent().parent().find('a').first().attr('data-file');
-			
+
 			if( !target )
 				target = $(this).parent().parent().parent().find('a').first().attr('data-folder');
 
 			group = $(this).attr('data-group');
 
 			$(this).addClass('loading');
-			
+
 			var data = {
 		      action:'buddydrive_removefromgroup',
 			  itemid: target,
 			  groupid: group,
 			  '_wpnonce_buddydrive_actions': $("input#_wpnonce_buddydrive_actions").val()
 		    };
-		
+
 			$.post(ajaxurl, data, function(response) {
 				if( response == 1 ) {
 					$('tr#item-'+target).remove();
@@ -196,8 +202,8 @@ jQuery(document).ready(function($){
 
 			return;
 		}
-		
-		var show = $(this).attr('class').replace('buddydrive-show-', ''); 
+
+		var show = $(this).attr('class').replace('buddydrive-show-', '');
 		var desc = $(this).parent().parent().parent().find('.buddydrive-ra-'+show);
 
 		$(this).parent().parent().parent().parent().parent().find('.ba').each(function(){
@@ -242,7 +248,7 @@ jQuery(document).ready(function($){
 		event.preventDefault();
 
 		var buddyscope;
-		
+
 		$.cookie( 'buddydrive-oldestpage', 1, {path: '/'} );
 		$.cookie( 'buddydrive_filter', $( this ).val(), {path: '/'} );
 
@@ -250,7 +256,7 @@ jQuery(document).ready(function($){
 			buddyscope = $('#subnav.item-list-tabs li.current a').attr('id');
 
 		parent_id = $('.buddytree.current').prop('id').replace( 'folder-', '' );
-		
+
 		var data = {
 	      action:'buddydrive_filterby',
 		  folder: parent_id,
@@ -260,13 +266,13 @@ jQuery(document).ready(function($){
 	    };
 
 	    $('#buddydrive-dir tbody').html('<tr><td colspan="5"><p class="buddydrive-opening-dir"><a class="loading">'+buddydrive_view.loading+'</a></p></td></tr>');
-	
+
 		$.post(ajaxurl, data, function(response) {
 			$('#buddydrive-dir tbody').html('');
 	        $("#buddydrive-dir tbody").prepend(response);
 	    } );
-		
+
 		return;
 	});
-	
+
 });

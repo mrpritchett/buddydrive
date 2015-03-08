@@ -44,13 +44,13 @@ class BuddyDrive_Component extends BP_Component {
 		 */
 		if ( get_current_blog_id() == bp_get_root_blog_id() ) {
 			add_action( 'init', array( &$this, 'register_post_types' ), 9 );
-			
+
 			$this->register_upload_dir();
 		}
-		
+
 		// register the embed handler
 		add_action( 'bp_init', array( $this, 'register_embed_code' ), 4 );
-	} 
+	}
 
 	/**
 	 * BuddyDrive needed files
@@ -72,10 +72,10 @@ class BuddyDrive_Component extends BP_Component {
 			'buddydrive-item-template.php',
 			'buddydrive-item-ajax.php',
 		);
-		
+
 		if ( bp_is_active( 'groups' ) )
 			$includes[] = 'buddydrive-group-class.php';
-		
+
 
 		parent::includes( $includes );
 	}
@@ -109,7 +109,7 @@ class BuddyDrive_Component extends BP_Component {
 
 	/**
 	 * Set up buddydrive navigation.
-	 * 
+	 *
 	 * @uses buddypress() to get the instance data
 	 * @uses buddydrive_get_name() to get BuddyDrive name
 	 * @uses buddydrive_get_slug() to get BuddyDrive slug
@@ -123,13 +123,18 @@ class BuddyDrive_Component extends BP_Component {
 	 */
 	public function setup_nav( $main_nav = array(), $sub_nav = array() ) {
 		$bp =  buddypress();
-		
+
+		$nav = buddydrive_get_name();
+		if ( bp_is_my_profile() ) {
+			$nav = sprintf( __( '%s <span class="count">%d</span>', 'buddydrive' ), buddydrive_get_name(), buddydrive_count_user_files() );
+		}
+
 		$main_nav = array(
-			'name' 		          => buddydrive_get_name(),
+			'name' 		          => $nav,
 			'slug' 		          => buddydrive_get_slug(),
 			'position' 	          => 80,
 			'screen_function'     => array( 'BuddyDrive_Screens', 'user_files' ),
-			'default_subnav_slug' => 'files'
+			'default_subnav_slug' => 'files',
 		);
 		$displayed_user_id = bp_displayed_user_id();
 		$user_domain = ( ! empty( $displayed_user_id ) ) ? bp_displayed_user_domain() : bp_loggedin_user_domain();
@@ -138,7 +143,7 @@ class BuddyDrive_Component extends BP_Component {
 
 		// Add a few subnav items under the main Example tab
 		$sub_nav[] = array(
-			'name'            =>  buddydrive_get_user_subnav_name(),
+			'name'            => buddydrive_get_user_subnav_name(),
 			'slug'            => 'files',
 			'parent_url'      => $buddydrive_link,
 			'parent_slug'     => $this->slug,
@@ -154,13 +159,13 @@ class BuddyDrive_Component extends BP_Component {
 				'parent_url'      => $buddydrive_link,
 				'parent_slug'     => $this->slug,
 				'screen_function' => array( 'BuddyDrive_Screens', 'friends_files' ),
-				'position'        => 20
+				'position'        => 20,
 			);
 		}
 
 		parent::setup_nav( $main_nav, $sub_nav );
 	}
-	
+
 	/**
 	 * Builds the user's navigation in WP Admin Bar
 	 *
@@ -192,7 +197,7 @@ class BuddyDrive_Component extends BP_Component {
 				'title'  => buddydrive_get_name(),
 				'href'   => trailingslashit( $buddydrive_link )
 			);
-			
+
 			// Add BuddyDrive submenu
 			$wp_admin_nav[] = array(
 				'parent' => 'my-account-' . $buddydrive_slug,
@@ -200,7 +205,7 @@ class BuddyDrive_Component extends BP_Component {
 				'title'  => buddydrive_get_user_subnav_name(),
 				'href'   => trailingslashit( $buddydrive_link )
 			);
-			
+
 			if ( bp_is_active('friends') ) {
 				// Add shared by friends BuddyDrive submenu
 				$wp_admin_nav[] = array(
@@ -218,13 +223,13 @@ class BuddyDrive_Component extends BP_Component {
 
 	/**
 	 * registering BuddyDrive custom post types
-	 * 
+	 *
 	 * @uses buddydrive_get_folder_post_type() to get the BuddyFolder post type
  	 * @uses buddydrive_get_file_post_type() to get the BuddyFile post type
  	 * @uses register_post_type() to register the post type
 	 */
 	public function register_post_types() {
-		
+
 		// Set up some labels for the post type
 		$labels_file = array(
 			'name'	             => __( 'BuddyFiles', 'buddydrive' ),
@@ -241,7 +246,7 @@ class BuddyDrive_Component extends BP_Component {
 			'not_found'          => __( 'No BuddyFiles Found', 'buddydrive' ),
 			'not_found_in_trash' => __( 'No BuddyFiles Found in Trash', 'buddydrive' )
 		);
-		
+
 		$args_file = array(
 			'label'	            => __( 'BuddyFile', 'buddydrive' ),
 			'labels'            => $labels_file,
@@ -271,7 +276,7 @@ class BuddyDrive_Component extends BP_Component {
 			'not_found'          => __( 'No BuddyFolders Found', 'buddydrive' ),
 			'not_found_in_trash' => __( 'No BuddyFolders Found in Trash', 'buddydrive' )
 		);
-		
+
 		$args_folder = array(
 			'label'	            => __( 'BuddyFolder', 'buddydrive' ),
 			'labels'            => $labels_folder,
@@ -287,8 +292,8 @@ class BuddyDrive_Component extends BP_Component {
 
 		parent::register_post_types();
 	}
-	
-	
+
+
 	/**
 	 * register the BuddyDrive upload data in instance
 	 *
@@ -296,21 +301,21 @@ class BuddyDrive_Component extends BP_Component {
 	 */
 	private function register_upload_dir() {
 		$upload_data = buddydrive_get_upload_data();
-		
+
 		if ( is_array( $upload_data ) ) {
 			buddydrive()->upload_dir = $upload_data['dir'];
 			buddydrive()->upload_url = $upload_data['url'];
 		}
-		
+
 	}
 
 	/**
 	 * Registers BuddyDrive embed code
-	 * 
+	 *
 	 * We need to wait for buddypress()->pages to be set
 	 *
 	 * @since BuddyDrive 1.1
-	 * 
+	 *
 	 * @uses wp_embed_register_handler() registers the embed code for BuddyDrive
 	 */
 	public function register_embed_code() {
