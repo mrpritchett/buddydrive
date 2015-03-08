@@ -4,7 +4,7 @@ Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 3.9
 Tested up to: 4.1.1
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2
 
 Share files the BuddyPress way!
@@ -54,8 +54,6 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * Removes accents from filename when saving a file to avoid char encoding troubles
 * Makes sure the quota and other upload restrictions are doing their job
 * Introduces some filters to add new upload restrictions
-
-== Changelog ==
 
 = 1.2.1 =
 * Fixes a problem when sharing folders in the activity stream
