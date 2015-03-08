@@ -30,11 +30,12 @@ function buddydrive_get_version() {
  */
 function buddydrive_is_install() {
 	$buddydrive_version = get_option( '_buddydrive_version', '' );
-	
-	if( empty( $buddydrive_version ) )
+
+	if ( empty( $buddydrive_version ) ) {
 		return true;
-	else
-		return false;
+	}
+	
+	return false;
 }
 
 /**
@@ -45,25 +46,26 @@ function buddydrive_is_install() {
  */
 function buddydrive_is_update() {
 	$buddydrive_version = get_option( '_buddydrive_version', '' );
-	
-	if( !empty( $buddydrive_version ) )
+
+	if ( ! empty( $buddydrive_version ) && version_compare( $buddydrive_version, buddydrive_get_version(), '<' ) ) {
 		return true;
-	else
-		return false;
+	}
+	
+	return false;
 }
 
 /**
  * displays the slug of the plugin
- * 
+ *
  * @uses buddydrive_get_slug() to get it!
  */
 function buddydrive_slug() {
 	echo buddydrive_get_slug();
 }
-	
+
 	/**
 	 * Gets the slug of the plugin
-	 * 
+	 *
 	 * @uses buddydrive() to get plugin's globals
 	 * @uses buddypress() to get directory pages global settings
 	 * @return string the slug
@@ -76,7 +78,7 @@ function buddydrive_slug() {
 
 /**
  * displays the name of the plugin
- * 
+ *
  * @uses buddydrive_get_name() to get it!
  */
 function buddydrive_name() {
@@ -85,7 +87,7 @@ function buddydrive_name() {
 
 	/**
 	 * Gets the name of the plugin
-	 * 
+	 *
 	 * @uses buddydrive() to get plugin's globals
 	 * @uses buddypress() to get directory pages global settings
 	 * @return string the name
@@ -107,7 +109,7 @@ function buddydrive_name() {
 function buddydrive_user_subnav_name() {
 	echo buddydrive_get_user_subnav_name();
 }
-	
+
 	/**
 	 * Returns the BuddyDrive user's subnav name
 	 *
@@ -133,7 +135,7 @@ function buddydrive_user_subnav_name() {
 function buddydrive_friends_subnav_name() {
 	echo buddydrive_get_friends_subnav_name();
 }
-	
+
 	/**
 	 * Returns the BuddyDrive friends subnav name
 	 *
@@ -159,7 +161,7 @@ function buddydrive_friends_subnav_name() {
 function buddydrive_friends_subnav_slug() {
 	echo buddydrive_get_friends_subnav_slug();
 }
-	
+
 	/**
 	 * Returns the BuddyDrive friends subnav slug
 	 *
@@ -176,16 +178,16 @@ function buddydrive_friends_subnav_slug() {
 
 /**
  * displays file post type of the plugin
- * 
+ *
  * @uses buddydrive_get_file_post_type() to get it!
  */
 function buddydrive_file_post_type() {
 	echo buddydrive_get_file_post_type();
 }
-	
+
 	/**
 	 * Gets the file post type of the plugin
-	 * 
+	 *
 	 * @uses buddydrive()
 	 * @return string the file post type
 	 */
@@ -195,7 +197,7 @@ function buddydrive_file_post_type() {
 
 /**
  * displays folder post type of the plugin
- * 
+ *
  * @uses buddydrive_get_folder_post_type() to get it!
  */
 function buddydrive_folder_post_type() {
@@ -204,7 +206,7 @@ function buddydrive_folder_post_type() {
 
 	/**
 	 * Gets the folder post type of the plugin
-	 * 
+	 *
 	 * @uses buddydrive()
 	 * @return string the folder post type
 	 */
@@ -264,7 +266,7 @@ function buddydrive_get_images_url() {
 
 /**
  * What is the root url for BuddyDrive ?
- * 
+ *
  * @uses buddydrive_get_root_url() to get it
  */
 function buddydrive_root_url() {
@@ -293,11 +295,11 @@ function buddydrive_root_url() {
  */
 function buddydrive_get_upload_data() {
 	$upload_datas = wp_upload_dir();
-	
+
 	$buddydrive_dir = $upload_datas["basedir"] .'/buddydrive';
 	$buddydrive_url = $upload_datas["baseurl"] .'/buddydrive';
 	$buddydrive_upload_data = array( 'dir' => $buddydrive_dir, 'url' => $buddydrive_url );
-	
+
 	//finally returns $buddydrive_upload_data, you can filter if you know what you're doing!
 	return apply_filters( 'buddydrive_get_upload_data', $buddydrive_upload_data );
 }
@@ -330,16 +332,16 @@ function buddydrive_activation() {
 		// let's create a page and add it to BuddyPress directory pages
 		$buddydrive_page_content = __( 'BuddyDrive uses this page to manage the downloads of your buddies files, please leave it as is. It will not show in your navigation bar.', 'buddydrive');
 
-		$buddydrive_page_id = wp_insert_post( array( 
-												'comment_status' => 'closed', 
-												'ping_status'    => 'closed', 
-												'post_title'     => buddydrive_get_name(),
-												'post_content'   => $buddydrive_page_content,
-												'post_name'      => $buddydrive_slug,
-												'post_status'    => 'publish', 
-												'post_type'      => 'page' 
-												) );
-		
+		$buddydrive_page_id = wp_insert_post( array(
+			'comment_status' => 'closed',
+			'ping_status'    => 'closed',
+			'post_title'     => buddydrive_get_name(),
+			'post_content'   => $buddydrive_page_content,
+			'post_name'      => $buddydrive_slug,
+			'post_status'    => 'publish',
+			'post_type'      => 'page'
+		) );
+
 		$directory_pages[ $buddydrive_slug ] = $buddydrive_page_id;
 		bp_core_update_directory_page_ids( $directory_pages );
 	}
@@ -349,7 +351,7 @@ function buddydrive_activation() {
 
 /**
  * Handles plugin deactivation
- * 
+ *
  * @uses bp_core_get_directory_page_ids() to get the BuddyPress component page ids
  * @uses buddydrive_get_slug() to get BuddyDrive slug
  * @uses wp_delete_post() to eventually delete the BuddyDrive page
@@ -365,10 +367,10 @@ function buddydrive_deactivation() {
 
 	if ( ! empty( $directory_pages[$buddydrive_slug] ) ) {
 		// let's remove the page as the plugin is deactivated.
-		
+
 		$buddydrive_page_id = $directory_pages[$buddydrive_slug];
 		wp_delete_post( $buddydrive_page_id, true );
-		
+
 		unset( $directory_pages[$buddydrive_slug] );
 		bp_core_update_directory_page_ids( $directory_pages );
 	}
@@ -379,7 +381,7 @@ function buddydrive_deactivation() {
 
 /**
  * Welcome screen step one : set transient
- * 
+ *
  * @uses buddydrive_is_install() to check of first install
  * @uses set_transient() to temporarly save some data to db
  */
@@ -400,8 +402,8 @@ function buddydrive_add_activation_redirect() {
 
 /**
  * Welcome screen step two
- * 
- * @uses get_transient() 
+ *
+ * @uses get_transient()
  * @uses delete_transient()
  * @uses wp_safe_redirect to redirect to the Welcome screen
  * @uses add_query_arg() to add some arguments to the url
@@ -443,18 +445,25 @@ function buddydrive_check_version() {
 	if ( buddydrive::bail() )
 		return;
 
-	if ( buddydrive_is_install() || version_compare( buddydrive_get_db_version(), buddydrive_get_version(), '<' ) ) {
-		
-		update_option( '_buddydrive_version', buddydrive_get_version() );
-
+	if ( version_compare( buddydrive_get_db_version(), buddydrive_get_version(), '=' ) ) {
+		return;
 	}
+
+	if ( buddydrive_is_install() ) {
+		// Do installation routine
+	} else if ( buddydrive_is_update() ) {
+		// Do upgrade routine
+	}
+
+	// Finally upgrade plugin version
+	update_option( '_buddydrive_version', buddydrive_get_version() );
 }
 add_action( 'buddydrive_admin_init', 'buddydrive_check_version' );
 
 
 /**
  * Returns the BuddyDrive Max upload size
- * 
+ *
  * @param  boolean $bytes do we want it in bytes ?
  * @uses wp_max_upload_size() to get the config max upload size
  * @uses bp_get_option() to get the admin settings for BuddyDrive
@@ -463,7 +472,7 @@ add_action( 'buddydrive_admin_init', 'buddydrive_check_version' );
 function buddydrive_max_upload_size( $bytes = false ) {
 	$max_upload = wp_max_upload_size();
 	$max_upload_mo = $max_upload / 1024 / 1024;
-	
+
 	$buddydrive_max_upload  = bp_get_option( '_buddydrive_max_upload', $max_upload_mo );
 	$buddydrive_max_upload = intval( $buddydrive_max_upload );
 
@@ -476,14 +485,14 @@ function buddydrive_max_upload_size( $bytes = false ) {
 
 /**
  * Tells if a value is checked in an array
- * 
+ *
  * @param  string $value the value to check
  * @param  array $array where too check ?
  * @uses checked() to activate the checkbox
  * @return boolean|string (false or 'checked')
  */
 function buddydrive_array_checked( $value = false, $array = false ) {
-	
+
 	if ( empty( $value ) || empty( $array ) )
 		return false;
 
@@ -496,13 +505,13 @@ function buddydrive_array_checked( $value = false, $array = false ) {
 
 /**
  * What are the mime types allowed by admin ?
- * 
+ *
  * @param  array $allowed_file_types WordPress default
  * @uses bp_get_option() to get the choice of the admin
  * @return array the mime types allowed by admin
  */
 function buddydrive_allowed_file_types( $allowed_file_types ) {
-	
+
 	$allowed_ext = bp_get_option( '_buddydrive_allowed_extensions' );
 
 	if ( empty( $allowed_ext ) || ! is_array( $allowed_ext ) || count( $allowed_ext ) < 1 )
@@ -518,7 +527,7 @@ function buddydrive_allowed_file_types( $allowed_file_types ) {
  * Waits before checking if a 404 was a BuddyDrive file.
  *
  * @since  version 1.1
- * 
+ *
  * @uses is_404() to check it's a 404
  * @uses bp_get_root_domain() to get the blog's url where BuddyPress is running
  * @uses esc_url() to sanitize url
@@ -544,4 +553,41 @@ function buddydrive_maybe_redirect_oldlink() {
 		bp_core_redirect( $buddydrive_new_url );
 
 	}
+}
+
+/**
+ * Returns an array of upload errors
+ *
+ * @since  1.2.2
+ *
+ * Takes WordPress ones + BuddyDrive ones index 9 to 11
+ * @uses apply_filters call 'buddydrive_get_upload_error_strings' to add custom errors
+ *                     You'll need to start at index 12.
+ * @return array
+ */
+function buddydrive_get_upload_error_strings() {
+	$custom_errors = apply_filters( 'buddydrive_get_upload_error_strings', array() );
+
+	$upload_errors = array(
+		false,
+		__( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.', 'buddydrive' ),
+		__( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.', 'buddydrive' ),
+		__( 'The uploaded file was only partially uploaded.', 'buddydrive' ),
+		__( 'No file was uploaded.', 'buddydrive' ),
+		'',
+		__( 'Missing a temporary folder.', 'buddydrive' ),
+		__( 'Failed to write file to disk.', 'buddydrive' ),
+		__( 'File upload stopped by extension.', 'buddydrive' ),
+		__( 'Not enough space left to upload your file', 'buddydrive' ),
+		sprintf( __('This file is too big. Files must be less than %s MB in size.', 'buddydrive' ), buddydrive_max_upload_size() ),
+		__( 'You have used your space quota. Please delete files before uploading.', 'buddydrive' ),
+	);
+
+	if ( ! empty( $custom_errors ) && ! array_intersect_key( $upload_errors, $custom_errors ) ) {
+		foreach ( $custom_errors as $key_error => $error_message ) {
+			$upload_errors[ $key_error ] = $error_message;
+		}
+	}
+
+	return $upload_errors;
 }

@@ -7,7 +7,7 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 *
 * @package BuddyDrive
 * @since 1.0
-* 
+*
 */
 class BuddyDrive_Item {
 
@@ -20,8 +20,8 @@ class BuddyDrive_Item {
 	public $mime_type;
 	public $guid;
 	public $metas;
-	
-	
+
+
 	public function __construct( $id = 0 ){
 		if ( ! empty( $id ) ) {
 			$this->id = $id;
@@ -35,12 +35,12 @@ class BuddyDrive_Item {
 	 * @uses WP_Query
 	 */
 	public function populate() {
-		
+
 		$query_args = array(
 			'post_status'	 => 'publish',
 			'p' => intval( $this->id )
 		);
-		
+
 		$this->query = new WP_Query( $query_args );
 
 	}
@@ -64,7 +64,7 @@ class BuddyDrive_Item {
 		$this->mime_type        = apply_filters_ref_array( 'bbuddydrive_item_mime_type_before_save', array( $this->mime_type,         &$this ) );
 		$this->guid             = apply_filters_ref_array( 'bbuddydrive_item_guid_before_save',      array( $this->guid,              &$this ) );
 		$this->metas            = apply_filters_ref_array( 'buddydrive_item_metas_before_save',      array( $this->metas,             &$this ) );
-	
+
 
 		// Use this, not the filters above
 		do_action_ref_array( 'buddydrive_item_before_save', array( &$this ) );
@@ -74,7 +74,7 @@ class BuddyDrive_Item {
 
 		// If we have an existing ID, update the post, otherwise insert it.
 		if ( $this->id ) {
-			
+
 			$wp_update_post_args = array(
 				'ID'		     => $this->id,
 				'post_author'	 => $this->user_id,
@@ -89,16 +89,16 @@ class BuddyDrive_Item {
 
 			if ( ! empty( $this->metas->password ) )
 				$wp_update_post_args['post_password'] = $this->metas->password;
-			
+
 			$result = wp_update_post( $wp_update_post_args );
 
 			if ( $result ) {
-				
+
 				if ( ! empty( $this->metas->privacy ) )
 					update_post_meta( $this->id, '_buddydrive_sharing_option', $this->metas->privacy );
 				else
 					delete_post_meta( $this->id, '_buddydrive_sharing_option' );
-					
+
 				if ( ! empty( $this->metas->groups ) )
 					update_post_meta( $this->id, '_buddydrive_sharing_groups', $this->metas->groups );
 				else
@@ -116,11 +116,11 @@ class BuddyDrive_Item {
 				}
 
 				do_action_ref_array( 'buddydrive_item_after_update', array( &$this ) );
-				
-			}	
-			
+
+			}
+
 		} else {
-			
+
 			$wp_insert_post_args = array(
 				'post_author'	 => $this->user_id,
 				'post_title'	 => $this->title,
@@ -131,19 +131,19 @@ class BuddyDrive_Item {
 				'guid'           => $this->guid,
 				'post_status'	 => 'publish'
 			);
-			
+
 			if ( ! empty( $this->metas->password ) )
 				$wp_insert_post_args['post_password'] = $this->metas->password;
-				
+
 			$result = wp_insert_post( $wp_insert_post_args );
-			
+
 			if ( $result ) {
-				
+
 				$this->id = $result;
-				
+
 				if ( ! empty( $this->metas->privacy ) )
 					update_post_meta( $this->id, '_buddydrive_sharing_option', $this->metas->privacy );
-					
+
 				if ( ! empty( $this->metas->groups ) )
 					update_post_meta( $this->id, '_buddydrive_sharing_groups', $this->metas->groups );
 
@@ -154,12 +154,12 @@ class BuddyDrive_Item {
 						update_post_meta( $this->id, sanitize_key( $buddydrive_meta->cname ), $meta_value );
 					}
 				}
-				
+
 				do_action_ref_array( 'buddydrive_item_after_insert', array( &$this ) );
-				
+
 			}
-			
-			
+
+
 		}
 
 		do_action_ref_array( 'buddydrive_item_after_save', array( &$this ) );
@@ -182,7 +182,7 @@ class BuddyDrive_Item {
 	 * @uses add_query_arg()
 	 */
 	public function get( $args ) {
-		
+
 		// Only run the query once
 		if ( empty( $this->query ) ) {
 			$defaults = array(
@@ -197,16 +197,16 @@ class BuddyDrive_Item {
 				'search'            => false,
 				'buddydrive_parent' => 0,
 				'exclude'		    => false,
-				'orderby' 		    => 'title', 
+				'orderby' 		    => 'title',
 				'order'             => 'ASC'
 			);
 
 			$r = wp_parse_args( $args, $defaults );
 			extract( $r );
 
-			
+
 			$paged = ! empty( $_POST['page'] ) ? intval( $_POST['page'] ) : $paged;
-			
+
 			if ( ! empty( $id ) ){
 				$query_args = array(
 					'post_status'	 => 'publish',
@@ -215,9 +215,9 @@ class BuddyDrive_Item {
 					'posts_per_page' => $per_page,
 					'paged'		     => $paged,
 				);
-				
+
 			} else if ( ! empty( $name ) && ! empty( $type ) ) {
-				
+
 				$query_args = array(
 					'post_status'	 => 'publish',
 					'post_type'	     => $type,
@@ -225,7 +225,7 @@ class BuddyDrive_Item {
 					'posts_per_page' => $per_page,
 					'paged'		     => $paged,
 				);
-				
+
 			} else {
 
 				$query_args = array(
@@ -234,7 +234,7 @@ class BuddyDrive_Item {
 					'post_parent'    => $buddydrive_parent,
 					'posts_per_page' => $per_page,
 					'paged'		     => $paged,
-					'orderby' 		 => $orderby, 
+					'orderby' 		 => $orderby,
 					'order'          => $order,
 					'meta_query'	 => array()
 				);
@@ -244,15 +244,15 @@ class BuddyDrive_Item {
 					case 'files' :
 						if ( ! empty( $user_id ) && $user_id == bp_displayed_user_id() )
 							$query_args['author'] = $user_id;
-						
-						if ( ! bp_is_my_profile() ) {
+
+						if ( ! bp_is_my_profile() && ! bp_current_user_can( 'bp_moderate' ) ) {
 							$privacy[] = 'private';
 							/* Password protected should be displayed.. so commenting here in case user's feedback invalids this */
 							//$privacy[] = 'password';
-							
+
 							if ( bp_is_active( 'friends' ) && ! friends_check_friendship( $user_id, bp_loggedin_user_id() ) )
 								$privacy[] = 'friends';
-								
+
 							$query_args['meta_query'][] = array(
 								'key'	  => '_buddydrive_sharing_option',
 								'value'	  => $privacy,
@@ -265,7 +265,7 @@ class BuddyDrive_Item {
 					case 'friends' :
 						if ( bp_is_active( 'friends' ) ) {
 							$ids = friends_get_friend_user_ids( bp_loggedin_user_id() );
-							
+
 							if ( ! empty( $ids ) ) {
 								$query_args['author'] = implode(',', $ids);
 
@@ -282,7 +282,7 @@ class BuddyDrive_Item {
 									'compare' => '='
 								);
 							}
-							
+
 						}
 						break;
 
@@ -319,11 +319,11 @@ class BuddyDrive_Item {
 			if ( ! empty( $exclude ) ) {
 				if ( ! is_array( $exclude ) )
 					$exclude = explode( ',', $exclude );
-				
+
 				$query_args['post__not_in'] = $exclude;
 			}
 
-			
+
 			// Run the query, and store as an object property, so we can access from
 			// other methods
 			$this->query = new WP_Query( $query_args );
@@ -339,9 +339,9 @@ class BuddyDrive_Item {
 				'mid_size' => 1
 			) );
 		}
-		
+
 	}
-	
+
 
 	/**
 	 * do we have items to show ?
@@ -357,31 +357,31 @@ class BuddyDrive_Item {
 	public function the_post() {
 		return $this->query->the_post();
 	}
-	
+
 
 	/**
 	 * list BuddyDrive Files attached to a folder if any
-	 * 
+	 *
 	 * @param  int $folder_id the BuddyDrive folder id
 	 * @global object $wpdb
 	 * @return array the list of file ids
 	 */
 	public function get_buddydrive_folder_children( $folder_id = false ) {
 		global $wpdb;
-		
+
 		if ( empty( $folder_id ) )
 			return false;
-			
+
 		$folder_id = intval( $folder_id );
-			
+
 		$buddydrive_children = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_parent = %d", $folder_id ) );
 		return $buddydrive_children;
 	}
-	
+
 
 	/**
 	 * Updates the privacy of files attached to a folder
-	 * 
+	 *
 	 * @param int $folder_id the BuddyFolder id
 	 * @param object $metas  the privacy options of the folder
 	 * @uses BuddyDrive_Items::get_buddydrive_folder_children() to get the files attached to the folder
@@ -390,49 +390,49 @@ class BuddyDrive_Item {
 	public function update_children( $folder_id = false, $metas = false ) {
 		if ( empty( $folder_id ) || empty( $metas ) )
 			return false;
-			
+
 		$children = $this->get_buddydrive_folder_children( $folder_id );
-		
+
 		if ( ! empty( $children ) ) {
 			foreach( $children as $child ){
-				
+
 				if ( ! empty( $metas->privacy ) )
 					update_post_meta( $child, '_buddydrive_sharing_option', $metas->privacy );
-					
+
 				if ( ! empty( $metas->groups ) )
 					update_post_meta( $child, '_buddydrive_sharing_groups', $metas->groups );
 			}
-		}		
+		}
 	}
-	
+
 
 	/**
 	 * Retrieves some items datas for an array of BuddyDrive items
-	 * 
+	 *
 	 * @param  array  $ids the list of ids
 	 * @global object $wpdb
 	 * @return object the post_title, ID and post_type of the wanted ids
 	 */
 	public function get_buddydrive_by_ids( $ids = array() ) {
 		global $wpdb;
-		
+
 		$buddydrive_items = false;
-		
+
 		if ( ! empty( $ids ) ) {
 			$ids = (array) $ids;
-			
+
 			$in = '("' . implode( '","', $ids ) . '")';
 			$buddydrive_items = $wpdb->get_results( "SELECT ID, post_title, post_type FROM {$wpdb->base_prefix}posts WHERE ID IN {$in}");
 
 		}
-		
+
 		return $buddydrive_items;
 	}
 
 
 	/**
 	 * Deletes a list of items or all the items of a given user
-	 * 
+	 *
 	 * @param  array $ids array of BuddyDrive Item ids
 	 * @param  int $user_id the id of a user
 	 * @global object $wpdb
@@ -447,14 +447,14 @@ class BuddyDrive_Item {
 
 		$buddydrive_ids = $new_space = false;
 		$filesize = 0;
-		
+
 		if ( ! empty( $ids ) ) {
 			$ids = (array) $ids;
-			
+
 			//we need to get the children
 			$in = '("' . implode( '","', $ids ) . '")';
 			$buddydrive_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_parent IN {$in}");
-			
+
 			$buddydrive_ids = array_merge( $buddydrive_ids, $ids );
 
 		} else if ( ! empty( $user_id ) && empty( $ids ) ) {
@@ -465,13 +465,13 @@ class BuddyDrive_Item {
 
 		if ( count( $buddydrive_ids ) < 1 )
 				return false;
-				
+
 		foreach ( $buddydrive_ids as $id ){
 
 			$buddyfile = buddydrive_get_buddyfile( $id );
-			
+
 			if ( ! empty( $buddyfile ) ) {
-				
+
 				if ( empty( $user_id ) || $buddyfile->user_id != $user_id )
 					$user_id = $buddyfile->user_id;
 
@@ -480,15 +480,15 @@ class BuddyDrive_Item {
 
 					unlink( $buddyfile->path );
 				}
-				
-			}	
+
+			}
 
 			wp_delete_post( $id, true );
 
 		}
-		
+
 		if ( ! empty( $user_id ) ) {
-			
+
 			$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
 			$user_total_space = intval( $user_total_space );
 
@@ -499,9 +499,9 @@ class BuddyDrive_Item {
 
 			if ( ! empty( $ids ) )
 				update_user_meta( $user_id, '_buddydrive_total_space', $new_space );
-			
+
 		}
-		
+
 
 		return count( $buddydrive_ids );
 
@@ -510,7 +510,7 @@ class BuddyDrive_Item {
 
 	/**
 	 * Removes a BuddyDrive item from a group
-	 * 
+	 *
 	 * @param  int $item_id the BuddyDrive item if
 	 * @param  string  $new_status the privacy option to fallback
 	 * @uses delete_post_meta() to delete group meta
@@ -537,7 +537,7 @@ class BuddyDrive_Item {
 
 		return 1;
 	}
-	
+
 
 	/**
 	 * Handles the group deletion and restore a privacy to a BuddyDrive item
@@ -550,17 +550,17 @@ class BuddyDrive_Item {
 	 */
 	public function group_remove_items( $group_id = 0, $new_status = 'private' ) {
 		global $wpdb;
-		
+
 		if ( empty( $group_id ) )
 			return false;
-		
+
 		$buddydrive_in_group = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_buddydrive_sharing_groups' AND meta_value = %d", $group_id ) );
-		
+
 		foreach ( $buddydrive_in_group as $item ) {
 			delete_post_meta( $item, '_buddydrive_sharing_groups' );
 			update_post_meta( $item, '_buddydrive_sharing_option', $new_status );
 		}
-		
+
 		return true;
 	}
 
@@ -572,11 +572,11 @@ class BuddyDrive_Item {
 *
 * @package BuddyDrive
 * @since 1.0
-* 
+*
 */
 class BuddyDrive_Uploader {
 
-	
+
 	public function __construct() {
 		$this->setup_actions();
 		$this->includes();
@@ -629,9 +629,9 @@ class BuddyDrive_Uploader {
 				'dismiss'                   => __( 'Dismiss', 'buddydrive' ),
 				'crunching'                 => __( 'Crunching&hellip;', 'buddydrive' ),
 				'deleted'                   => __( 'moved to the trash.', 'buddydrive' ),
-				'error_uploading'           => __('&#8220;%s&#8221; has failed to upload.', 'buddydrive' )
+				'error_uploading'           => __( '&#8220;%s&#8221; has failed to upload.', 'buddydrive' )
 			);
-		
+
 		// get BuddyDrive specific and merge it with plupload
 		$buddydrivel10n = buddydrive_get_js_l10n();
 		$pluploadmessages = array_merge( $pluploadmessages, $buddydrivel10n );
@@ -708,12 +708,12 @@ class BuddyDrive_Uploader {
 				<label for="buddydrive-sharing-options"><?php _e( 'Define your sharing options', 'buddydrive' );?></label>
 
 				<?php buddydrive_select_sharing_options()?>
-				
+
 				<div id="buddydrive-sharing-details"></div>
 				<input type="hidden" id="buddydrive-sharing-settings" value="private">
 				<p class="buddydrive-action"><a href="#" class="next-step button"><?php _e( 'Next Step', 'buddydrive' );?></a></p>
 			</div>
-			
+
 			<?php
 			if ( is_multisite() && !is_upload_space_available() ) {
 				do_action( 'upload_ui_over_quota' );
@@ -737,9 +737,9 @@ class BuddyDrive_Uploader {
 				'url'                 => admin_url( 'admin-ajax.php', 'relative' ),
 				'flash_swf_url'       => includes_url( 'js/plupload/plupload.flash.swf' ),
 				'silverlight_xap_url' => includes_url( 'js/plupload/plupload.silverlight.xap' ),
-				'filters'             => array( 
-					array( 
-						'title'         => __( 'Allowed Files' ), 
+				'filters'             => array(
+					array(
+						'title'         => __( 'Allowed Files' ),
 						'extensions'    => '*',
 						'max_file_size' => $max_upload_size . 'b',
 					)
@@ -759,7 +759,7 @@ class BuddyDrive_Uploader {
 
 			<div id="buddydrive-third-step" class="buddydrive-step hide">
 				<label for="plupload-browse-buttons"><?php _e( 'Upload your file!', 'buddydrive' );?></label>
-				
+
 				<div id="plupload-upload-ui" class="hide-if-no-js">
 
 					<div id="drag-drop-area">
@@ -769,12 +769,12 @@ class BuddyDrive_Uploader {
 							<p class="drag-drop-buttons"><input id="plupload-browse-button" type="button" value="<?php esc_attr_e( 'Select your File', 'buddydrive' ); ?>" class="button" /></p>
 						</div>
 					</div>
-				
+
 				</div>
 
 				<p><span class="max-upload-size"><?php printf( __( 'Maximum upload file size: %d%s.', 'buddydrive' ), esc_html( $upload_size_unit ), esc_html( $sizes[$u] ) ); ?></span></p>
 				<p class="buddydrive-action"><a href="#" class="cancel-step button"><?php _e( 'Cancel', 'buddydrive' );?></a></p>
-			
+
 			</div>
 
 		</form>

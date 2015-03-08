@@ -27,35 +27,29 @@ function buddydrive_component_home_url() {
 
 /**
  * Displays a select box to help user chooses the privacy option
- * 
+ *
  * @param string $id       the id of the select box
  * @param string $selected if an option have been selected (edit form)
  * @param string $name     the name of the select boc
  * @uses selected() to activate an option if $selected is defined
- * @uses bp_is_active() to check for friends or groups component
  * @return the select box
  */
 function buddydrive_select_sharing_options( $id = 'buddydrive-sharing-options', $selected = false, $name = false ) {
 	?>
-	<select id="<?php echo $id;?>" <?php if ( ! empty( $name ) ) echo 'name="'.$name.'"';?>>
-		<option value="private" <?php selected( $selected, 'private' );?>><?php _e( 'Private', 'buddydrive' );?></option>
-		<option value="password" <?php selected( $selected, 'password' );?>><?php _e( 'Password protected', 'buddydrive' );?></option>
-		<option value="public" <?php selected( $selected, 'public' );?>><?php _e( 'Public', 'buddydrive' );?></option>
+	<select id="<?php echo esc_attr( $id );?>" <?php if ( ! empty( $name ) ) echo 'name="' . $name . '"';?>>
 
-		<?php if ( bp_is_active( 'friends' ) ):?>
-			<option value="friends" <?php selected( $selected, 'friends' );?>><?php _e( 'Friends only', 'buddydrive' );?></option>
-		<?php endif;?>
-		<?php if ( bp_is_active( 'groups' ) ):?>
-			<option value="groups" <?php selected( $selected, 'groups' );?>><?php _e( 'One of my groups', 'buddydrive' );?></option>
-		<?php endif;?>
+	<?php foreach ( (array) buddydrive_get_sharing_options() as $key => $option ) : ?>
+		<option value="<?php echo esc_attr( $key ); ?>" <?php selected( $selected, $key );?>><?php echo esc_html( $option ); ?></option>
+	<?php endforeach; ?>
+
 	</select>
 	<?php
-	
+
 }
 
 /**
  * Displays the select box to choose a folder to attach the BuddyFile to.
- * 
+ *
  * @param  int $user_id the user id
  * @param  int $selected the id of the folder in case of edit form
  * @param  string $name  the name of the select box
@@ -79,41 +73,41 @@ function buddydrive_select_folder_options( $user_id = false, $selected = false, 
 	function buddydrive_get_select_folder_options( $user_id = false, $selected = false, $name = false ) {
 		if ( empty( $user_id ) )
 			$user_id = bp_loggedin_user_id();
-			
+
 		if ( ! empty( $name ) )
 			$name = 'name="'.$name.'"';
-		
+
 		$output = __( 'No folder available', 'buddydrive' );
-		
+
 		$buddydrive_args = array(
 				'user_id'	      => $user_id,
 				'per_page'	      => false,
 				'paged'		      => false,
 				'type'            => buddydrive_get_folder_post_type()
 		);
-			
+
 		if ( buddydrive_has_items( $buddydrive_args ) ) {
-			
+
 			$output = '<select id="folders" '.$name.'>';
-			
+
 			$output .= '<option value="0" '.selected( $selected, 0, false ).'>'. __( 'Root folder', 'buddydrive' ).'</option>';
-			
+
 			while ( buddydrive_has_items() ) {
 				buddydrive_the_item();
 				$output .= '<option value="'.buddydrive_get_item_id().'" '. selected( $selected, buddydrive_get_item_id(), false ) .'>'.buddydrive_get_item_title().'</option>';
 			}
-			
+
 			$output .= '</select>';
 		}
-			
+
 		return apply_filters( 'buddydrive_get_select_folder_options', $output, $buddydrive_args );
-		
+
 	}
 
 
 /**
  * Displays a select box to choose the group to attach the BuddyDrive Item to
- * 
+ *
  * @param  int $user_id  the user id
  * @param  int $selected the group id in case of edit form
  * @param  string $name  the name of the select box
@@ -141,10 +135,10 @@ function buddydrive_select_user_group( $user_id = false, $selected = false, $nam
 		$name = ! empty( $name ) ? ' name="'.$name.'"' : false ;
 
 		$output = __( 'No group available for BuddyDrive', 'buddydrive' );
-		
+
 		if ( ! bp_is_active( 'groups' ) )
 			return $output;
-		
+
 		$user_groups = groups_get_groups( array( 'user_id' => $user_id, 'show_hidden' => true, 'per_page' => false ) );
 
 		$buddydrive_groups = false;
@@ -172,13 +166,13 @@ function buddydrive_select_user_group( $user_id = false, $selected = false, $nam
 
 /**
  * Displays the form to create a new folder
- * 
+ *
  * @uses buddydrive_select_sharing_options() to display the privacy select box
  */
 function buddydrive_folder_form() {
 	?>
 	<form class="standard-form" action="" method="post" id="buddydrive-folder-editor-form">
-		
+
 		<div id="buddyfolder-first-step">
 			<label for="buddyfolder-sharing-options"><?php _e( 'Define your sharing options', 'buddydrive' );?></label>
 			<?php buddydrive_select_sharing_options( 'buddyfolder-sharing-options' );?>
@@ -198,7 +192,7 @@ function buddydrive_folder_form() {
 
 /**
  * Displays the form to upload a new file
- * 
+ *
  * @uses BuddyDrive_Uploader() class
  */
 function buddydrive_upload_form() {
@@ -208,7 +202,7 @@ function buddydrive_upload_form() {
 
 /**
  * Displays the space a user is using with his files
- * 
+ *
  * @param  string $type    html or a diff
  * @param  int $user_id the user id
  */
@@ -218,7 +212,7 @@ function buddydrive_user_used_quota( $type = false, $user_id = false ) {
 
 	/**
 	 * Gets the space a user is using with his files
-	 * 
+	 *
 	 * @param  string $type    html or a diff
 	 * @param  int $user_id the user id
 	 * @uses bp_loggedin_user_id() to get current user id
@@ -247,7 +241,7 @@ function buddydrive_user_used_quota( $type = false, $user_id = false ) {
 
 /**
  * BuddyDrive Loop : do we have items for the query asked
- * 
+ *
  * @param  array $args the arguments of the query
  * @global object $buddydrive_template
  * @uses buddydrive_get_folder_post_type() to get BuddyFolder post type
@@ -269,7 +263,7 @@ function buddydrive_has_items( $args = '' ) {
 
 		$defaulttype = array( buddydrive_get_folder_post_type(), buddydrive_get_file_post_type() );
 		$user = $group_id = $buddyscope = false;
-		
+
 		if ( bp_displayed_user_id() )
 			$user = bp_displayed_user_id();
 
@@ -283,11 +277,11 @@ function buddydrive_has_items( $args = '' ) {
 
 		if ( bp_is_active( 'groups' ) && buddydrive_is_group() ) {
 			$group = groups_get_current_group();
-			
+
 			$group_id = $group->id;
 			$buddyscope = 'groups';
 		}
-		
+
 		/***
 		 * Set the defaults for the parameters you are accepting via the "buddydrive_has_items()"
 		 * function call
@@ -304,24 +298,24 @@ function buddydrive_has_items( $args = '' ) {
 				'search'            => false,
 				'buddydrive_parent' => 0,
 				'exclude'           => 0,
-				'orderby' 		    => 'title', 
+				'orderby' 		    => 'title',
 				'order'             => 'ASC'
 			);
-		
+
 		$r = wp_parse_args( $args, $defaults );
-		extract( $r, EXTR_SKIP );
-			
+
 		$buddydrive_template = new BuddyDrive_Item();
 
+		if ( ! empty( $search ) ) {
+			$buddydrive_template->get( array( 'per_page' => $r['per_page'], 'paged' => $r['paged'], 'type' => $r['type'], 'buddydrive_scope' => $r['buddydrive_scope'], 'search' => $r['search'], 'orderby' => $r['orderby'], 'order' => $r['order'] ) );
+		} else {
+			$buddydrive_template->get( array( 'id' => $r['id'], 'name' => $r['name'], 'group_id' => $r['group_id'], 'user_id' => $r['user_id'], 'per_page' => $r['per_page'], 'paged' => $r['paged'], 'type' => $r['type'], 'buddydrive_scope' => $r['buddydrive_scope'], 'buddydrive_parent' => $r['buddydrive_parent'], 'exclude' => $r['exclude'], 'orderby' => $r['orderby'], 'order' => $r['order'] ) );
+		}
 
-		if ( ! empty( $search ) )
-			$buddydrive_template->get( array( 'per_page' => $per_page, 'paged' => $paged, 'type' => $type, 'buddydrive_scope' => $buddydrive_scope, 'search' => $search, 'orderby' => $orderby, 'order' => $order ) );
-		else
-			$buddydrive_template->get( array( 'id' => $id, 'name' => $name, 'group_id' => $group_id, 'user_id' => $user_id, 'per_page' => $per_page, 'paged' => $paged, 'type' => $type, 'buddydrive_scope' => $buddydrive_scope, 'buddydrive_parent' => $buddydrive_parent, 'exclude' => $exclude, 'orderby' => $orderby, 'order' => $order ) );
-		
+		do_action( 'buddydrive_has_items_catch_total_count', $buddydrive_template->query->found_posts );
 	}
 
-	return $buddydrive_template->have_posts();
+	return apply_filters( 'buddydrive_has_items', $buddydrive_template->have_posts() );
 }
 
 
@@ -333,11 +327,11 @@ function buddydrive_has_items( $args = '' ) {
  */
 function buddydrive_has_more_items() {
 	global $buddydrive_template;
-	
+
 	$total_items = intval( $buddydrive_template->query->found_posts );
 	$pag_num = intval( $buddydrive_template->query->query_vars['posts_per_page'] );
 	$pag_page = intval( $buddydrive_template->query->query_vars['paged'] );
-	
+
 	$remaining_pages = floor( ( $total_items - 1 ) / ( $pag_num * $pag_page ) );
 	$has_more_items  = (int) $remaining_pages ? true : false;
 
@@ -357,7 +351,7 @@ function buddydrive_the_item() {
 
 /**
  * Displays the id of the BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_item_id() to get the item id
  */
 function buddydrive_item_id() {
@@ -372,13 +366,13 @@ function buddydrive_item_id() {
 	 */
 	function buddydrive_get_item_id() {
 		global $buddydrive_template;
-		
+
 		return $buddydrive_template->query->post->ID;
 	}
 
 /**
  * Displays the parent id of the BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_parent_item_id() to get the parent item id
  */
 function buddydrive_parent_item_id() {
@@ -393,13 +387,13 @@ function buddydrive_parent_item_id() {
 	 */
 	function buddydrive_get_parent_item_id() {
 		global $buddydrive_template;
-		
+
 		return $buddydrive_template->query->post->post_parent;
 	}
 
 /**
  * Displays the title of the BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_item_title() to get the title of the item
  */
 function buddydrive_item_title() {
@@ -414,13 +408,13 @@ function buddydrive_item_title() {
 	 */
 	function buddydrive_get_item_title() {
 		global $buddydrive_template;
-		
+
 		return apply_filters('buddydrive_get_item_title', $buddydrive_template->query->post->post_title );
 	}
 
 /**
  * Displays the description of the BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_item_description() to get the description of the item
  */
 function buddydrive_item_description() {
@@ -435,7 +429,7 @@ function buddydrive_item_description() {
 	 */
 	function buddydrive_get_item_description() {
 		global $buddydrive_template;
-		
+
 		return apply_filters( 'buddydrive_get_item_description', $buddydrive_template->query->post->post_content );
 	}
 
@@ -448,18 +442,18 @@ function buddydrive_item_description() {
  */
 function buddydrive_is_buddyfile() {
 	global $buddydrive_template;
-	
+
 	$is_buddyfile = false;
-	
+
 	if ( $buddydrive_template->query->post->post_type == buddydrive_get_file_post_type() )
 		$is_buddyfile = true;
-		
+
 	return $is_buddyfile;
 }
 
 /**
  * Displays the action link (download or open folder) of the BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_action_link() to get the action link of the item
  */
 function buddydrive_action_link() {
@@ -475,24 +469,24 @@ function buddydrive_action_link() {
 	 */
 	function buddydrive_get_action_link() {
 		global $buddydrive_template;
-		
+
 		$buddyslug = 'folder';
-		
+
 		if ( buddydrive_is_buddyfile() )
 			$buddyslug = 'file';
 
 		$slug = trailingslashit( $buddyslug.'/' . $buddydrive_template->query->post->post_name );
-			
+
 		$link = buddydrive_get_root_url() .'/'. $slug;
-		
+
 		return apply_filters( 'buddydrive_get_action_link', $link );
 	}
 
 /**
  * Displays an action link class for the BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_action_link_class() to get the action link class of the item
- */	
+ */
 function buddydrive_action_link_class() {
 	echo buddydrive_get_action_link_class();
 }
@@ -506,19 +500,19 @@ function buddydrive_action_link_class() {
 	 */
 	function buddydrive_get_action_link_class() {
 		$class = array();
-		
+
 		$class[] =  buddydrive_is_buddyfile() ? 'buddyfile' : 'buddyfolder';
-		
+
 		$class = apply_filters( 'buddydrive_get_action_link_class', $class );
-		
+
 		return implode( ' ', $class );
 	}
 
 /**
  * Displays an attribute to identify a folder or a file
- * 
+ *
  * @uses buddydrive_get_item_attribute() to get the attribute of the item
- */	
+ */
 function buddydrive_item_attribute() {
 	echo buddydrive_get_item_attribute();
 }
@@ -531,22 +525,22 @@ function buddydrive_item_attribute() {
 	 * @return string the attribute for the item
 	 */
 	function buddydrive_get_item_attribute() {
-		
+
 		$data_attr = false;
-		
+
 		if ( ! buddydrive_is_buddyfile() )
 			$data_attr = ' data-folder="'.buddydrive_get_item_id().'"';
 		else
 			$data_attr = ' data-file="'.buddydrive_get_item_id().'"';
-			
+
 		return apply_filters( 'buddydrive_get_item_attribute', $data_attr );
 	}
 
 /**
  * Displays the user id of the owner of a BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_owner_id() to get owner's id
- */	
+ */
 function buddydrive_owner_id() {
 	echo buddydrive_get_owner_id();
 }
@@ -565,9 +559,9 @@ function buddydrive_owner_id() {
 
 /**
  * Displays the avatar of the owner of a BuddyDrive item
- * 
+ *
  * @uses buddydrive_get_show_owner_avatar() to get avatar of the owner
- */	
+ */
 function buddydrive_owner_avatar() {
 	echo buddydrive_get_show_owner_avatar();
 }
@@ -580,7 +574,7 @@ function buddydrive_owner_avatar() {
 	 * @param string $height the height of the avatar
 	 * @uses buddydrive_get_owner_id() to get the user id
 	 * @uses bp_core_get_username() to get the username of the owner
-	 * @uses bp_core_fetch_avatar() to get the avatar of the owner 
+	 * @uses bp_core_fetch_avatar() to get the avatar of the owner
 	 * @return string avatar of the owner
 	 */
 	function buddydrive_get_show_owner_avatar( $user_id = false, $width = '32', $height = '32' ) {
@@ -606,9 +600,9 @@ function buddydrive_owner_avatar() {
 
 /**
  * Displays the link to the owner's home page
- * 
+ *
  * @uses buddydrive_get_owner_link() to get the link to the owner's home page
- */	
+ */
 function buddydrive_owner_link() {
 	echo buddydrive_get_owner_link();
 }
@@ -630,16 +624,16 @@ function buddydrive_owner_link() {
 
 /**
  * Displays the avatar of the group the item is attached to
- * 
+ *
  * @uses buddydrive_get_group_avatar() to get the group avatar
- */	
+ */
 function buddydrive_group_avatar() {
 	echo buddydrive_get_group_avatar();
 }
 
 	/**
 	 * Gets the group avatar the item is attached to
-	 * 
+	 *
 	 * @param  int $item_id the item id
 	 * @param  boolean $nolink  should we wrap a link to group's page
 	 * @param  string  $width   the width of the avatar
@@ -667,12 +661,12 @@ function buddydrive_group_avatar() {
 
 		if ( empty( $buddydrive_item_group_meta ) )
 			return false;
-			
+
 		if ( ! bp_is_active( 'groups' ) )
 			return false;
 
 		$group = groups_get_group( array( 'group_id' => $buddydrive_item_group_meta ) );
-		
+
 		if ( empty( $group) )
 			return false;
 
@@ -692,7 +686,7 @@ function buddydrive_group_avatar() {
 
 		if ( 'hidden' == $group->status && !groups_is_user_member( bp_loggedin_user_id(), $buddydrive_item_group_meta ) && !is_super_admin() )
 			$nolink = true;
-		
+
 		if ( ! empty( $nolink ) )
 			return $group_avatar;
 		else
@@ -703,9 +697,9 @@ function buddydrive_group_avatar() {
 
 /**
  * Displays the avatar of the owner or a checkbox
- * 
+ *
  * @uses buddydrive_get_owner_or_cb()
- */	
+ */
 function buddydrive_owner_or_cb() {
 	echo buddydrive_get_owner_or_cb();
 }
@@ -722,20 +716,20 @@ function buddydrive_owner_or_cb() {
 	 */
 	function buddydrive_get_owner_or_cb() {
 		$output = '';
-		
+
 		if ( bp_is_my_profile() && bp_current_action() == 'files' )
 			$output = '<input type="checkbox" name="buddydrive-item[]" class="buddydrive-item-cb" value="'.buddydrive_get_item_id().'">';
 		else
 			$output = '<a href="'.buddydrive_get_owner_link().'" title="'.__('Owner', 'buddydrive').'">'.buddydrive_get_show_owner_avatar().'</a>';
-			
+
 		return apply_filters( 'buddydrive_get_owner_or_cb', $output );
 	}
 
 /**
  * Displays a checkbox or a table header
- * 
+ *
  * @uses buddydrive_get_th_owner_or_cb()
- */	
+ */
 function buddydrive_th_owner_or_cb() {
 	echo buddydrive_get_th_owner_or_cb();
 }
@@ -749,26 +743,26 @@ function buddydrive_th_owner_or_cb() {
 	 */
 	function buddydrive_get_th_owner_or_cb() {
 		$output = '';
-		
+
 		if ( bp_is_my_profile() && bp_current_action() == 'files')
 			$output = '<input type="checkbox" id="buddydrive-sel-all">';
 		else
 			$output = __('Owner', 'buddydrive');
-			
+
 		return apply_filters( 'buddydrive_get_th_owner_or_cb', $output );
 	}
 
 
 /**
  * Displays the privacy of an item
- * 
+ *
  * @uses buddydrive_get_item_privacy() to get the privacy option
  * @uses buddydrive_get_group_avatar() to get the group avatar of the group the item is attached to
  * @uses buddydrive_get_item_id() to get the id of the item
  */
 function buddydrive_item_privacy() {
 	$status = buddydrive_get_item_privacy();
-	
+
 	switch ( $status['privacy'] ) {
 		case 'private' :
 			echo '<a title="'.__( 'Private', 'buddydrive' ).'"><i class="icon bd-icon-lock"></i></a>';
@@ -787,7 +781,7 @@ function buddydrive_item_privacy() {
 				echo buddydrive_get_group_avatar( buddydrive_get_item_id() );
 			else
 				_e( 'Group', 'buddydrive' );
-			break;		
+			break;
 	}
 }
 
@@ -801,16 +795,16 @@ function buddydrive_item_privacy() {
 	 */
 	function buddydrive_get_item_privacy() {
 		global $buddydrive_template;
-		
+
 		$status = array();
 		$buddyfile_id = buddydrive_get_item_id();
 		$item_privacy_id = !( empty( $buddydrive_template->query->post->post_parent ) ) ? $buddydrive_template->query->post->post_parent : $buddyfile_id ;
-		
+
 		$status['privacy'] = get_post_meta( $item_privacy_id, '_buddydrive_sharing_option', true );
-		
+
 		if ( $status['privacy'] == 'groups' )
 			$status['group'] = get_post_meta( $item_privacy_id, '_buddydrive_sharing_groups', true );
-			
+
 		return apply_filters( 'buddydrive_get_item_privacy', $status );
 	}
 
@@ -832,52 +826,52 @@ function buddydrive_item_mime_type() {
 	 */
 	function buddydrive_get_item_mime_type() {
 		global $buddydrive_template;
-		
+
 		$mime_type = __( 'folder', 'buddydrive' );
-		
+
 		if ( buddydrive_is_buddyfile() ) {
 			$doc = $buddydrive_template->query->post->guid;
 
 			$mime_type = __( 'file', 'buddydrive' );
-			
+
 			if ( preg_match( '/^.*?\.(\w+)$/', $doc, $matches ) )
 				$mime_type = esc_html( $matches[1] ) .' '. $mime_type;
 		}
-			
-		
+
+
 		return apply_filters('buddydrive_get_item_mime_type', $mime_type );
 	}
 
 /**
  * Displays an icon before the item's title
- * 
+ *
  * @uses buddydrive_get_item_icon() to get the icon
  */
 function buddydrive_item_icon() {
 	echo buddydrive_get_item_icon();
 }
-	
+
 	/**
 	 * Gets the item's icon
-	 * 
+	 *
 	 * @uses buddydrive_is_buddyfile() to check for a BuddyFile
 	 * @return string html of the icon
 	 */
 	function buddydrive_get_item_icon() {
-		
+
 		$icon = '<i class="icon bd-icon-folder"></i>';
-		
+
 		if ( buddydrive_is_buddyfile() )
 			$icon = '<i class="icon bd-icon-file"></i>';
-		
+
 		return apply_filters( 'buddydrive_get_item_icon', $icon );
-		
-		
+
+
 	}
 
 /**
  * Displays the file name of the uploaded file
- * 
+ *
  * @uses buddydrive_get_uploaded_file_name() to get it
  */
 function buddydrive_uploaded_file_name() {
@@ -892,13 +886,13 @@ function buddydrive_uploaded_file_name() {
 	 */
 	function buddydrive_get_uploaded_file_name() {
 		global $buddydrive_template;
-		
+
 		return basename( $buddydrive_template->query->post->guid );
 	}
 
 /**
  * Displays the last modified date of an item
- * 
+ *
  * @uses buddydrive_get_item_date() to get it!
  */
 function buddydrive_item_date() {
@@ -914,17 +908,17 @@ function buddydrive_item_date() {
 	 */
 	function buddydrive_get_item_date() {
 		global $buddydrive_template;
-		
+
 		$date = $buddydrive_template->query->post->post_modified_gmt;
-		
+
 		$date = bp_format_time( strtotime( $date ), true, false );
-		
+
 		return apply_filters( 'buddydrive_get_item_date', $date );
 	}
 
 /**
  * Various checks to see if a user can remove an item from a group
- * 
+ *
  * @param  int $group_id the group id
  * @uses bp_get_current_group_id() to get current group id
  * @uses buddydrive_is_group() to check we're on a group's BuddyDrive
@@ -970,7 +964,7 @@ function buddydrive_current_user_can_share() {
 
 /**
  * Checks if the user can get the link of an item
- * 
+ *
  * @param  array $privacy the sharing options
  * @uses buddydrive_get_owner_id() to get owner's id
  * @uses bp_loggedin_user_id() to get current user id
@@ -1009,7 +1003,7 @@ function buddydrive_current_user_can_link( $privacy = false ) {
 
 /**
  * Displays the link to row actions
- * 
+ *
  * @uses buddydrive_get_row_actions()
  */
 function buddydrive_row_actions() {
@@ -1119,7 +1113,7 @@ function buddydrive_item_nav() {
 	<form action="" method="get" id="buddydrive-form-filter">
 		<nav id="buddydrive-item-nav">
 			<ul>
-				
+
 				<?php do_action( 'buddydrive_member_before_toolbar' ); ?>
 
 				<?php if ( buddydrive_is_user_buddydrive() ):?>

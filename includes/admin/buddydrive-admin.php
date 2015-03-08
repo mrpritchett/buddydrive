@@ -8,7 +8,7 @@ if ( ! class_exists( 'BuddyDrive_Admin' ) ) :
  * Loads BuddyDrive plugin admin area
  *
  * Inspired by bbPress 2.3
- * 
+ *
  * @package BuddyDrive
  * @subpackage Admin
  * @since version (1.0)
@@ -38,12 +38,12 @@ class BuddyDrive_Admin {
 	 * @var string URL to the BuddyDrive admin script directory
 	 */
 	public $js_url = '';
-	
+
 	/**
 	 * @var the BuddyDrive settings page for admin or network admin
 	 */
 	public $settings_page ='';
-	
+
 	/**
 	 * @var the notice hook depending on config (multisite or not)
 	 */
@@ -143,10 +143,10 @@ class BuddyDrive_Admin {
 		// Allow plugins to modify these actions
 		do_action_ref_array( 'buddydrive_admin_loaded', array( &$this ) );
 	}
-	
+
 	/**
 	 * Builds BuddyDrive admin menus
-	 * 
+	 *
 	 * @uses bp_current_user_can() to check for user's capability
 	 * @uses add_submenu_page() to add the settings page
 	 * @uses add_menu_page() to add the admin area for BuddyDrive items
@@ -161,16 +161,16 @@ class BuddyDrive_Admin {
 
 		$this->hook_suffixes[] = add_submenu_page(
 			$this->settings_page,
-			__( 'BuddyDrive',  'buddydrive' ),
-			__( 'BuddyDrive',  'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive Settings page title', 'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive Settings menu title', 'buddydrive' ),
 			'manage_options',
 			'buddydrive',
 			'buddydrive_admin_settings'
 		);
 
 		$hook = add_menu_page(
-			__( 'BuddyDrive', 'buddydrive' ),
-			__( 'BuddyDrive', 'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive User Files Admin page title', 'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive User Files Admin menu title',  'buddydrive' ),
 			'manage_options',
 			'buddydrive-files',
 			'buddydrive_files_admin',
@@ -196,15 +196,15 @@ class BuddyDrive_Admin {
 		add_action( 'edit_user_profile',          array( $this, 'edit_user_quota'           ), 10, 1 );
 		add_action( 'edit_user_profile_update',   array( $this, 'save_user_quota'           ), 10, 1 );
 		add_action( 'set_user_role',              array( $this, 'update_user_quota_to_role' ), 10, 2 );
-		
+
 		add_filter( $this->user_columns_filter,   array( $this, 'user_quota_column' )        );
 		add_filter( 'manage_users_custom_column', array( $this, 'user_quota_row'    ), 10, 3 );
-		
+
 		if( is_multisite() ) {
 			$hook_settings = $this->hook_suffixes[0];
 			add_action( "load-$hook_settings", array( $this, 'multisite_upload_trick' ) );
 		}
-		
+
 	}
 
 	/**
@@ -232,10 +232,8 @@ class BuddyDrive_Admin {
 				font-style: normal;
 			}
 
-			body.branch-3-9 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image:before,
-			body.branch-4 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image:before,
-			body.branch-3-9 .buddydrive-profile-stats:before,
-			body.branch-4 .buddydrive-profile-stats:before {
+			body.wp-admin #adminmenu .toplevel_page_buddydrive-files .wp-menu-image:before,
+			body.wp-admin .buddydrive-profile-stats:before {
 				font-family: 'buddydrive-dashicons';
 				speak: none;
 				font-style: normal;
@@ -249,33 +247,29 @@ class BuddyDrive_Admin {
 				content:"\d001";
 			}
 
-			body.branch-3-9 .buddydrive-profile-stats:before,
-			body.branch-4 .buddydrive-profile-stats:before {
+			body.wp-admin .buddydrive-profile-stats:before {
 				font-size: 18px;
 				vertical-align: bottom;
 				margin-right: 5px;
 			}
 
-			body.branch-3-9 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image,
-			body.branch-4 #adminmenu .toplevel_page_buddydrive-files .wp-menu-image {
+			body.wp-admin #adminmenu .toplevel_page_buddydrive-files .wp-menu-image {
 				content: "";
 			}
 
 
-			body.branch-3-9 .buddydrive-badge,
-			body.branch-4 .buddydrive-badge {
+			body.wp-admin .buddydrive-badge {
 				font: normal 150px/1 'buddydrive-dashicons' !important;
 				/* Better Font Rendering =========== */
 				-webkit-font-smoothing: antialiased;
 				-moz-osx-font-smoothing: grayscale;
-				
+
 				color: #000;
 				display: inline-block;
 				content:'';
 			}
 
-			body.branch-3-9 .buddydrive-badge:before,
-			body.branch-4 .buddydrive-badge:before{
+			body.wp-admin .buddydrive-badge:before{
 				content: "\d001";
 			}
 
@@ -294,10 +288,10 @@ class BuddyDrive_Admin {
 		</style>
 		<?php
 	}
-	
+
 	/**
 	 * Creates the upload dir and htaccess file
-	 * 
+	 *
 	 * @uses buddydrive_get_upload_data() to get BuddyDrive upload datas
 	 * @uses wp_mkdir_p() to create the dir
 	 * @uses insert_with_markers() to create the htaccess file
@@ -310,23 +304,23 @@ class BuddyDrive_Admin {
 		if( !file_exists( $buddydrive_dir ) ){
 			// we first create the initial dir
 			@wp_mkdir_p( $buddydrive_dir );
-		
+
 			// then we need to check for .htaccess and eventually create it
 			if( !file_exists( $buddydrive_dir .'/.htaccess' ) ) {
-			
+
 				// Defining the rule, we need to make it unreachable and use php to reach it
 				$rules = array( 'Order Allow,Deny','Deny from all' );
-			
+
 				// creating the .htaccess file
 				insert_with_markers( $buddydrive_dir .'/.htaccess', 'Buddydrive', $rules );
 			}
-			
+
 		}
 	}
 
 	/**
 	 * Registers admin settings for BuddyDrive
-	 * 
+	 *
 	 * @uses buddydrive_admin_get_settings_sections() to get the settings section
 	 * @uses buddydrive_admin_get_settings_fields_for_section() to get the fields
 	 * @uses bp_current_user_can() to check for user's capability
@@ -367,11 +361,11 @@ class BuddyDrive_Admin {
 				register_setting( $section['page'], $field_id, $field['sanitize_callback'] );
 			}
 		}
-	} 
+	}
 
 	/**
 	 * Eqnueues scripts and styles if needed
-	 * 
+	 *
 	 * @param  string $hook the WordPress admin page
 	 * @uses wp_enqueue_style() to enqueue the style
 	 * @uses wp_enqueue_script() to enqueue the script
@@ -385,12 +379,12 @@ class BuddyDrive_Admin {
 			wp_enqueue_script ( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
 			wp_localize_script( 'buddydrive-admin-js', 'buddydrive_admin', buddydrive_get_js_l10n() );
 		}
-			
+
 	}
 
 	/**
 	 * Modifies the links in plugins table
-	 * 
+	 *
 	 * @param  array $links the existing links
 	 * @param  string $file  the file of plugins
 	 * @uses plugin_basename() to get the file name of BuddyDrive plugin
@@ -413,7 +407,7 @@ class BuddyDrive_Admin {
 
 	/**
 	 * Displays the Welcome screen
-	 * 
+	 *
 	 * @uses buddydrive_get_version() to get the current version of the plugin
 	 * @uses bp_get_admin_url() to build the url to settings page
 	 * @uses add_query_arg() to add args to the url
@@ -446,15 +440,15 @@ class BuddyDrive_Admin {
 			</div>
 
 			<div class="changelog">
-				<h2 class="about-headline-callout"><?php printf( __( 'What&#39; new in %s ?', 'buddydrive' ), $display_version ); ?></h2>
+				<h2 class="about-headline-callout"><?php printf( __( '%s is fixing some annoying issues.', 'buddydrive' ), $display_version ); ?></h2>
 
 				<div class="feature-section">
 					<ul>
-						<li><?php _e( 'Adapts to changes introduced in plupload feature by WordPress 3.9.', 'buddydrive' ); ?></li>
-						<li><?php _e( 'Enjoys the BuddyPress 2.0 wp-admin/profile to display user&#39;s BuddyDrive quota.', 'buddydrive' );?></li>
-						<li><?php _e( 'BuddyDrive&#39;s explorer now includes a select box to sort items according to their last modified date or name.', 'buddydrive' );?></li>
-						<li><?php _e( 'In BuddyDrive&#39;s groups pages, a link to the current user&#39;s BuddyDrive explorer will help him to add files to the group.', 'buddydrive' );?></li>
-						<li><?php printf( __( 'Finally version %s introduces some new filters and actions to help you customize the plugin such as replacing the default plugin&#39;s stylesheet, adding custom fields or tracking downloads.', 'buddydrive' ), $display_version );?></li>
+						<li><?php _e( 'Now Administrators can view users private files and folders on front-end.', 'buddydrive' ); ?></li>
+						<li><?php _e( 'Improves translation by allowing the mo file to be out of the plugin&#39;s directory', 'buddydrive' );?></li>
+						<li><?php _e( 'Removes accents from filename when saving a file to avoid char encoding troubles.', 'buddydrive' );?></li>
+						<li><?php _e( 'Makes sure the quota and other upload restrictions are doing their job.', 'buddydrive' );?></li>
+						<li><?php _e( 'Introduces some filters to add new upload restrictions. (for Advanced users)', 'buddydrive' );?></li>
 					</ul>
 				</div>
 			</div>
@@ -538,7 +532,7 @@ class BuddyDrive_Admin {
 					</div>
 				</div>
 			</div>
-			
+
 			<div class="changelog">
 				<div class="return-to-dashboard">
 					<a href="<?php echo $settings_url;?>" title="<?php _e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php _e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
@@ -548,7 +542,7 @@ class BuddyDrive_Admin {
 		</div>
 	<?php
 	}
-	
+
 	public function multisite_upload_trick() {
 		remove_filter( 'upload_mimes', 'check_upload_mimes' );
 		remove_filter( 'upload_size_limit', 'upload_size_limit_filter' );
@@ -558,7 +552,7 @@ class BuddyDrive_Admin {
 	 * Displays a field to customize the user's upload quota
 	 *
 	 * @since version 1.1
-	 * 
+	 *
 	 * @param  object $profileuser data about the user being edited
 	 * @global $blog_id the id of the current blog
 	 * @uses bp_get_root_blog_id() to make sure we're on the blog BuddyPress is activated on
@@ -576,7 +570,7 @@ class BuddyDrive_Admin {
 		// Bail if current user cannot edit users
 		if ( ! current_user_can( 'edit_user', $profileuser->ID ) )
 			return;
-			
+
 		$user_quota = buddydrive_get_quota_by_user_id( $profileuser->ID );
 		?>
 
@@ -602,7 +596,7 @@ class BuddyDrive_Admin {
 	 * Saves the user's quota on profile edit
 	 *
 	 * @since version 1.1
-	 * 
+	 *
 	 * @param  integer $user_id (the on being edited)
 	 * @global $wpdb the WordPress db class
 	 * @global $blog_id the id of the current blog
@@ -631,7 +625,7 @@ class BuddyDrive_Admin {
 
 		// temporarly setting old role
 		buddydrive()->old_role = $user_role;
-		
+
 
 		update_user_meta( $user_id, '_buddydrive_user_quota', intval( $_POST['_buddydrive_user_quota'] ) );
 	}
@@ -640,7 +634,7 @@ class BuddyDrive_Admin {
 	 * Updates the user quota on role changed
 	 *
 	 * @since version 1.1
-	 * 
+	 *
 	 * @param  integer $user_id the id of the user being edited
 	 * @param  string $role the new role of the user
 	 * @global $blog_id the id of the current blog
@@ -668,7 +662,7 @@ class BuddyDrive_Admin {
 			$user_quota = !empty( $option_user_quota[$role] ) ? $option_user_quota[$role] : 1000;
 		else
 			$user_quota = $option_user_quota;
-		
+
 		update_user_meta( $user_id, '_buddydrive_user_quota', $user_quota );
 	}
 
@@ -676,7 +670,7 @@ class BuddyDrive_Admin {
 	 * Adds a column to admin user listing to show drive usage
 	 *
 	 * @since version 1.1
-	 * 
+	 *
 	 * @param  array $columns the different column of the WP_List_Table
 	 * @return array the new columns
 	 */
@@ -690,7 +684,7 @@ class BuddyDrive_Admin {
 	 * Displays the row data for our new column
 	 *
 	 * @since version 1.1
-	 * 
+	 *
 	 * @param  string  $retval
 	 * @param  string  $column_name
 	 * @param  integer $user_id
@@ -698,21 +692,21 @@ class BuddyDrive_Admin {
 	 * @return string the user's drive usage
 	 */
 	public static function user_quota_row( $retval = '', $column_name = '', $user_id = 0 ) {
-		
+
 		if ( 'user_quota' === $column_name && ! empty( $user_id ) )
 			$retval = buddydrive_get_user_space_left( false, $user_id ) .'%';
 
 		// Pass retval through
 		return $retval;
 	}
-	
+
 }
 
 endif;
 
 /**
  * Launches the admin
- * 
+ *
  * @uses buddydrive()
  */
 function buddydrive_admin() {

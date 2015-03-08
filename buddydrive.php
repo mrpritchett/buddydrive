@@ -1,9 +1,9 @@
 <?php
 /*
-Plugin Name: Buddydrive
+Plugin Name: BuddyDrive
 Plugin URI: http://imathi.eu/tag/buddydrive/
 Description: A plugin to share files, the BuddyPress way!
-Version: 1.2.1
+Version: 1.2.2
 Author: imath
 Author URI: http://imathi.eu/
 License: GPLv2
@@ -22,7 +22,7 @@ if ( ! class_exists( 'BuddyDrive' ) ) :
  * Inspired by bbpress 2.3
  */
 class BuddyDrive {
-	
+
 	private $data;
 
 	private static $instance;
@@ -72,9 +72,9 @@ class BuddyDrive {
 		return self::$instance;
 	}
 
-	
+
 	private function __construct() { /* Do nothing here */ }
-	
+
 	public function __clone() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'buddydrive' ), '1.2.0' ); }
 
 	public function __wakeup() { _doing_it_wrong( __FUNCTION__, __( 'Cheatin&#8217; huh?', 'buddydrive' ), '1.2.0' ); }
@@ -104,7 +104,7 @@ class BuddyDrive {
 
 		/** Version ***********************************************************/
 
-		$this->version    = '1.2.1';
+		$this->version    = '1.2.2';
 
 		/** Paths *************************************************************/
 
@@ -123,7 +123,7 @@ class BuddyDrive {
 
 		// Languages
 		$this->lang_dir     = apply_filters( 'buddydrive_lang_dir', trailingslashit( $this->plugin_dir . 'languages' ) );
-		
+
 		// BuddyDrive slug and name
 		$this->buddydrive_slug = apply_filters( 'buddydrive_slug', 'buddydrive' );
 		$this->buddydrive_name = apply_filters( 'buddydrive_name', 'BuddyDrive' );
@@ -135,11 +135,12 @@ class BuddyDrive {
 
 		/** Misc **************************************************************/
 
-		$this->domain         = 'buddydrive';
-		$this->errors         = new WP_Error(); // Feedback
-		
+		$this->domain           = 'buddydrive';
+		$this->errors           = new WP_Error(); // Feedback
+		$this->users_file_count = array();
+
 	}
-	
+
 	/**
 	 * includes the needed files
 	 *
@@ -151,12 +152,12 @@ class BuddyDrive {
 	private function includes() {
 		require( $this->includes_dir . 'buddydrive-actions.php'         );
 		require( $this->includes_dir . 'buddydrive-functions.php'       );
-		
+
 		if( is_admin() ){
 			require( $this->includes_dir . 'admin/buddydrive-admin.php' );
 		}
 	}
-	
+
 
 	/**
 	 * It's about hooks!
@@ -171,13 +172,13 @@ class BuddyDrive {
 		// Add actions to plugin activation and deactivation hooks
 		add_action( 'activate_'   . $this->basename, 'buddydrive_activation'   );
 		add_action( 'deactivate_' . $this->basename, 'buddydrive_deactivation' );
-		
+
 		add_action( 'bp_init',    array( $this, 'load_textdomain' ), 6 );
 		add_action( 'bp_include', array( $this, 'load_component'  )    );
 
 		do_action_ref_array( 'buddydrive_after_setup_actions', array( &$this ) );
 	}
-	
+
 	/**
 	 * Loads the translation
 	 *
@@ -188,18 +189,18 @@ class BuddyDrive {
 	 */
 	public function load_textdomain() {
 		// try to get locale
-		$locale = apply_filters( 'buddydrive_load_textdomain_get_locale', get_locale() );
+		$locale = apply_filters( 'buddydrive_load_textdomain_get_locale', get_locale(), $this->domain );
+		$mofile = sprintf( '%1$s-%2$s.mo', $this->domain, $locale );
 
-		// if we found a locale, try to load .mo file
-		if ( !empty( $locale ) ) {
-			// default .mo file path
-			$mofile_default = sprintf( '%s/languages/%s-%s.mo', $this->plugin_dir, $this->domain, $locale );
-			// final filtered file path
-			$mofile = apply_filters( 'buddydrive_textdomain_mofile', $mofile_default );
-			// make sure file exists, and load it
-			if ( file_exists( $mofile ) ) {
-				load_textdomain( $this->domain, $mofile );
-			}
+		// Setup paths to a buddydrive subfolder in WP LANG DIR
+		$mofile_global = WP_LANG_DIR . '/buddydrive/' . $mofile;
+
+		// Look in global /wp-content/languages/buddydrive folder
+		if ( ! load_textdomain( $this->domain, $mofile_global ) ) {
+
+			// Look in local /wp-content/plugins/buddydrive/languages/ folder
+			// or /wp-content/languages/plugins/
+			load_plugin_textdomain( $this->domain, false, basename( $this->plugin_dir ) . '/languages' );
 		}
 	}
 
@@ -221,7 +222,7 @@ class BuddyDrive {
 
 	/**
 	 * Checks BuddyPress version
-	 * 
+	 *
 	 * @package BuddyDrive
 	 * @since 1.2.0
 	 */
@@ -235,7 +236,7 @@ class BuddyDrive {
 
 	/**
 	 * Checks if your plugin's config is similar to BuddyPress
-	 * 
+	 *
 	 * @package BuddyDrive
 	 * @since 1.2.0
 	 */
@@ -246,7 +247,7 @@ class BuddyDrive {
 		 * network_status : BuddyPress & your plugin share the same network status
 		 */
 		self::$bp_config = array(
-			'blog_status'    => false, 
+			'blog_status'    => false,
 			'network_active' => false,
 			'network_status' => true,
 			'network_admin'  => false
@@ -261,7 +262,7 @@ class BuddyDrive {
 		if ( $buddypress && get_current_blog_id() == bp_get_root_blog_id() ) {
 			self::$bp_config['blog_status'] = true;
 		}
-		
+
 		$network_plugins = get_site_option( 'active_sitewide_plugins', array() );
 
 		// No Network plugins
@@ -279,12 +280,12 @@ class BuddyDrive {
 
 		// Are they active on the network ?
 		$network_active = array_diff( $check, array_keys( $network_plugins ) );
-		
+
 		// If result is 1, your plugin is network activated
 		// and not BuddyPress or vice & versa. Config is not ok
 		if ( count( $network_active ) == 1 )
 			self::$bp_config['network_status'] = false;
-		
+
 		self::$bp_config['network_active'] = isset( $network_plugins[ $buddydrive ] );
 
 		// We need to know if the BuddyPress is network activated to choose the right
@@ -313,7 +314,7 @@ class BuddyDrive {
 
 	/**
 	 * Display a warning message to admin
-	 * 
+	 *
 	 * @package BuddyDrive
 	 * @since 1.2.0
 	 */
@@ -330,7 +331,7 @@ class BuddyDrive {
 		} else {
 			$config = self::config_check();
 		}
-		
+
 		if ( ! $config['blog_status'] ) {
 			$warnings[] = esc_html__( 'BuddyDrive requires to be activated on the blog where BuddyPress is activated.', 'buddydrive' );
 			$resolve[]  = esc_html__( 'Activate BuddyDrive on the same blog than BuddyPress', 'buddydrive' );
@@ -354,10 +355,10 @@ class BuddyDrive {
 
 				if ( $config['network_status'] && $config['blog_status']  )
 					$resolve_message .= '<li>' . esc_html__( 'Once done try to activate BuddyDrive again.', 'buddydrive' ) . '</li></ol>';
-				
+
 				$warnings[] = $resolve_message;
 			}
-			
+
 		?>
 		<div id="message" class="error">
 			<?php foreach ( $warnings as $warning ) : ?>
@@ -367,7 +368,7 @@ class BuddyDrive {
 		<?php
 		}
 	}
-	
+
 }
 
 function buddydrive() {

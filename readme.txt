@@ -3,7 +3,7 @@ Contributors: imath
 Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 3.9
-Tested up to: 4.0
+Tested up to: 4.1.1
 Stable tag: 1.2.1
 License: GPLv2
 
@@ -46,6 +46,17 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 
 == Changelog ==
 
+= 1.2.2 =
+* Now Administrators can view users private files and folders on front-end
+* Improves translation by allowing the mo file to be out of the plugin's directory
+* Fixes a notice error using the BuddyPress Group Extension API
+* Fixes a notice error when the BuddyDrive main page is displayed (eg: password form)
+* Removes accents from filename when saving a file to avoid char encoding troubles
+* Makes sure the quota and other upload restrictions are doing their job
+* Introduces some filters to add new upload restrictions
+
+== Changelog ==
+
 = 1.2.1 =
 * Fixes a problem when sharing folders in the activity stream
 * Improves translation by better localizing javascript files
@@ -75,7 +86,7 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * fixes the bug with hidden groups.
 * brings cutomizable slugs and names.
 * brings more control over users upload quota (by role or even by user).
-* adds an information in network administration users list or blog administration users list. 
+* adds an information in network administration users list or blog administration users list.
 * BuddyDrive can now be automatically activated for newly created groups.
 * tested in BuddyPress 1.8 & still requires at least version 1.7
 
@@ -85,6 +96,9 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 1.2.2 =
+As usual, backup your database before upgrading
 
 = 1.2.1 =
 As usual, backup your database before upgrading
