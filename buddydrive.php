@@ -1,6 +1,6 @@
 <?php
 /*
-Plugin Name: Buddydrive
+Plugin Name: BuddyDrive
 Plugin URI: http://imathi.eu/tag/buddydrive/
 Description: A plugin to share files, the BuddyPress way!
 Version: 1.2.2
@@ -189,18 +189,18 @@ class BuddyDrive {
 	 */
 	public function load_textdomain() {
 		// try to get locale
-		$locale = apply_filters( 'buddydrive_load_textdomain_get_locale', get_locale() );
+		$locale = apply_filters( 'buddydrive_load_textdomain_get_locale', get_locale(), $this->domain );
+		$mofile = sprintf( '%1$s-%2$s.mo', $this->domain, $locale );
 
-		// if we found a locale, try to load .mo file
-		if ( !empty( $locale ) ) {
-			// default .mo file path
-			$mofile_default = sprintf( '%s/languages/%s-%s.mo', $this->plugin_dir, $this->domain, $locale );
-			// final filtered file path
-			$mofile = apply_filters( 'buddydrive_textdomain_mofile', $mofile_default );
-			// make sure file exists, and load it
-			if ( file_exists( $mofile ) ) {
-				load_textdomain( $this->domain, $mofile );
-			}
+		// Setup paths to a buddydrive subfolder in WP LANG DIR
+		$mofile_global = WP_LANG_DIR . '/buddydrive/' . $mofile;
+
+		// Look in global /wp-content/languages/buddydrive folder
+		if ( ! load_textdomain( $this->domain, $mofile_global ) ) {
+
+			// Look in local /wp-content/plugins/buddydrive/languages/ folder
+			// or /wp-content/languages/plugins/
+			load_plugin_textdomain( $this->domain, false, basename( $this->plugin_dir ) . '/languages' );
 		}
 	}
 

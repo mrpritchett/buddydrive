@@ -161,16 +161,16 @@ class BuddyDrive_Admin {
 
 		$this->hook_suffixes[] = add_submenu_page(
 			$this->settings_page,
-			__( 'BuddyDrive',  'buddydrive' ),
-			__( 'BuddyDrive',  'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive Settings page title', 'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive Settings menu title', 'buddydrive' ),
 			'manage_options',
 			'buddydrive',
 			'buddydrive_admin_settings'
 		);
 
 		$hook = add_menu_page(
-			__( 'BuddyDrive', 'buddydrive' ),
-			__( 'BuddyDrive', 'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive User Files Admin page title', 'buddydrive' ),
+			_x( 'BuddyDrive', 'BuddyDrive User Files Admin menu title',  'buddydrive' ),
 			'manage_options',
 			'buddydrive-files',
 			'buddydrive_files_admin',
@@ -440,15 +440,15 @@ class BuddyDrive_Admin {
 			</div>
 
 			<div class="changelog">
-				<h2 class="about-headline-callout"><?php printf( __( 'What&#39; new in %s ?', 'buddydrive' ), $display_version ); ?></h2>
+				<h2 class="about-headline-callout"><?php printf( __( '%s is fixing some annoying issues.', 'buddydrive' ), $display_version ); ?></h2>
 
 				<div class="feature-section">
 					<ul>
-						<li><?php _e( 'Adapts to changes introduced in plupload feature by WordPress 3.9.', 'buddydrive' ); ?></li>
-						<li><?php _e( 'Enjoys the BuddyPress 2.0 wp-admin/profile to display user&#39;s BuddyDrive quota.', 'buddydrive' );?></li>
-						<li><?php _e( 'BuddyDrive&#39;s explorer now includes a select box to sort items according to their last modified date or name.', 'buddydrive' );?></li>
-						<li><?php _e( 'In BuddyDrive&#39;s groups pages, a link to the current user&#39;s BuddyDrive explorer will help him to add files to the group.', 'buddydrive' );?></li>
-						<li><?php printf( __( 'Finally version %s introduces some new filters and actions to help you customize the plugin such as replacing the default plugin&#39;s stylesheet, adding custom fields or tracking downloads.', 'buddydrive' ), $display_version );?></li>
+						<li><?php _e( 'Now Administrators can view users private files and folders on front-end.', 'buddydrive' ); ?></li>
+						<li><?php _e( 'Improves translation by allowing the mo file to be out of the plugin&#39;s directory', 'buddydrive' );?></li>
+						<li><?php _e( 'Removes accents from filename when saving a file to avoid char encoding troubles.', 'buddydrive' );?></li>
+						<li><?php _e( 'Makes sure the quota and other upload restrictions are doing their job.', 'buddydrive' );?></li>
+						<li><?php _e( 'Introduces some filters to add new upload restrictions. (for Advanced users)', 'buddydrive' );?></li>
 					</ul>
 				</div>
 			</div>
