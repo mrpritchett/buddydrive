@@ -31,10 +31,11 @@ function buddydrive_get_version() {
 function buddydrive_is_install() {
 	$buddydrive_version = get_option( '_buddydrive_version', '' );
 
-	if( empty( $buddydrive_version ) )
+	if ( empty( $buddydrive_version ) ) {
 		return true;
-	else
-		return false;
+	}
+	
+	return false;
 }
 
 /**
@@ -46,10 +47,11 @@ function buddydrive_is_install() {
 function buddydrive_is_update() {
 	$buddydrive_version = get_option( '_buddydrive_version', '' );
 
-	if( !empty( $buddydrive_version ) )
+	if ( ! empty( $buddydrive_version ) && version_compare( $buddydrive_version, buddydrive_get_version(), '<' ) ) {
 		return true;
-	else
-		return false;
+	}
+	
+	return false;
 }
 
 /**
@@ -443,11 +445,18 @@ function buddydrive_check_version() {
 	if ( buddydrive::bail() )
 		return;
 
-	if ( buddydrive_is_install() || version_compare( buddydrive_get_db_version(), buddydrive_get_version(), '<' ) ) {
-
-		update_option( '_buddydrive_version', buddydrive_get_version() );
-
+	if ( version_compare( buddydrive_get_db_version(), buddydrive_get_version(), '=' ) ) {
+		return;
 	}
+
+	if ( buddydrive_is_install() ) {
+		// Do installation routine
+	} else if ( buddydrive_is_update() ) {
+		// Do upgrade routine
+	}
+
+	// Finally upgrade plugin version
+	update_option( '_buddydrive_version', buddydrive_get_version() );
 }
 add_action( 'buddydrive_admin_init', 'buddydrive_check_version' );
 
