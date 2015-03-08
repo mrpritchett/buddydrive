@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Buddydrive 1.0\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/buddydrive\n"
-"POT-Creation-Date: 2015-03-08 14:51:24+00:00\n"
-"PO-Revision-Date: 2015-03-08 15:59+0100\n"
+"POT-Creation-Date: 2015-03-08 15:59:54+00:00\n"
+"PO-Revision-Date: 2015-03-08 17:00+0100\n"
 "Last-Translator: imath <mathchristo@yahoo.fr>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -442,7 +442,7 @@ msgstr[1] "%s contenus effacés."
 
 #: includes/admin/buddydrive-items.php:221
 #: includes/admin/buddydrive-settings.php:288
-#: includes/buddydrive-component.php:237 includes/buddydrive-functions.php:120
+#: includes/buddydrive-component.php:237 includes/buddydrive-functions.php:122
 msgid "BuddyDrive Files"
 msgstr "Contenus BuddyDrive"
 
@@ -738,7 +738,7 @@ msgid "Select / Unselect all"
 msgstr "Sélection / Déselection"
 
 #: includes/admin/buddydrive-settings.php:326
-#: includes/buddydrive-functions.php:146
+#: includes/buddydrive-functions.php:148
 msgid "Shared by Friends"
 msgstr "Entre amis"
 
@@ -844,7 +844,7 @@ msgstr "Aucun BuddyDossier trouvé"
 msgid "No BuddyFolders Found in Trash"
 msgstr "Aucun BuddyDossier trouvé dans la corbeille"
 
-#: includes/buddydrive-functions.php:331
+#: includes/buddydrive-functions.php:333
 msgid ""
 "BuddyDrive uses this page to manage the downloads of your buddies files, "
 "please leave it as is. It will not show in your navigation bar."
@@ -853,50 +853,50 @@ msgstr ""
 "de vos membres, merci de la maintenir en l&#39;état. Elle n&#39;apparaîtra "
 "pas dans votre navigation."
 
-#: includes/buddydrive-functions.php:564
+#: includes/buddydrive-functions.php:573
 msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini."
 msgstr ""
 "La taille du fichier excède la directive upload_max_filesize du fichier php."
 "ini"
 
-#: includes/buddydrive-functions.php:565
+#: includes/buddydrive-functions.php:574
 msgid ""
 "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in "
 "the HTML form."
 msgstr "La taille du fichier excède la taille maximum autorisée."
 
-#: includes/buddydrive-functions.php:566
+#: includes/buddydrive-functions.php:575
 msgid "The uploaded file was only partially uploaded."
 msgstr "Le fichier n&#39;a été transmis que partiellement."
 
-#: includes/buddydrive-functions.php:567
+#: includes/buddydrive-functions.php:576
 msgid "No file was uploaded."
 msgstr "Aucun fichier transmis."
 
-#: includes/buddydrive-functions.php:569
+#: includes/buddydrive-functions.php:578
 msgid "Missing a temporary folder."
 msgstr "Un dossier temporaire est manquant."
 
-#: includes/buddydrive-functions.php:570
+#: includes/buddydrive-functions.php:579
 msgid "Failed to write file to disk."
 msgstr "L&#39;écriture du fichier a échoué."
 
-#: includes/buddydrive-functions.php:571
+#: includes/buddydrive-functions.php:580
 msgid "File upload stopped by extension."
 msgstr "Transfert interrompu en raison de son extension."
 
-#: includes/buddydrive-functions.php:572
+#: includes/buddydrive-functions.php:581
 msgid "Not enough space left to upload your file"
 msgstr ""
 "Votre espace disponible n&#39;est pas suffisant pour accueillir ce fichier."
 
-#: includes/buddydrive-functions.php:573
+#: includes/buddydrive-functions.php:582
 msgid "This file is too big. Files must be less than %s MB in size."
 msgstr ""
 "Votre fichier est trop important en taille. Les fichiers doivent avoir une "
 "taille inférieure ou égale à %s MB."
 
-#: includes/buddydrive-functions.php:574
+#: includes/buddydrive-functions.php:583
 msgid "You have used your space quota. Please delete files before uploading."
 msgstr ""
 "Vous avez épuisé votre espace de stockage. Merci de supprimer des fichiers "
