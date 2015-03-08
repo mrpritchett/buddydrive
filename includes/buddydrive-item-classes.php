@@ -245,7 +245,7 @@ class BuddyDrive_Item {
 						if ( ! empty( $user_id ) && $user_id == bp_displayed_user_id() )
 							$query_args['author'] = $user_id;
 
-						if ( ! bp_is_my_profile() ) {
+						if ( ! bp_is_my_profile() && ! bp_current_user_can( 'bp_moderate' ) ) {
 							$privacy[] = 'private';
 							/* Password protected should be displayed.. so commenting here in case user's feedback invalids this */
 							//$privacy[] = 'password';

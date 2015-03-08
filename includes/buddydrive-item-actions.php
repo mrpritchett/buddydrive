@@ -45,7 +45,7 @@ add_action( 'buddydrive_enqueue_scripts', 'buddydrive_file_enqueue_scripts' );
 function buddydrive_view_add_script_data( $count = 0 ) {
 	global $wp_scripts;
 
-	if ( ! bp_is_user() || bp_is_my_profile() ) {
+	if ( ! bp_is_user() || bp_is_my_profile() || ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
 		return;
 	}
 

@@ -289,7 +289,7 @@ function buddydrive_open_buddyfolder() {
 				break;
 		}
 
-		if ( ! empty( $access ) ) {
+		if ( ! empty( $access ) || bp_current_user_can( 'bp_moderate' ) ) {
 
 			ob_start();
 			bp_get_template_part( 'buddydrive-loop' );
