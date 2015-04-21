@@ -651,7 +651,7 @@ function buddydrive_share_in_group() {
 		if ( ! empty( $group_id ) ) {
 			$group = groups_get_group( array( 'group_id' => $group_id ) );
 
-			$action  = $activity_action  = sprintf( __( '%1$s shared a %2$s Item in the group %3$s', 'buddydrive'), bp_core_get_userlink( $user_id ), buddydrive_get_name(), '<a href="' . bp_get_group_permalink( $group ) . '">' . esc_attr( $group->name ) . '</a>' );
+			$action  = $activity_action  = sprintf( __( '%1$s shared a %2$s Item in the group %3$s', 'buddydrive'), bp_core_get_userlink( $user_id ), esc_html( buddydrive_get_name() ), '<a href="' . esc_url( bp_get_group_permalink( $group ) ) . '">' . esc_html( $group->name ) . '</a>' );
 			$content = $link;
 			$args = array(
 					'user_id'   => $user_id,

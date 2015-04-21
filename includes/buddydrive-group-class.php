@@ -191,7 +191,7 @@ class BuddyDrive_Group extends BP_Group_Extension {
 		?>
 
 		<div class="buddydrive-crumbs in-group">
-			<a href="<?php buddydrive_component_home_url();?>" name="home" id="buddydrive-home" data-group="<?php echo $group_id;?>"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php _e( 'Root folder', 'buddydrive');?></span></a>
+			<a href="<?php esc_url( buddydrive_component_home_url() );?>" name="home" id="buddydrive-home" data-group="<?php echo esc_attr( $group_id );?>"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php _e( 'Root folder', 'buddydrive');?></span></a>
 
 			<?php if ( groups_is_user_member( bp_loggedin_user_id(), $group_id) ) : ?>
 				<?php buddydrive_user_buddydrive_url();?>

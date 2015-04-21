@@ -3,8 +3,8 @@ Contributors: imath
 Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 3.9
-Tested up to: 4.1.1
-Stable tag: 1.2.2
+Tested up to: 4.2
+Stable tag: 1.2.3
 License: GPLv2
 
 Share files the BuddyPress way!
@@ -45,6 +45,10 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 5. BuddyDrive settings page
 
 == Changelog ==
+
+= 1.2.3 =
+* Spanish translation, props sr_blasco
+* Make sure add_query_arg() urls are escaped.
 
 = 1.2.2 =
 * Now Administrators can view users private files and folders on front-end
@@ -94,6 +98,9 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 1.2.3 =
+As usual, backup your database before upgrading
 
 = 1.2.2 =
 As usual, backup your database before upgrading

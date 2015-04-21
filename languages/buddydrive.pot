@@ -2,9 +2,9 @@
 # This file is distributed under the same license as the BuddyDrive package.
 msgid ""
 msgstr ""
-"Project-Id-Version: BuddyDrive 1.2.2\n"
+"Project-Id-Version: BuddyDrive 1.2.3\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/buddydrive\n"
-"POT-Creation-Date: 2015-03-08 15:59:54+00:00\n"
+"POT-Creation-Date: 2015-04-20 23:55:33+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -344,14 +344,14 @@ msgstr ""
 #: includes/admin/buddydrive-items.php:310
 #: includes/admin/buddydrive-items.php:535
 #: includes/buddydrive-item-ajax.php:456
-#: includes/buddydrive-item-template.php:1143 templates/buddydrive-loop.php:22
+#: includes/buddydrive-item-template.php:1145 templates/buddydrive-loop.php:22
 #: templates/buddydrive-loop.php:54
 msgid "Name"
 msgstr ""
 
 #: includes/admin/buddydrive-items.php:314
 #: includes/buddydrive-item-ajax.php:460
-#: includes/buddydrive-item-template.php:1041
+#: includes/buddydrive-item-template.php:1043
 msgid "Description"
 msgstr ""
 
@@ -374,8 +374,8 @@ msgid "Save Changes"
 msgstr ""
 
 #: includes/admin/buddydrive-items.php:399
-#: includes/buddydrive-item-template.php:723
-#: includes/buddydrive-item-template.php:750
+#: includes/buddydrive-item-template.php:724
+#: includes/buddydrive-item-template.php:752
 msgid "Owner"
 msgstr ""
 
@@ -525,19 +525,19 @@ msgstr ""
 
 #: includes/admin/buddydrive-items.php:988
 #: includes/buddydrive-item-functions.php:634
-#: includes/buddydrive-item-template.php:768
+#: includes/buddydrive-item-template.php:770
 msgid "Private"
 msgstr ""
 
 #: includes/admin/buddydrive-items.php:992
 #: includes/buddydrive-item-functions.php:635
-#: includes/buddydrive-item-template.php:777
+#: includes/buddydrive-item-template.php:779
 msgid "Password protected"
 msgstr ""
 
 #: includes/admin/buddydrive-items.php:996
 #: includes/buddydrive-item-functions.php:636
-#: includes/buddydrive-item-template.php:771
+#: includes/buddydrive-item-template.php:773
 msgid "Public"
 msgstr ""
 
@@ -852,7 +852,7 @@ msgid "Privacy of this item rely on its parent folder"
 msgstr ""
 
 #: includes/buddydrive-item-ajax.php:506
-#: includes/buddydrive-item-template.php:1128
+#: includes/buddydrive-item-template.php:1130
 msgid "Edit Item"
 msgstr ""
 
@@ -1094,65 +1094,65 @@ msgstr ""
 msgid "User Avatar of %s"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:681
+#: includes/buddydrive-item-template.php:682
 msgid "Group logo of %d"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:774
+#: includes/buddydrive-item-template.php:776
 msgid "Friends"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:783
+#: includes/buddydrive-item-template.php:785
 msgid "Group"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:830
+#: includes/buddydrive-item-template.php:832
 msgid "folder"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:835
+#: includes/buddydrive-item-template.php:837
 msgid "file"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1051
-#: includes/buddydrive-item-template.php:1059
-#: includes/buddydrive-item-template.php:1067
-#: includes/buddydrive-item-template.php:1075
+#: includes/buddydrive-item-template.php:1053
+#: includes/buddydrive-item-template.php:1061
+#: includes/buddydrive-item-template.php:1069
+#: includes/buddydrive-item-template.php:1077
 msgid "Link"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1055
-#: includes/buddydrive-item-template.php:1063
-#: includes/buddydrive-item-template.php:1071
-#: includes/buddydrive-item-template.php:1079
+#: includes/buddydrive-item-template.php:1057
+#: includes/buddydrive-item-template.php:1065
+#: includes/buddydrive-item-template.php:1073
+#: includes/buddydrive-item-template.php:1081
 msgid "Share"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1081
+#: includes/buddydrive-item-template.php:1083
 msgid "Remove"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1101
+#: includes/buddydrive-item-template.php:1103
 msgid "Password required"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1122
+#: includes/buddydrive-item-template.php:1124
 msgid "New File"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1125
+#: includes/buddydrive-item-template.php:1127
 msgid "New Folder"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1131
+#: includes/buddydrive-item-template.php:1133
 msgid "Delete Item(s)"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1141
+#: includes/buddydrive-item-template.php:1143
 msgid "Order by:"
 msgstr ""
 
-#: includes/buddydrive-item-template.php:1144 templates/buddydrive-loop.php:22
+#: includes/buddydrive-item-template.php:1146 templates/buddydrive-loop.php:22
 #: templates/buddydrive-loop.php:54
 msgid "Last edit"
 msgstr ""

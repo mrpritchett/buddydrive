@@ -145,7 +145,7 @@ function buddydrive_admin_setting_callback_custom_section() {
 	<p><?php _e( 'Customize the slugs and names of Buddydrive!', 'buddydrive' ); ?></p>
 
 	<?php if( !empty( $page_id ) ) :?>
-		<p class="description"><?php printf( __( 'NB : to customize the name and the slug of the main directory page, you need to edit the title and permalink of its <a href="%s">WordPress page</a>', 'buddydrive' ), get_edit_post_link( $page_id ) );?></p>
+		<p class="description"><?php printf( __( 'NB : to customize the name and the slug of the main directory page, you need to edit the title and permalink of its <a href="%s">WordPress page</a>', 'buddydrive' ), esc_url( get_edit_post_link( $page_id ) ) );?></p>
 
 <?php endif;
 }
@@ -438,7 +438,7 @@ function buddydrive_admin_settings() {
 
 		<h2><?php _e( 'BuddyDrive Settings', 'buddydrive' ) ?></h2>
 
-		<form action="<?php echo $form_action;?>" method="post">
+		<form action="<?php echo esc_url( $form_action );?>" method="post">
 
 			<?php settings_fields( 'buddydrive' ); ?>
 

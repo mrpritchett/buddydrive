@@ -298,7 +298,7 @@ function buddydrive_files_admin_edit() {
 
 		<?php if ( ! empty( $item ) ) : ?>
 
-			<form action="<?php echo esc_attr( $form_url ); ?>" id="buddydrive-edit-form" method="post">
+			<form action="<?php echo esc_url( $form_url ); ?>" id="buddydrive-edit-form" method="post">
 				<div id="poststuff">
 
 					<div id="post-body" class="metabox-holder columns-<?php echo 1 == get_current_screen()->get_columns() ? '1' : '2'; ?>">
@@ -363,7 +363,7 @@ function buddydrive_admin_edit_metabox_status( $item ) {
 	<div id="submitcomment" class="submitbox">
 		<div id="major-publishing-actions">
 			<div id="delete-action">
-				<a class="submitdelete deletion" href="<?php echo wp_nonce_url( add_query_arg( 'action', 'delete', $base_url ), 'buddydrive-item-delete' ) ?>"><?php _e( 'Delete Item', 'buddydrive' ) ?></a>
+				<a class="submitdelete deletion" href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'action', 'delete', $base_url ), 'buddydrive-item-delete' ) ); ?>"><?php esc_html_e( 'Delete Item', 'buddydrive' ) ?></a>
 			</div>
 
 			<div id="publishing-action">
@@ -432,7 +432,7 @@ function buddydrive_admin_edit_metabox_privacy( $item ) {
 
 		<div class="buddydrive-privacy-section" id="buddydrive-privacy-section-options">
 			<label for="buddydrive-sharing-option"><?php _e('Item Sharing options', 'buddydrive');?></label>
-			<p><?php printf( __( "Privacy of this item rely on its parent <a href=\"%s\">folder</a>", "buddydrive"), add_query_arg( array( 'page' => 'buddydrive-files', 'bid' => $item->post_parent, 'action' => 'edit'), bp_get_admin_url( 'admin.php' ) ) );?></p>
+			<p><?php printf( __( "Privacy of this item rely on its parent <a href=\"%s\">folder</a>", "buddydrive"), esc_url( add_query_arg( array( 'page' => 'buddydrive-files', 'bid' => $item->post_parent, 'action' => 'edit'), bp_get_admin_url( 'admin.php' ) ) ) );?></p>
 		</div>
 
 	<?php endif;?>
@@ -468,10 +468,10 @@ function buddydrive_admin_edit_files_loop( $folder_id = 0, $paged = 1 ) {
 
 			<tr id="item-<?php buddydrive_item_id();?>">
 				<td>
-					<input type="checkbox" name="bid[]" class="buddydrive-item-cb" value="<?php buddydrive_item_id();?>">
+					<input type="checkbox" name="bid[]" class="buddydrive-item-cb" value="<?php esc_attr( buddydrive_item_id() );?>">
 				</td>
 				<td>
-					<?php buddydrive_item_icon();?>&nbsp;<a href="<?php buddydrive_action_link();?>" class="<?php buddydrive_action_link_class();?>" title="<?php buddydrive_item_title();?>"<?php buddydrive_item_attribute();?>><?php buddydrive_item_title();?></a>
+					<?php buddydrive_item_icon();?>&nbsp;<a href="<?php buddydrive_action_link();?>" class="<?php buddydrive_action_link_class();?>" title="<?php esc_attr( buddydrive_item_title() );?>"<?php buddydrive_item_attribute();?>><?php esc_html( buddydrive_item_title() );?></a>
 					<div class="row-actions">
 						<?php
 						$base_url = add_query_arg( array( 'bid' => buddydrive_get_item_id() ), $form_url );
@@ -479,10 +479,10 @@ function buddydrive_admin_edit_files_loop( $folder_id = 0, $paged = 1 ) {
 						$delete_url = wp_nonce_url( $base_url . "&amp;action=delete", 'buddydrive-delete' );
 						?>
 						<span class="edit">
-							<a href="<?php echo $edit_url;?>"><?php _e( 'Edit', 'buddydrive' );?></a> | 
+							<a href="<?php echo esc_url( $edit_url );?>"><?php esc_html_e( 'Edit', 'buddydrive' );?></a> | 
 						</span>
 						<span class="delete">
-							<a href="<?php echo $delete_url;?>"><?php _e( 'Delete', 'buddydrive' );?></a>
+							<a href="<?php echo esc_url( $delete_url );?>"><?php esc_html_e( 'Delete', 'buddydrive' );?></a>
 						</span>
 					</div>
 				</td>
@@ -598,8 +598,8 @@ function buddydrive_files_admin_delete(){
 
 		<p><strong><?php _e( 'This action cannot be undone.', 'buddydrive' ); ?></strong></p>
 
-		<a class="button-primary" href="<?php echo wp_nonce_url( add_query_arg( array( 'action' => 'do_delete', 'bid' => implode( ',', $bids ) ), $base_url ), 'buddydrive-delete' ) ?>"><?php _e( 'Delete Permanently', 'buddydrive' ); ?></a>
-		<a class="button" href="<?php echo esc_attr( $base_url ); ?>"><?php _e( 'Cancel', 'buddydrive' ); ?></a>
+		<a class="button-primary" href="<?php echo esc_url( wp_nonce_url( add_query_arg( array( 'action' => 'do_delete', 'bid' => implode( ',', $bids ) ), $base_url ), 'buddydrive-delete' ) ); ?>"><?php esc_html_e( 'Delete Permanently', 'buddydrive' ); ?></a>
+		<a class="button" href="<?php echo esc_url( $base_url ); ?>"><?php esc_html_e( 'Cancel', 'buddydrive' ); ?></a>
 	</div>
 
 	<?php
@@ -844,9 +844,9 @@ class BuddyDrive_List_Table extends WP_List_Table {
 	function get_views() {
 		$url_base = remove_query_arg( array( 's','orderby', 'order', 'buddydrive_type', '_wpnonce', '_wp_http_referer', 'action', 'action2', 'paged' ), $_SERVER['REQUEST_URI'] ); ?>
 		<ul class="subsubsub">
-			<li class="all"><a href="<?php echo esc_attr( esc_url( $url_base ) ); ?>" class="<?php if ( 'all' == $this->view ) echo 'current'; ?>"><?php _e( 'All', 'buddydrive' ); ?></a> |</li>
-			<li class="public"><a href="<?php echo esc_attr( esc_url( add_query_arg( 'buddydrive_type', buddydrive_get_file_post_type(), $url_base ) ) ); ?>" class="<?php if ( buddydrive_get_file_post_type() == $this->view ) echo 'current'; ?>"><?php _e( 'Files', 'buddydrive' ) ; ?></a> |</li>
-			<li class="private"><a href="<?php echo esc_attr( esc_url( add_query_arg( 'buddydrive_type', buddydrive_get_folder_post_type(), $url_base ) ) ); ?>" class="<?php if ( buddydrive_get_folder_post_type() == $this->view ) echo 'current'; ?>"><?php  _e( 'Folders', 'buddydrive' ); ?></a></li>
+			<li class="all"><a href="<?php echo esc_url( $url_base ); ?>" class="<?php if ( 'all' == $this->view ) echo 'current'; ?>"><?php _e( 'All', 'buddydrive' ); ?></a> |</li>
+			<li class="public"><a href="<?php echo esc_url( add_query_arg( 'buddydrive_type', buddydrive_get_file_post_type(), $url_base ) ); ?>" class="<?php if ( buddydrive_get_file_post_type() == $this->view ) echo 'current'; ?>"><?php _e( 'Files', 'buddydrive' ) ; ?></a> |</li>
+			<li class="private"><a href="<?php echo esc_url( add_query_arg( 'buddydrive_type', buddydrive_get_folder_post_type(), $url_base ) ); ?>" class="<?php if ( buddydrive_get_folder_post_type() == $this->view ) echo 'current'; ?>"><?php  _e( 'Folders', 'buddydrive' ); ?></a></li>
 			<?php do_action( 'buddydrive_list_table_get_views', $url_base, $this->view ); ?>
 		</ul>
 	<?php

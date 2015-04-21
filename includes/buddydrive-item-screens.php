@@ -328,7 +328,7 @@ function buddydrive_user_files_title() {
 function buddydrive_user_files_content() {
 	?>
 	<div id="buddydrive-forms">
-		<div class="buddydrive-crumbs"><a href="<?php buddydrive_component_home_url();?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php _e( 'Root folder', 'buddydrive' );?></span></a></div>
+		<div class="buddydrive-crumbs"><a href="<?php esc_url( buddydrive_component_home_url() );?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php esc_html_e( 'Root folder', 'buddydrive' );?></span></a></div>
 
 		<?php if ( buddydrive_is_user_buddydrive() ):?>
 
@@ -361,7 +361,7 @@ function buddydrive_friends_files_title() {
 function buddydrive_friends_files_content() {
 	?>
 	<div id="buddydrive-forms">
-		<div class="buddydrive-crumbs"><a href="<?php buddydrive_component_home_url();?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php _e( 'Root folder', 'buddydrive' );?></span></a></div>
+		<div class="buddydrive-crumbs"><a href="<?php esc_url( buddydrive_component_home_url() );?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php esc_html_e( 'Root folder', 'buddydrive' );?></span></a></div>
 	</div>
 
 	<?php do_action( 'buddydrive_after_member_upload_form' ); ?>

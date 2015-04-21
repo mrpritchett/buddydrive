@@ -42,7 +42,7 @@ function buddydrive_user_buddydrive_url( $linkonly = false ) {
 	if( ! empty($linkonly ) ) {
 		echo $url;
 	} else {
-		$output = apply_filters( 'buddydrive_user_buddydrive_url', '<a href="'. $url .'" title="' . __( 'Choose or add a file from my profile', 'buddydrive' ) .'" class="buddydrive-profile"><i class="icon bd-icon-newfile"></i> ' . __( 'Manage files', 'buddydrive' ) .'</a>' );
+		$output = apply_filters( 'buddydrive_user_buddydrive_url', '<a href="'. esc_url( $url ) .'" title="' . esc_attr__( 'Choose or add a file from my profile', 'buddydrive' ) .'" class="buddydrive-profile"><i class="icon bd-icon-newfile"></i> ' . esc_html__( 'Manage files', 'buddydrive' ) .'</a>' );
 		echo $output;
 	}
 
@@ -544,20 +544,20 @@ function wp_embed_handler_buddydrive( $matches, $attr, $url, $rawattr ) {
 	}
 
 	$embed = '<table style="width:auto"><tr>';
-	$embed .= '<td style="vertical-align:middle;width:60px;"><a href="'.$link.'" title="'.$title.'"><img src="'.$icon.'" alt="'.$mime_type.'" class="buddydrive-thumb"></a></td>';
-	$embed .= '<td style="vertical-align:middle"><h6 style="margin:0"><a href="'.$link.'" title="'.$title.'">'.$title.'</a></h6>';
+	$embed .= '<td style="vertical-align:middle;width:60px;"><a href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '"><img src="' . esc_url( $icon ) . '" alt="' . esc_attr( $mime_type ) . '" class="buddydrive-thumb"></a></td>';
+	$embed .= '<td style="vertical-align:middle"><h6 style="margin:0"><a href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '">' . esc_html( $title ) . '</a></h6>';
 
 	if ( ! empty( $content ) )
-		$embed .= '<p style="margin:0">'.$content.'</p>';
+		$embed .= '<p style="margin:0">'. esc_html( $content ). '</p>';
 
 	if ( $matches[1] == 'folder' ) {
 		global $buddydrive_template;
 
 		if ( buddydrive_has_items( array( 'buddydrive_parent' => $buddyfile->ID ) ) ) {
-			$filelist = '<p style="margin-top:1em;margin-bottom:0">'.__('Files included in this folder :', 'buddydrive') .'</p><ul>';
+			$filelist = '<p style="margin-top:1em;margin-bottom:0">'. esc_html__( 'Files included in this folder :', 'buddydrive' ) .'</p><ul>';
 			while ( buddydrive_has_items() ) {
 				buddydrive_the_item();
-				$filelist .= '<li><a href="'.buddydrive_get_action_link().'" title="'.buddydrive_get_item_title().'">'.buddydrive_get_item_title().'</a></li>';
+				$filelist .= '<li><a href="' . esc_url( buddydrive_get_action_link() ) . '" title="' . esc_attr( buddydrive_get_item_title() ) . '">' . esc_html( buddydrive_get_item_title() ). '</a></li>';
 			}
 			$filelist .= '</ul>';
 			$buddydrive_template = false;

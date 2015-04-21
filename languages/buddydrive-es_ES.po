@@ -2,20 +2,19 @@ msgid ""
 msgstr ""
 "Project-Id-Version: buddydrive\n"
 "Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/buddydrive\n"
-"POT-Creation-Date: 2015-03-08 15:59:54+00:00\n"
+"POT-Creation-Date: 2015-04-20 23:55:33+00:00\n"
 "PO-Revision-Date: \n"
-"Last-Translator: Fernando <fernando@sumun.net>\n"
+"Last-Translator: imath <mathchristo@yahoo.fr>\n"
 "Language-Team: \n"
+"Language: es_ES\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"Language: es_ES\n"
-"X-Generator: Poedit 1.5.7\n"
+"X-Generator: Poedit 1.7.1\n"
 
-#: buddydrive.php:78
-#: buddydrive.php:80
+#: buddydrive.php:78 buddydrive.php:80
 msgid "Cheatin&#8217; huh?"
 msgstr "¿Haciendo trampas?"
 
@@ -28,8 +27,11 @@ msgid "Upgrade BuddyPress to at least version %s"
 msgstr "Actualizar BuddyPress a la última versión %s"
 
 #: buddydrive.php:336
-msgid "BuddyDrive requires to be activated on the blog where BuddyPress is activated."
-msgstr "BuddyDrive necesita ser activado en el blog donde está activado BuddyPress."
+msgid ""
+"BuddyDrive requires to be activated on the blog where BuddyPress is "
+"activated."
+msgstr ""
+"BuddyDrive necesita ser activado en el blog donde está activado BuddyPress."
 
 #: buddydrive.php:337
 msgid "Activate BuddyDrive on the same blog than BuddyPress"
@@ -37,11 +39,16 @@ msgstr "Activar BuddyDrive en el mismo blog que BuddyPress"
 
 #: buddydrive.php:341
 msgid "BuddyDrive and BuddyPress need to share the same network configuration."
-msgstr "BuddyDrive y BuddyPress necesitan compartir la misma configuración de red."
+msgstr ""
+"BuddyDrive y BuddyPress necesitan compartir la misma configuración de red."
 
 #: buddydrive.php:342
-msgid "Make sure BuddyDrive is activated at the same level than BuddyPress on the network"
-msgstr "Asegúrate de que BuddyDrive está activado en el mismo nivel que BuddyPress en la red"
+msgid ""
+"Make sure BuddyDrive is activated at the same level than BuddyPress on the "
+"network"
+msgstr ""
+"Asegúrate de que BuddyDrive está activado en el mismo nivel que BuddyPress "
+"en la red"
 
 #: buddydrive.php:349
 msgid "deactivate"
@@ -94,44 +101,72 @@ msgid "BuddyDrive %s"
 msgstr "BuddyDrive %s"
 
 #: includes/admin/buddydrive-admin.php:422
-msgid "Thank you for upgrading to the latest version of BuddyDrive! BuddyDrive %s is ready to manage the files and folders of your buddies!"
-msgstr "¡Gracias por actualizar a la última versión de BuddyDrive! BuddyDrive %s está preparado para gestionar los archivos y carpetas de tus miembros."
+msgid ""
+"Thank you for upgrading to the latest version of BuddyDrive! BuddyDrive %s "
+"is ready to manage the files and folders of your buddies!"
+msgstr ""
+"¡Gracias por actualizar a la última versión de BuddyDrive! BuddyDrive %s "
+"está preparado para gestionar los archivos y carpetas de tus miembros."
 
 #: includes/admin/buddydrive-admin.php:432
 msgid "Share files, the BuddyPress way!"
 msgstr "Compartir archivos ¡al modo BuddyPress!"
 
 #: includes/admin/buddydrive-admin.php:436
-msgid "BuddyDrive is a BuddyPress plugin to power the management of your members files and folders. It requires version 1.7 of BuddyPress."
-msgstr "BuddyDrive es un plugin para BuddyPress que permite la gestión de archivos y carpetas de tus miembros. Requere la versión 1.7 de BuddyPress."
+msgid ""
+"BuddyDrive is a BuddyPress plugin to power the management of your members "
+"files and folders. It requires version 1.7 of BuddyPress."
+msgstr ""
+"BuddyDrive es un plugin para BuddyPress que permite la gestión de archivos y "
+"carpetas de tus miembros. Requere la versión 1.7 de BuddyPress."
 
 #: includes/admin/buddydrive-admin.php:437
-msgid "Each member of your community will get a BuddyDrive area in their member&#39;s page."
-msgstr "Cada miembro de tu comunidad tendrá un área de BuddyDrive en su página de miembro."
+msgid ""
+"Each member of your community will get a BuddyDrive area in their member&#39;"
+"s page."
+msgstr ""
+"Cada miembro de tu comunidad tendrá un área de BuddyDrive en su página de "
+"miembro."
 
 #: includes/admin/buddydrive-admin.php:443
 msgid "%s is fixing some annoying issues."
 msgstr "%s soluciona algunos molestos problemas."
 
 #: includes/admin/buddydrive-admin.php:447
-msgid "Now Administrators can view users private files and folders on front-end."
-msgstr "Ahora los Administradores pueden ver los archivos y carpetas privadas desde el front-end."
+msgid ""
+"Now Administrators can view users private files and folders on front-end."
+msgstr ""
+"Ahora los Administradores pueden ver los archivos y carpetas privadas desde "
+"el front-end."
 
 #: includes/admin/buddydrive-admin.php:448
-msgid "Improves translation by allowing the mo file to be out of the plugin&#39;s directory"
-msgstr "Mejora la traducción permitiendo que el archivo .mo esté fuera del directorio del plugin."
+msgid ""
+"Improves translation by allowing the mo file to be out of the plugin&#39;s "
+"directory"
+msgstr ""
+"Mejora la traducción permitiendo que el archivo .mo esté fuera del "
+"directorio del plugin."
 
 #: includes/admin/buddydrive-admin.php:449
-msgid "Removes accents from filename when saving a file to avoid char encoding troubles."
-msgstr "Quita alos acentos del nombre de archivo guando se guarda para evitar problemas de codificación de caracteres."
+msgid ""
+"Removes accents from filename when saving a file to avoid char encoding "
+"troubles."
+msgstr ""
+"Quita alos acentos del nombre de archivo guando se guarda para evitar "
+"problemas de codificación de caracteres."
 
 #: includes/admin/buddydrive-admin.php:450
 msgid "Makes sure the quota and other upload restrictions are doing their job."
-msgstr "Se asegura de que la cuota máxima y otras restricciones de carga hacen su trabajo."
+msgstr ""
+"Se asegura de que la cuota máxima y otras restricciones de carga hacen su "
+"trabajo."
 
 #: includes/admin/buddydrive-admin.php:451
-msgid "Introduces some filters to add new upload restrictions. (for Advanced users)"
-msgstr "Introduce algunos filtros para añadir nuevas restricciones de carga (para usuarios avanzados)"
+msgid ""
+"Introduces some filters to add new upload restrictions. (for Advanced users)"
+msgstr ""
+"Introduce algunos filtros para añadir nuevas restricciones de carga (para "
+"usuarios avanzados)"
 
 #: includes/admin/buddydrive-admin.php:457
 msgid "and always.."
@@ -146,24 +181,40 @@ msgid "It lives in the member&#39;s page just under the BuddyDrive tab."
 msgstr "Reside en la página del miembro, en la pestaña BuddyDrive."
 
 #: includes/admin/buddydrive-admin.php:463
-msgid "The BuddyDrive edit bar allows the user to manage from one unique place his content."
-msgstr "La barra de edición de BuddyDrive permite al usuario gestionar su contenido desde un único sitio"
+msgid ""
+"The BuddyDrive edit bar allows the user to manage from one unique place his "
+"content."
+msgstr ""
+"La barra de edición de BuddyDrive permite al usuario gestionar su contenido "
+"desde un único sitio"
 
 #: includes/admin/buddydrive-admin.php:464
-msgid "He can add new files, new folders, set their privacy settings, edit them and of course delete them at any time."
-msgstr "Puede añadir nuevos archivos, carpetas, establecer los ajustes de privacidad, editarlos y, por supuesto, eliminarlos en cualquier momento."
+msgid ""
+"He can add new files, new folders, set their privacy settings, edit them and "
+"of course delete them at any time."
+msgstr ""
+"Puede añadir nuevos archivos, carpetas, establecer los ajustes de "
+"privacidad, editarlos y, por supuesto, eliminarlos en cualquier momento."
 
 #: includes/admin/buddydrive-admin.php:470
 msgid "BuddyDrive Uploader"
 msgstr "Carga de archivos de BuddyDrive"
 
 #: includes/admin/buddydrive-admin.php:472
-msgid "BuddyDrive uses WordPress HTML5 uploader and do not add any third party script to handle uploads."
-msgstr "BuddyDrive usa el gestor de archivos HTML5 de WordPress y no necesita ningún script de terceros para gestionar la carga de archivos."
+msgid ""
+"BuddyDrive uses WordPress HTML5 uploader and do not add any third party "
+"script to handle uploads."
+msgstr ""
+"BuddyDrive usa el gestor de archivos HTML5 de WordPress y no necesita ningún "
+"script de terceros para gestionar la carga de archivos."
 
 #: includes/admin/buddydrive-admin.php:473
-msgid "WordPress is a fabulous tool and already knows how to deal with attachments for its content."
-msgstr "WordPress es una herramienta fabulosa y ya sabe cómo manejar los adjuntos de este contenido."
+msgid ""
+"WordPress is a fabulous tool and already knows how to deal with attachments "
+"for its content."
+msgstr ""
+"WordPress es una herramienta fabulosa y ya sabe cómo manejar los adjuntos de "
+"este contenido."
 
 #: includes/admin/buddydrive-admin.php:474
 msgid "So BuddyDrive is managing uploads, the WordPress way!"
@@ -176,15 +227,25 @@ msgstr "Carpetas de BuddyDrive"
 
 #: includes/admin/buddydrive-admin.php:486
 msgid "Using folders is a convenient way to share a list of files at once."
-msgstr "Usar carpetas es una forma adecuada de compartir una lista de archivos de una sola vez."
+msgstr ""
+"Usar carpetas es una forma adecuada de compartir una lista de archivos de "
+"una sola vez."
 
 #: includes/admin/buddydrive-admin.php:487
-msgid "Users just need to create a folder, open it an add the files of their choice to it."
-msgstr "Los usuarios sólo necesitan crear una carpeta, abrirla y añadir los archivos que quieran a ella."
+msgid ""
+"Users just need to create a folder, open it an add the files of their choice "
+"to it."
+msgstr ""
+"Los usuarios sólo necesitan crear una carpeta, abrirla y añadir los archivos "
+"que quieran a ella."
 
 #: includes/admin/buddydrive-admin.php:488
-msgid "When sharing a folder, a member actually shares the list of files that is attached to it."
-msgstr "Cuando se comparte una carpeta, un miembro comparte la lista de archivos contenidos en ella."
+msgid ""
+"When sharing a folder, a member actually shares the list of files that is "
+"attached to it."
+msgstr ""
+"Cuando se comparte una carpeta, un miembro comparte la lista de archivos "
+"contenidos en ella."
 
 #: includes/admin/buddydrive-admin.php:494
 msgid "BuddyDrive privacy options"
@@ -195,64 +256,109 @@ msgid "There are five levels of privacy for the files or folders."
 msgstr "Hay cinco niveles de privacidad para archivos y carpetas."
 
 #: includes/admin/buddydrive-admin.php:497
-msgid "Depending on your BuddyPress settings, a user can set the privacy of a BuddyDrive item to:"
-msgstr "Dependiendo de los ajustes de BuddyDrive, un usuario puede establecer la privacidad de un elemento a:"
+msgid ""
+"Depending on your BuddyPress settings, a user can set the privacy of a "
+"BuddyDrive item to:"
+msgstr ""
+"Dependiendo de los ajustes de BuddyDrive, un usuario puede establecer la "
+"privacidad de un elemento a:"
 
 #: includes/admin/buddydrive-admin.php:500
-msgid "Private: the owner of the item will be the only one to be able to download the file."
+msgid ""
+"Private: the owner of the item will be the only one to be able to download "
+"the file."
 msgstr "Privado: sólo el propietario del elemento podrá descargar el archivo."
 
 #: includes/admin/buddydrive-admin.php:501
-msgid "Password protected: a password will be required before being able to download the file."
-msgstr "Protegido por contraseña: se solicitará una contraseña para poder descargar el archivo."
+msgid ""
+"Password protected: a password will be required before being able to "
+"download the file."
+msgstr ""
+"Protegido por contraseña: se solicitará una contraseña para poder descargar "
+"el archivo."
 
 #: includes/admin/buddydrive-admin.php:502
 msgid "Public: everyone can download the file."
 msgstr "Público: cualquiera puede descargar el archivo."
 
 #: includes/admin/buddydrive-admin.php:503
-msgid "Friends only: if the BuddyPress friendship component is active, a user can restrict a download to his friends only."
-msgstr "Sólo amigos: si el componente \"Amigos\" de BuddyPress está activo, un usuario puede limitar la descarga sólo a sus amigos."
+msgid ""
+"Friends only: if the BuddyPress friendship component is active, a user can "
+"restrict a download to his friends only."
+msgstr ""
+"Sólo amigos: si el componente \"Amigos\" de BuddyPress está activo, un "
+"usuario puede limitar la descarga sólo a sus amigos."
 
 #: includes/admin/buddydrive-admin.php:504
-msgid "One of the user&#39;s group: if the BuddyPress user groups component is active, and if the administrator of the group enabled BuddyDrive, a user can restrict the download to members of the group only."
-msgstr "Uno de los grupos de usuarios: si el componente \"Grupos\" de BuddyPress está activo, y si el administrador del grupo activó BuddyDrive, un usuario puede restringir la descarga a miembros del grupo sólamente."
+msgid ""
+"One of the user&#39;s group: if the BuddyPress user groups component is "
+"active, and if the administrator of the group enabled BuddyDrive, a user can "
+"restrict the download to members of the group only."
+msgstr ""
+"Uno de los grupos de usuarios: si el componente \"Grupos\" de BuddyPress "
+"está activo, y si el administrador del grupo activó BuddyDrive, un usuario "
+"puede restringir la descarga a miembros del grupo sólamente."
 
 #: includes/admin/buddydrive-admin.php:513
 msgid "Sharing BuddyDrive items"
 msgstr "Compartir elementos de BuddyDrive"
 
 #: includes/admin/buddydrive-admin.php:515
-msgid "Depending on the privacy option of an item and the activated BuddyPress components, a user can :"
-msgstr "Dependiendo de la opción de privacidad de un elemento y de los componentes de BuddyPress activos, un usuario puede:"
+msgid ""
+"Depending on the privacy option of an item and the activated BuddyPress "
+"components, a user can :"
+msgstr ""
+"Dependiendo de la opción de privacidad de un elemento y de los componentes "
+"de BuddyPress activos, un usuario puede:"
 
 #: includes/admin/buddydrive-admin.php:518
 msgid "Share a public BuddyDrive item in his personal activity."
 msgstr "Compartir un elemento BuddyDrive en su actividad personal."
 
 #: includes/admin/buddydrive-admin.php:519
-msgid "Share a password protected item using the private messaging BuddyPress component."
-msgstr "Compartir un elemento protegido por contraseña usando el componente \"Mensajería Privada\" de BuddyPress."
+msgid ""
+"Share a password protected item using the private messaging BuddyPress "
+"component."
+msgstr ""
+"Compartir un elemento protegido por contraseña usando el componente "
+"\"Mensajería Privada\" de BuddyPress."
 
 #: includes/admin/buddydrive-admin.php:520
-msgid "Alert his friends he shared a new item using the private messaging BuddyPress component."
-msgstr "Avisar a sus amigos de que ha compartido un nuevo elemento usando el componente de mensajería privada de BuddyPress."
+msgid ""
+"Alert his friends he shared a new item using the private messaging "
+"BuddyPress component."
+msgstr ""
+"Avisar a sus amigos de que ha compartido un nuevo elemento usando el "
+"componente de mensajería privada de BuddyPress."
 
 #: includes/admin/buddydrive-admin.php:521
-msgid "Share his file in a group activity to inform the other members of the group."
-msgstr "Compartir su archivo en la actividad de un grupo para informar al resto de miembro del grupo."
+msgid ""
+"Share his file in a group activity to inform the other members of the group."
+msgstr ""
+"Compartir su archivo en la actividad de un grupo para informar al resto de "
+"miembro del grupo."
 
 #: includes/admin/buddydrive-admin.php:522
-msgid "Copy the link to his item and paste it anywhere in the blog or in a child blog (in case of a multisite configuration). This link will automatically be converted into a nice piece of html."
-msgstr "Copiar el enlace a su elemento y pegarlo en cualquier sitio en el blog o en un blog \"hijo\" (en caso de una configuración Multisitio). Este enlace se convertirá automáticamente en una bonito pedazo de html."
+msgid ""
+"Copy the link to his item and paste it anywhere in the blog or in a child "
+"blog (in case of a multisite configuration). This link will automatically be "
+"converted into a nice piece of html."
+msgstr ""
+"Copiar el enlace a su elemento y pegarlo en cualquier sitio en el blog o en "
+"un blog \"hijo\" (en caso de una configuración Multisitio). Este enlace se "
+"convertirá automáticamente en una bonito pedazo de html."
 
 #: includes/admin/buddydrive-admin.php:527
 msgid "Supervising BuddyDrive"
 msgstr "Supervisando BuddyDrive"
 
 #: includes/admin/buddydrive-admin.php:529
-msgid "The administrator of the community can manage all BuddyDrive items from the backend of WordPress."
-msgstr "El administrador de la comunidad puede gestionar todos los elementos BuddyDrive desde el panel de control de WordPress"
+msgid ""
+"The administrator of the community can manage all BuddyDrive items from the "
+"backend of WordPress."
+msgstr ""
+"El administrador de la comunidad puede gestionar todos los elementos "
+"BuddyDrive desde el panel de control de WordPress"
 
 #: includes/admin/buddydrive-admin.php:538
 msgid "Configure BuddyDrive"
@@ -286,12 +392,25 @@ msgid "Overview"
 msgstr "Resúmen"
 
 #: includes/admin/buddydrive-items.php:84
-msgid "This page is a convenient way to edit the details associated with one of your file or folder."
-msgstr "Esta página es una forma cómoda de editar los detalles asociados a uno de tus archivos o carpetas."
+msgid ""
+"This page is a convenient way to edit the details associated with one of "
+"your file or folder."
+msgstr ""
+"Esta página es una forma cómoda de editar los detalles asociados a uno de "
+"tus archivos o carpetas."
 
 #: includes/admin/buddydrive-items.php:85
-msgid "The Name and Description box is fixed in place, but you can reposition all the other boxes using drag and drop, and can minimize or expand them by clicking the title bar of each box. Use the Screen Options tab to hide or unhide, or to choose a 1- or 2-column layout for this screen."
-msgstr "Los bloques de Nombre y Descripción están fijos, pero puedes reposicionar los otros bloques arrastrándolos, y puedes minimizarlos o expandirlos haciendo click en la barra de título de cada bloque. Usa la pestaña Opciones de Pantalla para ocultar o mostrar, o para elegir una distribución en 1 o 2 columnas para esta pantalla."
+msgid ""
+"The Name and Description box is fixed in place, but you can reposition all "
+"the other boxes using drag and drop, and can minimize or expand them by "
+"clicking the title bar of each box. Use the Screen Options tab to hide or "
+"unhide, or to choose a 1- or 2-column layout for this screen."
+msgstr ""
+"Los bloques de Nombre y Descripción están fijos, pero puedes reposicionar "
+"los otros bloques arrastrándolos, y puedes minimizarlos o expandirlos "
+"haciendo click en la barra de título de cada bloque. Usa la pestaña Opciones "
+"de Pantalla para ocultar o mostrar, o para elegir una distribución en 1 o 2 "
+"columnas para esta pantalla."
 
 #: includes/admin/buddydrive-items.php:89
 msgctxt "buddydrive-item admin edit screen"
@@ -316,8 +435,7 @@ msgstr[1] "Se han borrado %s elementos permanentemente"
 
 #: includes/admin/buddydrive-items.php:221
 #: includes/admin/buddydrive-settings.php:288
-#: includes/buddydrive-component.php:237
-#: includes/buddydrive-functions.php:122
+#: includes/buddydrive-component.php:237 includes/buddydrive-functions.php:122
 msgid "BuddyDrive Files"
 msgstr "Archivos de BuddyDrive"
 
@@ -348,15 +466,14 @@ msgstr "Nombre y descripción"
 #: includes/admin/buddydrive-items.php:310
 #: includes/admin/buddydrive-items.php:535
 #: includes/buddydrive-item-ajax.php:456
-#: includes/buddydrive-item-template.php:1143
-#: templates/buddydrive-loop.php:22
+#: includes/buddydrive-item-template.php:1145 templates/buddydrive-loop.php:22
 #: templates/buddydrive-loop.php:54
 msgid "Name"
 msgstr "Nombre"
 
 #: includes/admin/buddydrive-items.php:314
 #: includes/buddydrive-item-ajax.php:460
-#: includes/buddydrive-item-template.php:1041
+#: includes/buddydrive-item-template.php:1043
 msgid "Description"
 msgstr "Descripción"
 
@@ -367,7 +484,9 @@ msgstr "140 caracteres como máximo"
 
 #: includes/admin/buddydrive-items.php:341
 msgid "No item found with this ID. <a href=\"%s\">Go back and try again</a>."
-msgstr "No se han encontrado elementos con este identificador. <a href=\"%s\">Volver e intentar otra vez</a>."
+msgstr ""
+"No se han encontrado elementos con este identificador. <a href=\"%s\">Volver "
+"e intentar otra vez</a>."
 
 #: includes/admin/buddydrive-items.php:366
 msgid "Delete Item"
@@ -379,8 +498,8 @@ msgid "Save Changes"
 msgstr "Guardar cambios"
 
 #: includes/admin/buddydrive-items.php:399
-#: includes/buddydrive-item-template.php:723
-#: includes/buddydrive-item-template.php:750
+#: includes/buddydrive-item-template.php:724
+#: includes/buddydrive-item-template.php:752
 msgid "Owner"
 msgstr "Propietario"
 
@@ -427,8 +546,7 @@ msgstr "Editar"
 msgid "Delete"
 msgstr "Borrar"
 
-#: includes/admin/buddydrive-items.php:502
-#: templates/buddydrive-loop.php:37
+#: includes/admin/buddydrive-items.php:502 templates/buddydrive-loop.php:37
 msgid "Load More"
 msgstr "Cargar más"
 
@@ -449,8 +567,12 @@ msgid "Last Edit"
 msgstr "Última edición"
 
 #: includes/admin/buddydrive-items.php:544
-msgid "The item displayed is a file, the list of files is only available for a folder"
-msgstr "El elemento mostrado es un archivo, la lista de archivos sólo está disponible para una carpeta"
+msgid ""
+"The item displayed is a file, the list of files is only available for a "
+"folder"
+msgstr ""
+"El elemento mostrado es un archivo, la lista de archivos sólo está "
+"disponible para una carpeta"
 
 #: includes/admin/buddydrive-items.php:585
 msgid "Delete Items"
@@ -531,19 +653,19 @@ msgstr "Descargar"
 
 #: includes/admin/buddydrive-items.php:988
 #: includes/buddydrive-item-functions.php:634
-#: includes/buddydrive-item-template.php:768
+#: includes/buddydrive-item-template.php:770
 msgid "Private"
 msgstr "Privado"
 
 #: includes/admin/buddydrive-items.php:992
 #: includes/buddydrive-item-functions.php:635
-#: includes/buddydrive-item-template.php:777
+#: includes/buddydrive-item-template.php:779
 msgid "Password protected"
 msgstr "Protegido por contraseña"
 
 #: includes/admin/buddydrive-items.php:996
 #: includes/buddydrive-item-functions.php:636
-#: includes/buddydrive-item-template.php:771
+#: includes/buddydrive-item-template.php:773
 msgid "Public"
 msgstr "Público"
 
@@ -597,8 +719,13 @@ msgid "Customize the slugs and names of Buddydrive!"
 msgstr "¡Personaliza los slugs y nombre de BuddyDrive!"
 
 #: includes/admin/buddydrive-settings.php:148
-msgid "NB : to customize the name and the slug of the main directory page, you need to edit the title and permalink of its <a href=\"%s\">WordPress page</a>"
-msgstr "NOTA: para personalizar el nombre y el slug de la página del directorio principal, tienes que editar el título y el permalink de su <a href=\"%s\">página de WordPress</a>"
+msgid ""
+"NB : to customize the name and the slug of the main directory page, you need "
+"to edit the title and permalink of its <a href=\"%s\">WordPress page</a>"
+msgstr ""
+"NOTA: para personalizar el nombre y el slug de la página del directorio "
+"principal, tienes que editar el título y el permalink de su <a href=\"%s"
+"\">página de WordPress</a>"
 
 #: includes/admin/buddydrive-settings.php:238
 msgid "Select / Unselect all"
@@ -633,8 +760,7 @@ msgstr "%s <span class=\"count\">%d</span>"
 msgid "BuddyFiles"
 msgstr "Archivos"
 
-#: includes/buddydrive-component.php:236
-#: includes/buddydrive-component.php:239
+#: includes/buddydrive-component.php:236 includes/buddydrive-component.php:239
 #: includes/buddydrive-component.php:251
 msgid "BuddyFile"
 msgstr "Archivo"
@@ -643,8 +769,7 @@ msgstr "Archivo"
 msgid "All BuddyFiles"
 msgstr "Todos los archivos"
 
-#: includes/buddydrive-component.php:240
-#: includes/buddydrive-component.php:241
+#: includes/buddydrive-component.php:240 includes/buddydrive-component.php:241
 msgid "Add New BuddyFile"
 msgstr "Añadir nuevo archivo"
 
@@ -676,8 +801,7 @@ msgstr "No se han encontrado Archivos Buddy en la Papelera"
 msgid "BuddyFolders"
 msgstr "Carpetas"
 
-#: includes/buddydrive-component.php:266
-#: includes/buddydrive-component.php:269
+#: includes/buddydrive-component.php:266 includes/buddydrive-component.php:269
 #: includes/buddydrive-component.php:281
 msgid "BuddyFolder"
 msgstr "Carpeta"
@@ -686,8 +810,7 @@ msgstr "Carpeta"
 msgid "All BuddyFolders"
 msgstr "Todas las carpetas"
 
-#: includes/buddydrive-component.php:270
-#: includes/buddydrive-component.php:271
+#: includes/buddydrive-component.php:270 includes/buddydrive-component.php:271
 msgid "Add New BuddyFolder"
 msgstr "Añadir nueva Carpeta"
 
@@ -716,16 +839,24 @@ msgid "No BuddyFolders Found in Trash"
 msgstr "No se han encontrado Carpetas Buddy en la Papaelera"
 
 #: includes/buddydrive-functions.php:333
-msgid "BuddyDrive uses this page to manage the downloads of your buddies files, please leave it as is. It will not show in your navigation bar."
-msgstr "BuddyDrive usa esta página para gestionar las descargas de tus archivos, por favor déjala como está. No se mostrará en tu barra de navegación."
+msgid ""
+"BuddyDrive uses this page to manage the downloads of your buddies files, "
+"please leave it as is. It will not show in your navigation bar."
+msgstr ""
+"BuddyDrive usa esta página para gestionar las descargas de tus archivos, por "
+"favor déjala como está. No se mostrará en tu barra de navegación."
 
 #: includes/buddydrive-functions.php:573
 msgid "The uploaded file exceeds the upload_max_filesize directive in php.ini."
 msgstr "El archivo subido excede la directiva upload_max_filesize en php.ini."
 
 #: includes/buddydrive-functions.php:574
-msgid "The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form."
-msgstr "El archivo subido excede la directiva MAX_FILE_SIZE especificada en el formulario HTML."
+msgid ""
+"The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in "
+"the HTML form."
+msgstr ""
+"El archivo subido excede la directiva MAX_FILE_SIZE especificada en el "
+"formulario HTML."
 
 #: includes/buddydrive-functions.php:575
 msgid "The uploaded file was only partially uploaded."
@@ -753,11 +884,14 @@ msgstr "No hay suficiente espacio para cargar el archivo."
 
 #: includes/buddydrive-functions.php:582
 msgid "This file is too big. Files must be less than %s MB in size."
-msgstr "Este archivo es demasiado grande. Los archivos deben tener menos de %s MB."
+msgstr ""
+"Este archivo es demasiado grande. Los archivos deben tener menos de %s MB."
 
 #: includes/buddydrive-functions.php:583
 msgid "You have used your space quota. Please delete files before uploading."
-msgstr "Has usado todo tu espacio disponible. Por favor, borra archivos antes de subir más."
+msgstr ""
+"Has usado todo tu espacio disponible. Por favor, borra archivos antes de "
+"subir más."
 
 #: includes/buddydrive-group-class.php:86
 #: includes/buddydrive-group-class.php:89
@@ -766,7 +900,8 @@ msgstr "ajustes"
 
 #: includes/buddydrive-group-class.php:90
 msgid "Allow members of this group to share their folders or files."
-msgstr "Permitir a los miembros de este grupo compartir sus carpetas y archivos."
+msgstr ""
+"Permitir a los miembros de este grupo compartir sus carpetas y archivos."
 
 #: includes/buddydrive-group-class.php:94
 msgid "Activate %s"
@@ -810,7 +945,9 @@ msgstr "Debes ser amigo de este miembro para descargar el archivo"
 #: includes/buddydrive-item-actions.php:186
 #: includes/buddydrive-item-ajax.php:633
 msgid "Group component is deactivated, please contact the administrator."
-msgstr "El componente Grupos está desactivado, por favor contacta con el administrador"
+msgstr ""
+"El componente Grupos está desactivado, por favor contacta con el "
+"administrador"
 
 #: includes/buddydrive-item-actions.php:201
 msgid "You must be member of the group to download the file"
@@ -862,14 +999,12 @@ msgid "Privacy of this item rely on its parent folder"
 msgstr "La privacidad de este elemento reside en su carpeta"
 
 #: includes/buddydrive-item-ajax.php:506
-#: includes/buddydrive-item-template.php:1128
+#: includes/buddydrive-item-template.php:1130
 msgid "Edit Item"
 msgstr "Editar elemento"
 
-#: includes/buddydrive-item-ajax.php:628
-#: includes/buddydrive-item-ajax.php:672
-#: includes/buddydrive-item-ajax.php:704
-#: includes/buddydrive-item-ajax.php:740
+#: includes/buddydrive-item-ajax.php:628 includes/buddydrive-item-ajax.php:672
+#: includes/buddydrive-item-ajax.php:704 includes/buddydrive-item-ajax.php:740
 msgid "this is embarassing, it did not work :("
 msgstr "lo sentimos, no ha funcionado"
 
@@ -878,8 +1013,11 @@ msgid "%1$s shared a %2$s Item in the group %3$s"
 msgstr "%1$s ha compartido un elemento %2$s el el grupo %3$s"
 
 #: includes/buddydrive-item-ajax.php:719
-msgid "We could not find your BuddyDrive item or its privacy is not set to public"
-msgstr "No hemos podido encontrar el archivo o su privacidad no está establecida en Público"
+msgid ""
+"We could not find your BuddyDrive item or its privacy is not set to public"
+msgstr ""
+"No hemos podido encontrar el archivo o su privacidad no está establecida en "
+"Público"
 
 #: includes/buddydrive-item-ajax.php:723
 msgid "%1$s shared a %2$s Item"
@@ -918,8 +1056,11 @@ msgid "An error occurred in the upload. Please try again later."
 msgstr "Ha ocurrido un error en la subida. Por favor, inténtalo más tarde."
 
 #: includes/buddydrive-item-classes.php:619
-msgid "There was a configuration error. Please contact the server administrator."
-msgstr "Hubo un error en la configuración. Por favor, contacta con el administrador del servidor."
+msgid ""
+"There was a configuration error. Please contact the server administrator."
+msgstr ""
+"Hubo un error en la configuración. Por favor, contacta con el administrador "
+"del servidor."
 
 #: includes/buddydrive-item-classes.php:620
 msgid "You may only upload 1 file."
@@ -938,8 +1079,12 @@ msgid "Please try uploading this file with the %1$sbrowser uploader%2$s."
 msgstr "Por favor, intenta subir el archivo %1$scon el navegador%2$s."
 
 #: includes/buddydrive-item-classes.php:624
-msgid "%s exceeds the maximum upload size for the multi-file uploader when used in your browser."
-msgstr "%s excede el tamaño máximo de subida para el cargador multi-archivo usado en tu navegador."
+msgid ""
+"%s exceeds the maximum upload size for the multi-file uploader when used in "
+"your browser."
+msgstr ""
+"%s excede el tamaño máximo de subida para el cargador multi-archivo usado en "
+"tu navegador."
 
 #: includes/buddydrive-item-classes.php:625
 msgid "IO error."
@@ -970,8 +1115,14 @@ msgid "&#8220;%s&#8221; has failed to upload."
 msgstr "&#8220;%s&#8221; ha fallado en la subida."
 
 #: includes/buddydrive-item-classes.php:656
-msgid "The web browser on your device cannot be used to upload files. You may be able to use the <a href=\"http://wordpress.org/extend/mobile/\">native app for your device</a> instead."
-msgstr "El navegador de tu dispositivo no se puede usar para subir archivos. Deberías poder usar en su lugar la <a href=\"http://wordpress.org/extend/mobile/\">aplicación nativa para tu dispositivo</a>."
+msgid ""
+"The web browser on your device cannot be used to upload files. You may be "
+"able to use the <a href=\"http://wordpress.org/extend/mobile/\">native app "
+"for your device</a> instead."
+msgstr ""
+"El navegador de tu dispositivo no se puede usar para subir archivos. "
+"Deberías poder usar en su lugar la <a href=\"http://wordpress.org/extend/"
+"mobile/\">aplicación nativa para tu dispositivo</a>."
 
 #: includes/buddydrive-item-classes.php:691
 msgid "Describe your file"
@@ -1106,77 +1257,74 @@ msgstr "<span id=\"buddy-quota\">%s</span>&#37; usado"
 msgid "User Avatar of %s"
 msgstr "Imagen del usuario %s"
 
-#: includes/buddydrive-item-template.php:681
+#: includes/buddydrive-item-template.php:682
 msgid "Group logo of %d"
 msgstr "Icono del grupo %d"
 
-#: includes/buddydrive-item-template.php:774
+#: includes/buddydrive-item-template.php:776
 msgid "Friends"
 msgstr "Amigos"
 
-#: includes/buddydrive-item-template.php:783
+#: includes/buddydrive-item-template.php:785
 msgid "Group"
 msgstr "Grupo"
 
-#: includes/buddydrive-item-template.php:830
+#: includes/buddydrive-item-template.php:832
 msgid "folder"
 msgstr "carpeta"
 
-#: includes/buddydrive-item-template.php:835
+#: includes/buddydrive-item-template.php:837
 msgid "file"
 msgstr "archivo"
 
-#: includes/buddydrive-item-template.php:1051
-#: includes/buddydrive-item-template.php:1059
-#: includes/buddydrive-item-template.php:1067
-#: includes/buddydrive-item-template.php:1075
+#: includes/buddydrive-item-template.php:1053
+#: includes/buddydrive-item-template.php:1061
+#: includes/buddydrive-item-template.php:1069
+#: includes/buddydrive-item-template.php:1077
 msgid "Link"
 msgstr "Enlace"
 
-#: includes/buddydrive-item-template.php:1055
-#: includes/buddydrive-item-template.php:1063
-#: includes/buddydrive-item-template.php:1071
-#: includes/buddydrive-item-template.php:1079
+#: includes/buddydrive-item-template.php:1057
+#: includes/buddydrive-item-template.php:1065
+#: includes/buddydrive-item-template.php:1073
+#: includes/buddydrive-item-template.php:1081
 msgid "Share"
 msgstr "Compartir"
 
-#: includes/buddydrive-item-template.php:1081
+#: includes/buddydrive-item-template.php:1083
 msgid "Remove"
 msgstr "Eliminar"
 
-#: includes/buddydrive-item-template.php:1101
+#: includes/buddydrive-item-template.php:1103
 msgid "Password required"
 msgstr "Contraseña requerida"
 
-#: includes/buddydrive-item-template.php:1122
+#: includes/buddydrive-item-template.php:1124
 msgid "New File"
 msgstr "Nuevo Archivo"
 
-#: includes/buddydrive-item-template.php:1125
+#: includes/buddydrive-item-template.php:1127
 msgid "New Folder"
 msgstr "Nueva Carpeta"
 
-#: includes/buddydrive-item-template.php:1131
+#: includes/buddydrive-item-template.php:1133
 msgid "Delete Item(s)"
 msgstr "Borrar elemento(s)"
 
-#: includes/buddydrive-item-template.php:1141
+#: includes/buddydrive-item-template.php:1143
 msgid "Order by:"
 msgstr "Ordenar por:"
 
-#: includes/buddydrive-item-template.php:1144
-#: templates/buddydrive-loop.php:22
+#: includes/buddydrive-item-template.php:1146 templates/buddydrive-loop.php:22
 #: templates/buddydrive-loop.php:54
 msgid "Last edit"
 msgstr "Última edición"
 
-#: templates/buddydrive-loop.php:22
-#: templates/buddydrive-loop.php:54
+#: templates/buddydrive-loop.php:22 templates/buddydrive-loop.php:54
 msgid "Privacy"
 msgstr "Privacidad"
 
-#: templates/buddydrive-loop.php:22
-#: templates/buddydrive-loop.php:54
+#: templates/buddydrive-loop.php:22 templates/buddydrive-loop.php:54
 msgid "Type"
 msgstr "Tipo"
 
@@ -1206,16 +1354,19 @@ msgstr "http://imathi.eu/"
 
 #~ msgid "What&#39; new in %s ?"
 #~ msgstr "¿Qué hay de nuevo en %s?"
+
 #~ msgid "Adapts to changes introduced in plupload feature by WordPress 3.9."
 #~ msgstr ""
 #~ "Se adapta a los cambios introducidos en la función plupload en WordPress "
 #~ "3.9."
+
 #~ msgid ""
 #~ "Enjoys the BuddyPress 2.0 wp-admin/profile to display user&#39;s "
 #~ "BuddyDrive quota."
 #~ msgstr ""
 #~ "Muestra la cuota de uso de BuddyDrive en wp-admin/profile, para "
 #~ "BuddyPress 2.0."
+
 #~ msgid ""
 #~ "BuddyDrive&#39;s explorer now includes a select box to sort items "
 #~ "according to their last modified date or name."
@@ -1223,12 +1374,14 @@ msgstr "http://imathi.eu/"
 #~ "El explorador de BuddyDrive ahora incluye una casilla de selección para "
 #~ "ordenar los elementos de acuerdo a su fecha de última modificación o su "
 #~ "nombre."
+
 #~ msgid ""
 #~ "In BuddyDrive&#39;s groups pages, a link to the current user&#39;s "
 #~ "BuddyDrive explorer will help him to add files to the group."
 #~ msgstr ""
 #~ "En las páginas de grupos de BuddyDrive, un enlace al explorador "
 #~ "BuddyDrive del usuario actual le ayudará a añadir archivos al grupo."
+
 #~ msgid ""
 #~ "Finally version %s introduces some new filters and actions to help you "
 #~ "customize the plugin such as replacing the default plugin&#39;s "
@@ -1238,6 +1391,6 @@ msgstr "http://imathi.eu/"
 #~ "ayudarte a personalizar el plugin, como por ejemplo reemplazar la hoja de "
 #~ "estilos por defecto, añadir campos personalizados o hacer seguimiento de "
 #~ "las descargas."
+
 #~ msgid "Buddydrive"
 #~ msgstr "BuddyDrive"
-

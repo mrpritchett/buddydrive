@@ -400,8 +400,8 @@ class BuddyDrive_Admin {
 
 		// Add a few links to the existing links array
 		return array_merge( $links, array(
-			'settings' => '<a href="' . add_query_arg( array( 'page' => 'buddydrive'      ), bp_get_admin_url( $this->settings_page ) ) . '">' . esc_html__( 'Settings', 'buddydrive' ) . '</a>',
-			'about'    => '<a href="' . add_query_arg( array( 'page' => 'buddydrive-about'      ), bp_get_admin_url( 'index.php'          ) ) . '">' . esc_html__( 'About',    'buddydrive' ) . '</a>'
+			'settings' => '<a href="' . esc_url( add_query_arg( array( 'page' => 'buddydrive'       ), bp_get_admin_url( $this->settings_page ) ) ) . '">' . esc_html__( 'Settings', 'buddydrive' ) . '</a>',
+			'about'    => '<a href="' . esc_url( add_query_arg( array( 'page' => 'buddydrive-about' ), bp_get_admin_url( 'index.php'          ) ) ) . '">' . esc_html__( 'About',    'buddydrive' ) . '</a>'
 		) );
 	}
 
@@ -535,7 +535,7 @@ class BuddyDrive_Admin {
 
 			<div class="changelog">
 				<div class="return-to-dashboard">
-					<a href="<?php echo $settings_url;?>" title="<?php _e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php _e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
+					<a href="<?php echo esc_url( $settings_url );?>" title="<?php esc_attr_e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php esc_html_e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
 				</div>
 			</div>
 

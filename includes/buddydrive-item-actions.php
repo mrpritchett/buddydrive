@@ -289,9 +289,9 @@ function buddydrive_attached_file_to_message() {
 			}
 			?>
 			<p>
-				<label for="buddyitem-link"><?php printf( __( '%s attached : %s', 'buddydrive' ), $buddytype, '<a href="'. $displayed_link.'">'.$buddyitem->title.'</a>');?></label>
-				<input type="hidden" value="<?php echo $link;?>" id="buddyitem-link" name="_buddyitem_link">
-				<input type="hidden" value="<?php echo $buddyitem->ID;?>" id="buddyitem-id" name="_buddyitem_id">
+				<label for="buddyitem-link"><?php printf( __( '%s attached : %s', 'buddydrive' ), esc_html( $buddytype ), '<a href="' . esc_url( $displayed_link ) . '">'. esc_html( $buddyitem->title ). '</a>' );?></label>
+				<input type="hidden" value="<?php echo esc_url( $link );?>" id="buddyitem-link" name="_buddyitem_link">
+				<input type="hidden" value="<?php echo esc_attr( $buddyitem->ID );?>" id="buddyitem-id" name="_buddyitem_id">
 
 				<?php if ( ! empty( $password ) ) :?>
 					<input type="checkbox" name="_buddyitem_pass" value="1" checked> <?php _e('Automatically add the password in the message', 'buddydrive');?>
