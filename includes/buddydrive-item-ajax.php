@@ -412,7 +412,7 @@ function buddydrive_delete_items() {
 
 	$items = substr( $items, 0, strlen( $items ) - 1 );
 
-	$items = explode( ',', $items );
+	$items = array_filter(explode( ',', $items ));
 
 	$items_nbre = buddydrive_delete_item( array( 'ids' => $items ) );
 
