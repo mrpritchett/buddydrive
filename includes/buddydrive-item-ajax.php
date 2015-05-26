@@ -31,34 +31,9 @@ function buddydrive_save_new_buddyfile() {
 	$output = '';
 	$privacy = $group = $password = $parent = false;
 
-	// In multisite, we need to remove some filters
-	if ( is_multisite() ) {
-		remove_filter( 'upload_mimes', 'check_upload_mimes' );
-		remove_filter( 'upload_size_limit', 'upload_size_limit_filter' );
-	}
-
-	// temporarly overrides wp upload dir / wp mime types & wp upload size settings with BuddyDrive ones
-	add_filter( 'upload_dir', 'buddydrive_temporarly_filters_wp_upload_dir', 10, 1);
-	add_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes', 10, 1 );
-
-	// Accents can be problematic.
-	add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
-
-	$buddydrive_file = wp_handle_upload( $_FILES['buddyfile-upload'], array( 'action' => 'buddydrive_upload', 'upload_error_strings' => buddydrive_get_upload_error_strings() ) );
+	$buddydrive_file = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
 
 	if ( ! empty( $buddydrive_file ) && is_array( $buddydrive_file ) && empty( $buddydrive_file['error'] ) ) {
-		/**
-		 * file was uploaded !!
-		 * Now we can create the buddydrive_file_post_type
-		 *
-		 */
-
-		//let's take care of quota !
-		$user_id = bp_loggedin_user_id();
-		$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
-		$update_space = !empty( $user_total_space ) ? intval( $user_total_space ) + intval( $_FILES['buddyfile-upload']['size'] ) : intval( $_FILES['buddyfile-upload']['size'] );
-		update_user_meta( $user_id, '_buddydrive_total_space', $update_space );
-
 
 		$name = $_FILES['buddyfile-upload']['name'];
 		$name_parts = pathinfo( $name );
@@ -124,14 +99,6 @@ function buddydrive_save_new_buddyfile() {
 	} else {
 		echo '<div class="error-div"><a class="dismiss" href="#">' . __( 'Dismiss', 'buddydrive' ) . '</a><strong>' . sprintf( __( '&#8220;%s&#8221; has failed to upload due to an error : %s', 'buddydrive' ), esc_html( $_FILES['buddyfile-upload']['name'] ), $buddydrive_file['error'] ) . '</strong><br /></div>';
 	}
-
-
-	// let's restore wp upload dir settings !
-	remove_filter( 'upload_dir', 'buddydrive_temporarly_filters_wp_upload_dir', 10, 1);
-	remove_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes', 10, 1 );
-
-	// Stop filtering.
-	remove_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
 
 	die();
 }

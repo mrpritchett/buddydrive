@@ -165,6 +165,71 @@ function buddydrive_querystring() {
 	return apply_filters( 'buddydrive_querystring', array() );
 }
 
+/**
+ * Upload a file
+ *
+ * @since  1.3.0
+ *
+ * @param  array   $file    the $_FILES var
+ * @param  int     $user_id the ID of the user submitting the file
+ * @return array          upload result
+ */
+function buddydrive_upload_item( $file = array(), $user_id = 0 ) {
+	if ( empty( $file ) || empty( $user_id ) ) {
+		return false;
+	}
+
+	// Load needed file
+	require_once( ABSPATH . 'wp-admin/includes/file.php' );
+
+	// In multisite, we need to remove some filters
+	if ( is_multisite() ) {
+		remove_filter( 'upload_mimes',      'check_upload_mimes'       );
+		remove_filter( 'upload_size_limit', 'upload_size_limit_filter' );
+	}
+
+	// temporarly overrides WordPress upload dir / WordPress mime types
+	add_filter( 'upload_dir',   'buddydrive_temporarly_filters_wp_upload_dir', 10, 1 );
+	add_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes',             10, 1 );
+
+	// Accents can be problematic.
+	add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
+
+	$upload = wp_handle_upload( $file['buddyfile-upload'], array( 'action' => 'buddydrive_upload', 'upload_error_strings' => buddydrive_get_upload_error_strings() ) );
+
+	// Restore/remove filters
+	if ( is_multisite() ) {
+		add_filter( 'upload_mimes',      'check_upload_mimes'       );
+		add_filter( 'upload_size_limit', 'upload_size_limit_filter' );
+	}
+
+	// Stop overriding WordPress upload dir & WordPress mime types
+	remove_filter( 'upload_dir',   'buddydrive_temporarly_filters_wp_upload_dir', 10, 1 );
+	remove_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes',             10, 1 );
+
+	// Others can deal with Accents in filename the way they want.
+	remove_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
+
+	/**
+	 * file was uploaded !!
+	 * Now we can create the buddydrive_file_post_type
+	 */
+	if ( isset( $upload['file'] ) && empty( $upload['error'] ) ) {
+		// Get the user's uploaded bytes
+		$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
+		$update_space     = $file['buddyfile-upload']['size'];
+
+		if ( ! empty( $user_total_space ) ) {
+			$update_space = intval( $user_total_space ) + intval( $update_space );
+		}
+
+		// Update user's quota
+		update_user_meta( $user_id, '_buddydrive_total_space', $update_space );
+	}
+
+	return $upload;
+}
+
 
 /**
  * Saves or Updates a BuddyDrive item

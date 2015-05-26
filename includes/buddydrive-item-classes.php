@@ -579,7 +579,6 @@ class BuddyDrive_Uploader {
 
 	public function __construct() {
 		$this->setup_actions();
-		$this->includes();
 		$this->display();
 	}
 
@@ -588,14 +587,6 @@ class BuddyDrive_Uploader {
 	 */
 	public function setup_actions() {
 		add_action( 'wp_footer', array( $this, 'enqueue_scripts' ), 1 );
-	}
-
-	/**
-	 * Includes the needed php files
-	 */
-	public function includes() {
-		require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-		require_once(ABSPATH . "wp-admin" . '/includes/media.php');
 	}
 
 	/**
