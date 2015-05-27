@@ -188,16 +188,16 @@ class BuddyDrive_Item {
 			$defaults = array(
 				'id'                => false,
 				'name'              => false,
-				'group_id'	        => false,
-				'user_id'	        => false,
-				'per_page'	        => 10,
-				'paged'		        => 1,
+				'group_id'          => false,
+				'user_id'           => false,
+				'per_page'          => 10,
+				'paged'             => 1,
 				'type'              => false,
 				'buddydrive_scope'  => false,
 				'search'            => false,
 				'buddydrive_parent' => 0,
-				'exclude'		    => false,
-				'orderby' 		    => 'title',
+				'exclude'           => false,
+				'orderby'           => 'title',
 				'order'             => 'ASC'
 			);
 
@@ -209,34 +209,34 @@ class BuddyDrive_Item {
 
 			if ( ! empty( $r['id'] ) ){
 				$query_args = array(
-					'post_status'	 => 'publish',
-					'post_type'	     => $r['type'],
+					'post_status'    => 'publish',
+					'post_type'      => $r['type'],
 					'p'              => $r['id'],
 					'posts_per_page' => $r['per_page'],
-					'paged'		     => $paged,
+					'paged'          => $paged,
 				);
 
 			} else if ( ! empty( $r['name'] ) && ! empty( $r['type'] ) ) {
 
 				$query_args = array(
-					'post_status'	 => 'publish',
-					'post_type'	     => $r['type'],
+					'post_status'    => 'publish',
+					'post_type'      => $r['type'],
 					'name'           => $r['name'],
 					'posts_per_page' => $r['per_page'],
-					'paged'		     => $paged,
+					'paged'          => $paged,
 				);
 
 			} else {
 
 				$query_args = array(
-					'post_status'	 => 'publish',
-					'post_type'	     => $r['type'],
+					'post_status'    => 'publish',
+					'post_type'      => $r['type'],
 					'post_parent'    => $r['buddydrive_parent'],
 					'posts_per_page' => $r['per_page'],
-					'paged'		     => $paged,
-					'orderby' 		 => $r['orderby'],
+					'paged'          => $paged,
+					'orderby'        => $r['orderby'],
 					'order'          => $r['order'],
-					'meta_query'	 => array()
+					'meta_query'     => array()
 				);
 
 				switch ( $r['buddydrive_scope'] ) {
@@ -254,8 +254,8 @@ class BuddyDrive_Item {
 							}
 
 							$query_args['meta_query'][] = array(
-								'key'	  => '_buddydrive_sharing_option',
-								'value'	  => $privacy,
+								'key'     => '_buddydrive_sharing_option',
+								'value'   => $privacy,
 								'compare' => 'NOT IN'
 							);
 						}
@@ -270,15 +270,15 @@ class BuddyDrive_Item {
 								$query_args['author'] = implode( ',', $ids );
 
 								$query_args['meta_query'][] = array(
-									'key'	  => '_buddydrive_sharing_option',
-									'value'	  => 'friends',
+									'key'     => '_buddydrive_sharing_option',
+									'value'   => 'friends',
 									'compare' => '='
 								);
 							} else {
 								// we need to use a dummy query to avoid listing all files !
 								$query_args['meta_query'][] = array(
-									'key'	  => '_buddydrive_sharing_option',
-									'value'	  => 'dummyvalue',
+									'key'     => '_buddydrive_sharing_option',
+									'value'   => 'dummyvalue',
 									'compare' => '='
 								);
 							}
@@ -289,8 +289,8 @@ class BuddyDrive_Item {
 					case 'groups' :
 						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
 							$query_args['meta_query'][] = array(
-								'key'	  => '_buddydrive_sharing_groups',
-								'value'	  => $r['group_id'],
+								'key'     => '_buddydrive_sharing_groups',
+								'value'   => $r['group_id'],
 								'compare' => 'IN' // Allows $r['group_id'] to be an array
 							);
 						}
@@ -303,8 +303,8 @@ class BuddyDrive_Item {
 
 						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
 							$query_args['meta_query'][] = array(
-								'key'	  => '_buddydrive_sharing_groups',
-								'value'	  => $r['group_id'],
+								'key'     => '_buddydrive_sharing_groups',
+								'value'   => $r['group_id'],
 								'compare' => 'IN' // Allows $group_id to be an array
 							);
 						}
@@ -332,13 +332,13 @@ class BuddyDrive_Item {
 
 			// Let's also set up some pagination
 			$this->pag_links = paginate_links( array(
-				'base' => add_query_arg( 'items_page', '%#%' ),
-				'format' => '',
-				'total' => ceil( (int) $this->query->found_posts / (int) $this->query->query_vars['posts_per_page'] ),
-				'current' => (int) $paged,
+				'base'      => add_query_arg( 'items_page', '%#%' ),
+				'format'    => '',
+				'total'     => ceil( (int) $this->query->found_posts / (int) $this->query->query_vars['posts_per_page'] ),
+				'current'   => (int) $paged,
 				'prev_text' => '&larr;',
 				'next_text' => '&rarr;',
-				'mid_size' => 1
+				'mid_size'  => 1
 			) );
 		}
 
