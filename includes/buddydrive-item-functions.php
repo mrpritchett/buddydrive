@@ -263,22 +263,22 @@ function buddydrive_save_item( $args = '' ) {
 	);
 
 	$params = wp_parse_args( $args, $defaults );
-	extract( $params, EXTR_SKIP );
 
 	// Setup item to be added
 	$buddydrive_item                   = new BuddyDrive_Item();
-	$buddydrive_item->id               = $id;
-	$buddydrive_item->type             = $type;
-	$buddydrive_item->user_id          = $user_id;
-	$buddydrive_item->parent_folder_id = $parent_folder_id;
-	$buddydrive_item->title            = $title;
-	$buddydrive_item->content          = $content;
-	$buddydrive_item->mime_type        = $mime_type;
-	$buddydrive_item->guid             = $guid;
-	$buddydrive_item->metas            = $metas;
+	$buddydrive_item->id               = (int) $params['id'];
+	$buddydrive_item->type             = $params['type'];
+	$buddydrive_item->user_id          = (int) $params['user_id'];
+	$buddydrive_item->parent_folder_id = (int) $params['parent_folder_id'];
+	$buddydrive_item->title            = $params['title'];
+	$buddydrive_item->content          = $params['content'];
+	$buddydrive_item->mime_type        = $params['mime_type'];
+	$buddydrive_item->guid             = $params['guid'];
+	$buddydrive_item->metas            = $params['metas'];
 
-	if ( ! $buddydrive_item->save() )
+	if ( ! $buddydrive_item->save() ) {
 		return false;
+	}
 
 	do_action( 'buddydrive_save_item', $buddydrive_item->id, $params );
 
@@ -299,11 +299,19 @@ function buddydrive_save_item( $args = '' ) {
  */
 function buddydrive_update_item( $args = '', $item = false ) {
 
-	if ( empty( $item ) )
+	if ( empty( $item ) ) {
 		return false;
+	}
 
-	$old_pass = !empty( $item->password ) ? $item->password : false;
-	$old_group = !empty( $item->group ) ? $item->group : false;
+	$old_pass = false;
+	if ( ! empty( $item->password ) ) {
+		$old_pass = $item->password;
+	}
+
+	$old_group = false;
+	if ( ! empty( $item->group ) ) {
+		$old_group = $item->group;
+	}
 
 	$defaults = array(
 		'id'               => $item->ID,
@@ -321,27 +329,34 @@ function buddydrive_update_item( $args = '', $item = false ) {
 	);
 
 	$params = wp_parse_args( $args, $defaults );
-	extract( $params, EXTR_SKIP );
 
 	// if the parent folder was set, then we need to define a default privacy status
-	if ( ! empty( $item->post_parent ) && empty( $parent_folder_id ) )
-		$privacy = 'private';
-	elseif ( ! empty( $parent_folder_id ) && $type == buddydrive_get_file_post_type() )
-		$privacy = get_post_meta( $parent_folder_id, '_buddydrive_sharing_option', true );
+	if ( ! empty( $item->post_parent ) && empty( $params['parent_folder_id'] ) ) {
+		$params['privacy'] = 'private';
+	} elseif ( ! empty( $params['parent_folder_id'] ) && $params['type'] === buddydrive_get_file_post_type() ) {
+		$params['privacy'] = get_post_meta( $params['parent_folder_id'], '_buddydrive_sharing_option', true );
+	}
 
 	// building the meta object
 	$meta = new stdClass();
 
-	$meta->privacy = $privacy;
+	$meta->privacy = $params['privacy'];
 
-	if( $meta->privacy == 'password' )
-		$meta->password = !empty( $password ) ? $password : false ;
+	if ( $meta->privacy === 'password' && ! empty( $params['password'] ) ) {
+		$meta->password = $params['password'];
+	}
 
-	if( $meta->privacy == 'groups' )
-		$meta->groups = !empty( $group ) ? $group : get_post_meta( $parent_folder_id, '_buddydrive_sharing_groups', true );
+	if ( $meta->privacy === 'groups' ) {
+		if ( ! empty( $params['group'] ) ) {
+			$meta->groups = $params['group'];
+		} else {
+			$meta->groups = get_post_meta( $params['parent_folder_id'], '_buddydrive_sharing_groups', true );
+		}
+	}
 
-	if( ! empty( $buddydrive_meta ) )
-		$meta->buddydrive_meta = $buddydrive_meta;
+	if ( ! empty( $params['buddydrive_meta'] ) ) {
+		$meta->buddydrive_meta = $params['buddydrive_meta'];
+	}
 
 	// preparing the args for buddydrive_save_item
 	$params['metas'] = $meta;
@@ -353,13 +368,13 @@ function buddydrive_update_item( $args = '', $item = false ) {
 
 	$modified = buddydrive_save_item( $params );
 
-	if ( empty( $modified ) )
+	if ( empty( $modified ) ) {
 		return false;
+	}
 
 	do_action( 'buddydrive_update_item', $params, $args, $item );
 
 	return $modified;
-
 }
 
 
@@ -379,18 +394,18 @@ function buddydrive_delete_item( $args = '' ) {
 	);
 
 	$params = wp_parse_args( $args, $defaults );
-	extract( $params, EXTR_SKIP );
 
-	if ( ! empty( $ids ) && ! is_array( $ids ) )
-		$ids = explode( ',', $ids );
+	if ( ! empty( $params['ids'] ) && ! is_array( $params['ids'] ) ) {
+		$params['ids'] = explode( ',', $params['ids'] );
+	}
 
 	$buddydrive_item = new BuddyDrive_Item();
 
-	if ( $items = $buddydrive_item->delete( $ids, $user_id ) )
+	if ( $items = $buddydrive_item->delete( $params['ids'], $params['user_id'] ) ) {
 		return $items;
-
-	else
+	} else {
 		return false;
+	}
 }
 
 
