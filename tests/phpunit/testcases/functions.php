@@ -1,162 +1,87 @@
 <?php
 /**
- * @group files
+ * @group functions
  */
-class BuddyDrive_Files_Tests extends BuddyDrive_TestCase {
+class BuddyDrive_Functions_Tests extends BuddyDrive_TestCase {
 
 	public function setUp() {
 		parent::setUp();
 
-		$this->current_user = get_current_user_id();
-		$this->user_id      = $this->factory->user->create();
-		$this->set_current_user( $this->user_id );
-		$this->file         = trailingslashit( buddydrive()->plugin_dir ) . 'screenshot-1.png';
+		$this->upload_data = bp_upload_dir();
 	}
 
 	public function tearDown() {
 		parent::tearDown();
 
-		$this->set_current_user( $this->current_user );
-		unset( $this->file );
-	}
-
-	public function restrict_mimes( $mimes = array() ) {
-		return array_intersect_key( $mimes, array( 'png' => true ) );
+		unset( $this->upload_data );
 	}
 
 	/**
 	 * @group upload
 	 */
-	public function test_buddydrive_upload_item() {
-		$reset_files = $_FILES;
-		$reset_post = $_POST;
+	public function test_buddydrive_get_upload_data() {
 
-		$tmp_name = wp_tempnam( $this->file );
-
-		copy( $this->file, $tmp_name );
-
-		$_POST['action'] = 'buddydrive_upload';
-		$_FILES['buddyfile-upload'] = array(
-			'tmp_name' => $tmp_name,
-			'name'     => 'screenshot-1.png',
-			'type'     => 'image/png',
-			'error'    => 0,
-			'size'     => filesize( $this->file )
+		$expected = array(
+			'dir' => trailingslashit( $this->upload_data['basedir'] ) . 'buddydrive',
+			'url' => trailingslashit( $this->upload_data['baseurl'] ) . 'buddydrive'
 		);
 
-		// Upload the file
-		$upload = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
+		$this->assertSame( $expected, buddydrive_get_upload_data() );
+	}
 
-		$this->assertTrue( file_exists( $upload['file'] ) );
-		$this->assertTrue( (int) get_user_meta( $this->user_id, '_buddydrive_total_space', true ) === (int) $_FILES['buddyfile-upload']['size'] );
-
-		// clean up!
-		$_FILES = $reset_files;
-		$_POST = $reset_post;
+	public function filter_upload_dir( $upload_data = array() ) {
+		return array(
+			'dir' => trailingslashit( $this->upload_data['basedir'] ) . 'test_buddydrive',
+			'url' => trailingslashit( $this->upload_data['baseurl'] ) . 'test_buddydrive'
+		);
 	}
 
 	/**
+	 * @group filters
 	 * @group upload
-	 * @group check_mimes
 	 */
-	public function test_buddydrive_upload_item_mimes() {
-		$reset_files = $_FILES;
-		$reset_post = $_POST;
+	public function test_buddydrive_get_upload_data_change_dir() {
+		$expected = $this->filter_upload_dir();
 
-		$file = trailingslashit( buddydrive()->plugin_dir ) . 'readme.txt';
+		add_filter( 'buddydrive_get_upload_data', array( $this, 'filter_upload_dir' ), 10, 1 );
+		$tested = buddydrive_get_upload_data();
+		remove_filter( 'buddydrive_get_upload_data', array( $this, 'filter_upload_dir' ), 10, 1 );
 
-		$tmp_name = wp_tempnam( $file );
+		$this->assertSame( $expected, $tested );
+	}
 
-		copy( $file, $tmp_name );
-
-		$_POST['action'] = 'buddydrive_upload';
-		$_FILES['buddyfile-upload'] = array(
-			'tmp_name' => $tmp_name,
-			'name'     => 'readme.txt',
-			'type'     => 'text/plain',
-			'error'    => 0,
-			'size'     => filesize( $file )
+	public function filter_error_strings_ko( $errors = array() ) {
+		return array(
+			0  => 'foo',
+			9  => 'bar',
 		);
+	}
 
-		add_filter( 'upload_mimes', array( $this, 'restrict_mimes' ), 10, 1 );
-
-		// Upload the file
-		$upload = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
-
-		remove_filter( 'upload_mimes', array( $this, 'restrict_mimes' ), 10, 1 );
-
-		$this->assertTrue( ! empty( $upload['error'] ) );
-
-		// clean up!
-		$_FILES = $reset_files;
-		$_POST = $reset_post;
+	public function filter_error_strings_ok( $errors = array() ) {
+		return array(
+			12 => 'taz',
+		);
 	}
 
 	/**
+	 * @group filters
 	 * @group upload
-	 * @group check_user_space
 	 */
-	public function test_buddydrive_upload_item_nospace() {
-		$reset_files = $_FILES;
-		$reset_post = $_POST;
+	public function test_buddydrive_get_upload_error_strings() {
+		$expected = buddydrive_get_upload_error_strings();
 
-		$tmp_name = wp_tempnam( $this->file );
+		add_filter( 'buddydrive_get_upload_error_strings', array( $this, 'filter_error_strings_ko' ), 10, 1 );
+		$tested = buddydrive_get_upload_error_strings();
+		remove_filter( 'buddydrive_get_upload_error_strings', array( $this, 'filter_error_strings_ko' ), 10, 1 );
 
-		copy( $this->file, $tmp_name );
+		$this->assertSame( $expected, $tested );
 
-		$_POST['action'] = 'buddydrive_upload';
-		$_FILES['buddyfile-upload'] = array(
-			'tmp_name' => $tmp_name,
-			'name'     => 'screenshot-1.png',
-			'type'     => 'image/png',
-			'error'    => 0,
-			'size'     => filesize( $this->file )
-		);
+		$expected[12] = 'taz';
 
-		update_user_meta( $this->user_id, '_buddydrive_total_space', 1000 * 1024 * 1024 );
+		add_filter( 'buddydrive_get_upload_error_strings', array( $this, 'filter_error_strings_ok' ), 10, 1 );
+		$tested = buddydrive_get_upload_error_strings();
+		remove_filter( 'buddydrive_get_upload_error_strings', array( $this, 'filter_error_strings_ok' ), 10, 1 );
 
-		// Upload the file
-		$upload = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
-
-		$this->assertTrue( ! empty( $upload['error'] ) );
-
-		// clean up!
-		$_FILES = $reset_files;
-		$_POST = $reset_post;
-	}
-
-	/**
-	 * @group upload
-	 * @group check_upload_limit
-	 */
-	public function test_buddydrive_upload_item_upload_limit() {
-		$reset_files = $_FILES;
-		$reset_post = $_POST;
-
-		$tmp_name = wp_tempnam( $this->file );
-
-		copy( $this->file, $tmp_name );
-
-		$_POST['action'] = 'buddydrive_upload';
-		$_FILES['buddyfile-upload'] = array(
-			'tmp_name' => $tmp_name,
-			'name'     => 'screenshot-1.png',
-			'type'     => 'image/png',
-			'error'    => 0,
-			'size'     => filesize( $this->file )
-		);
-
-		add_filter( 'upload_size_limit', '__return_zero' );
-
-		// Upload the file
-		$upload = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
-
-		remove_filter( 'upload_size_limit', '__return_zero' );
-
-		$this->assertTrue( ! empty( $upload['error'] ) );
-
-		// clean up!
-		$_FILES = $reset_files;
-		$_POST = $reset_post;
+		$this->assertSame( $expected, $tested );
 	}
 }

@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Use BuddyPress factory if running BuddyPress tests
+ * Requires BuddyPress factory
  */
 if ( class_exists( 'BP_UnitTest_Factory' ) ) :
 class BuddyDrive_UnitTest_Factory extends BP_UnitTest_Factory {

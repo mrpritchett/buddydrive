@@ -34,7 +34,7 @@ function buddydrive_is_install() {
 	if ( empty( $buddydrive_version ) ) {
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -50,7 +50,7 @@ function buddydrive_is_update() {
 	if ( ! empty( $buddydrive_version ) && version_compare( $buddydrive_version, buddydrive_get_version(), '<' ) ) {
 		return true;
 	}
-	
+
 	return false;
 }
 

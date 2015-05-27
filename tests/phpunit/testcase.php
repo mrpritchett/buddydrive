@@ -1,12 +1,11 @@
 <?php
-
 /**
- * Include WP Idea Stream Factory
+ * Include BuddyDrive Factory
  */
 require_once dirname( __FILE__ ) . '/factory.php';
 
 /**
- * Use BuddyPress unit testcase
+ * Requires BuddyPress unit testcase
  */
 if ( class_exists( 'BP_UnitTestCase' ) ) :
 class BuddyDrive_TestCase extends BP_UnitTestCase {
