@@ -6,6 +6,8 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 /**
  * filters wp_upload_dir to replace its datas by buddydrive ones
  *
+ * @deprecated 1.3.0
+ *
  * @param  array $upload_data  wp_upload dir datas
  * @uses   wp_parse_args() to merge datas
  * @return array  $r the filtered array
@@ -32,18 +34,21 @@ function buddydrive_temporarly_filters_wp_upload_dir( $upload_data ) {
 /**
  * filters WordPress mime types
  *
+ * @deprecated 1.3.0
+ *
  * @param  array $allowed_file_types the WordPress mime types
  * @uses   buddydrive_allowed_file_types() to get the option defined by admin
  * @return array mime types allowed by BuddyDrive
  */
 function buddydrive_allowed_upload_mimes( $allowed_file_types ) {
-
 	return buddydrive_allowed_file_types( $allowed_file_types );
 }
 
 
 /**
  * Checks file uploaded size upon user's space left and max upload size
+ *
+ * @deprecated 1.3.0
  *
  * @param  array $file $_FILE array
  * @uses   buddydrive_get_user_space_left() to get user's space left
@@ -88,8 +93,6 @@ function buddydrive_check_upload_size( $file ) {
 
 	return $file;
 }
-add_filter( 'buddydrive_upload_prefilter', 'buddydrive_check_upload_size', 10, 1 );
-
 
 /**
  * temporarly filters buddydrive_get_user_space_left to only output the quota with no html tags

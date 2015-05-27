@@ -299,22 +299,9 @@ class BuddyDrive_Admin {
 	public function activation_notice() {
 		// we need to eventually create the upload dir and the .htaccess file
 		$buddydrive_upload = buddydrive_get_upload_data();
-		$buddydrive_dir = $buddydrive_upload['dir'];
 
-		if( !file_exists( $buddydrive_dir ) ){
-			// we first create the initial dir
-			@wp_mkdir_p( $buddydrive_dir );
-
-			// then we need to check for .htaccess and eventually create it
-			if( !file_exists( $buddydrive_dir .'/.htaccess' ) ) {
-
-				// Defining the rule, we need to make it unreachable and use php to reach it
-				$rules = array( 'Order Allow,Deny','Deny from all' );
-
-				// creating the .htaccess file
-				insert_with_markers( $buddydrive_dir .'/.htaccess', 'Buddydrive', $rules );
-			}
-
+		if ( empty( $buddydrive_upload['dir'] ) || ! file_exists( $buddydrive_upload['dir'] ) ){
+			bp_core_add_admin_notice( __( 'The main BuddyDrive directory is missing', 'buddydrive' ) );
 		}
 	}
 

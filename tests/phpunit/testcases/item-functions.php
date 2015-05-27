@@ -20,10 +20,6 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 		unset( $this->file );
 	}
 
-	public function restrict_mimes( $mimes = array() ) {
-		return array_intersect_key( $mimes, array( 'png' => true ) );
-	}
-
 	/**
 	 * @group upload
 	 */
@@ -78,14 +74,18 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'size'     => filesize( $file )
 		);
 
-		add_filter( 'upload_mimes', array( $this, 'restrict_mimes' ), 10, 1 );
+		bp_update_option( '_buddydrive_allowed_extensions',  array( 'png' ) );
 
 		// Upload the file
 		$upload = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
-
-		remove_filter( 'upload_mimes', array( $this, 'restrict_mimes' ), 10, 1 );
-
 		$this->assertTrue( ! empty( $upload['error'] ) );
+
+		bp_update_option( '_buddydrive_allowed_extensions',  array( 'png', 'txt|asc|c|cc|h|srt' ) );
+
+		$upload = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
+		$this->assertTrue( file_exists( $upload['file'] ) );
+
+		bp_delete_option( '_buddydrive_allowed_extensions' );
 
 		// clean up!
 		$_FILES = $reset_files;
