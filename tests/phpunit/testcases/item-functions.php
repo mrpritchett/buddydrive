@@ -159,4 +159,121 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 		$_FILES = $reset_files;
 		$_POST = $reset_post;
 	}
+
+	/**
+	 * @group save
+	 */
+	public function test_buddydrive_save_item() {
+		$meta = new stdClass();
+		$meta->privacy = 'public';
+		$expected_ids = array();
+
+		$expected_ids['folder_id'] = buddydrive_save_item( array(
+			'type'  => buddydrive_get_folder_post_type(),
+			'title' => 'foo',
+			'content' => 'foo bar folder',
+			'metas' => $meta
+		) );
+
+		$expected_ids['file_id'] = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'parent_folder_id' => $expected_ids['folder_id'],
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo bar file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'metas'            => $meta,
+		) );
+
+		$requested_ids = wp_list_pluck( buddydrive_get_buddyfiles_by_ids( $expected_ids ), 'ID' );
+		$this->assertSame( array_values( $expected_ids ), array_map( 'intval', $requested_ids ) );
+
+		$file_object = buddydrive_get_buddyfile( $expected_ids['file_id'] );
+		$this->assertTrue( (int) $file_object->post_parent === (int) $expected_ids['folder_id'] );
+	}
+
+	/**
+	 * @group save
+	 * @group update
+	 */
+	public function test_buddydrive_update_item() {
+		$meta = new stdClass();
+		$meta->privacy = 'public';
+		$expected_ids = array();
+
+		$expected_ids['file_id'] = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo bar file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'metas'            => $meta,
+		) );
+
+		$file_object = buddydrive_get_buddyfile( $expected_ids['file_id'] );
+		$this->assertTrue( 'public' === $file_object->check_for );
+
+		$meta->privacy = 'private';
+
+		$expected_ids['folder_id'] = buddydrive_save_item( array(
+			'type'  => buddydrive_get_folder_post_type(),
+			'title' => 'foo',
+			'content' => 'foo bar folder',
+			'metas' => $meta
+		) );
+
+		buddydrive_update_item( array(
+			'parent_folder_id' => $expected_ids['folder_id'],
+		), $file_object );
+
+		$file_object = buddydrive_get_buddyfile( $expected_ids['file_id'] );
+		$this->assertTrue( (int) $file_object->post_parent === (int) $expected_ids['folder_id'] );
+		$this->assertTrue( 'private' === $file_object->check_for );
+
+		$folder_object = buddydrive_get_buddyfile( $expected_ids['folder_id'], buddydrive_get_folder_post_type() );
+
+		buddydrive_update_item( array(
+			'privacy' => 'public',
+		), $folder_object );
+
+		$file_object = buddydrive_get_buddyfile( $expected_ids['file_id'] );
+		$this->assertTrue( 'public' === $file_object->check_for );
+	}
+
+	/**
+	 * @group delete
+	 * @group save
+	 */
+	public function test_buddydrive_delete_item() {
+		$expected_ids = array();
+
+		$args = array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+		);
+
+		$expected_ids[] = buddydrive_save_item( $args );
+
+		$args = array_merge( $args, array(
+			'title'     => 'readme.txt',
+			'content'   => 'bar file',
+			'mime_type' => 'text/plain',
+			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'readme.txt',
+		) );
+
+		$expected_ids[] = buddydrive_save_item( $args );
+
+		$count = buddydrive_delete_item( array( 'ids' => $expected_ids, 'user_id' => $this->user_id ) );
+
+		$this->assertTrue( $count === count( $expected_ids ) );
+
+		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_ids );
+		$this->assertTrue( empty( $not_deleted ) );
+	}
 }
