@@ -205,24 +205,24 @@ class BuddyDrive_Item {
 			extract( $r );
 
 
-			$paged = ! empty( $_POST['page'] ) ? intval( $_POST['page'] ) : $paged;
+			$paged = ! empty( $_POST['page'] ) ? intval( $_POST['page'] ) : $r['paged'];
 
-			if ( ! empty( $id ) ){
+			if ( ! empty( $r['id'] ) ){
 				$query_args = array(
 					'post_status'	 => 'publish',
-					'post_type'	     => $type,
-					'p'              => $id,
-					'posts_per_page' => $per_page,
+					'post_type'	     => $r['type'],
+					'p'              => $r['id'],
+					'posts_per_page' => $r['per_page'],
 					'paged'		     => $paged,
 				);
 
-			} else if ( ! empty( $name ) && ! empty( $type ) ) {
+			} else if ( ! empty( $r['name'] ) && ! empty( $r['type'] ) ) {
 
 				$query_args = array(
 					'post_status'	 => 'publish',
-					'post_type'	     => $type,
-					'name'           => $name,
-					'posts_per_page' => $per_page,
+					'post_type'	     => $r['type'],
+					'name'           => $r['name'],
+					'posts_per_page' => $r['per_page'],
 					'paged'		     => $paged,
 				);
 
@@ -230,28 +230,28 @@ class BuddyDrive_Item {
 
 				$query_args = array(
 					'post_status'	 => 'publish',
-					'post_type'	     => $type,
-					'post_parent'    => $buddydrive_parent,
-					'posts_per_page' => $per_page,
+					'post_type'	     => $r['type'],
+					'post_parent'    => $r['buddydrive_parent'],
+					'posts_per_page' => $r['per_page'],
 					'paged'		     => $paged,
-					'orderby' 		 => $orderby,
-					'order'          => $order,
+					'orderby' 		 => $r['orderby'],
+					'order'          => $r['order'],
 					'meta_query'	 => array()
 				);
 
-				switch ( $buddydrive_scope ) {
+				switch ( $r['buddydrive_scope'] ) {
 
 					case 'files' :
-						if ( ! empty( $user_id ) && $user_id == bp_displayed_user_id() )
-							$query_args['author'] = $user_id;
+						if ( ! empty( $r['user_id'] ) && (int) $r['user_id'] === (int) bp_displayed_user_id() ) {
+							$query_args['author'] = $r['user_id'];
+						}
 
 						if ( ! bp_is_my_profile() && ! bp_current_user_can( 'bp_moderate' ) ) {
-							$privacy[] = 'private';
-							/* Password protected should be displayed.. so commenting here in case user's feedback invalids this */
-							//$privacy[] = 'password';
+							$privacy = array( 'private' );
 
-							if ( bp_is_active( 'friends' ) && ! friends_check_friendship( $user_id, bp_loggedin_user_id() ) )
+							if ( bp_is_active( 'friends' ) && ! friends_check_friendship( $r['user_id'], bp_loggedin_user_id() ) ) {
 								$privacy[] = 'friends';
+							}
 
 							$query_args['meta_query'][] = array(
 								'key'	  => '_buddydrive_sharing_option',
@@ -267,7 +267,7 @@ class BuddyDrive_Item {
 							$ids = friends_get_friend_user_ids( bp_loggedin_user_id() );
 
 							if ( ! empty( $ids ) ) {
-								$query_args['author'] = implode(',', $ids);
+								$query_args['author'] = implode( ',', $ids );
 
 								$query_args['meta_query'][] = array(
 									'key'	  => '_buddydrive_sharing_option',
@@ -287,40 +287,42 @@ class BuddyDrive_Item {
 						break;
 
 					case 'groups' :
-						if ( bp_is_active( 'groups' ) && ! empty( $group_id ) && empty( $buddydrive_parent ) ) {
+						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
 							$query_args['meta_query'][] = array(
 								'key'	  => '_buddydrive_sharing_groups',
-								'value'	  => $group_id,
-								'compare' => 'IN' // Allows $group_id to be an array
+								'value'	  => $r['group_id'],
+								'compare' => 'IN' // Allows $r['group_id'] to be an array
 							);
 						}
 						break;
 
 					case 'admin' :
-						if ( ! empty( $user_id ) )
-							$query_args['author'] = $user_id;
+						if ( ! empty( $r['user_id'] ) ) {
+							$query_args['author'] = $r['user_id'];
+						}
 
-						if ( bp_is_active( 'groups' ) && ! empty( $group_id ) && empty( $buddydrive_parent ) ) {
+						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
 							$query_args['meta_query'][] = array(
 								'key'	  => '_buddydrive_sharing_groups',
-								'value'	  => $group_id,
+								'value'	  => $r['group_id'],
 								'compare' => 'IN' // Allows $group_id to be an array
 							);
 						}
 						// Search is only possible for Super Admin, as searching makes it difficult to garanty privacy
-						if ( ! empty( $search ) ) {
-							$query_args['s'] = $search;
+						if ( ! empty( $r['search'] ) ) {
+							$query_args['s'] = $r['search'];
 						}
 						break;
 				}
 
 			}
 
-			if ( ! empty( $exclude ) ) {
-				if ( ! is_array( $exclude ) )
-					$exclude = explode( ',', $exclude );
+			if ( ! empty( $r['exclude'] ) ) {
+				if ( ! is_array( $r['exclude'] ) ) {
+					$r['exclude'] = explode( ',', $r['exclude'] );
+				}
 
-				$query_args['post__not_in'] = $exclude;
+				$query_args['post__not_in'] = $r['exclude'];
 			}
 
 
