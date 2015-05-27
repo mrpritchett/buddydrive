@@ -633,12 +633,16 @@ function buddydrive_share_in_group() {
 		}
 
 	}
-	if ( ! empty( $result ) )
+	if ( ! empty( $result ) ) {
+		// Update the group's latest activity
+		groups_update_last_activity( $group_id );
+		
 		echo 1;
-	else
+	} else {
 		_e( 'this is embarassing, it did not work :(', 'buddydrive' );
-	die();
+	}
 
+	die();
 }
 add_action( 'wp_ajax_buddydrive_groupupdate', 'buddydrive_share_in_group' );
 
