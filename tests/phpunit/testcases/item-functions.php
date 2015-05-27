@@ -250,12 +250,12 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 		$expected_ids = array();
 
 		$args = array(
-			'type'             => buddydrive_get_file_post_type(),
-			'user_id'          => $this->user_id,
-			'title'            => 'screenshot-1.png',
-			'content'          => 'foo file',
-			'mime_type'        => 'image/png',
-			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'type'      => buddydrive_get_file_post_type(),
+			'user_id'   => $this->user_id,
+			'title'     => 'screenshot-1.png',
+			'content'   => 'foo file',
+			'mime_type' => 'image/png',
+			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
 		);
 
 		$expected_ids[] = buddydrive_save_item( $args );
@@ -269,11 +269,65 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 
 		$expected_ids[] = buddydrive_save_item( $args );
 
-		$count = buddydrive_delete_item( array( 'ids' => $expected_ids, 'user_id' => $this->user_id ) );
+		$count = buddydrive_delete_item( array( 'ids' => $expected_ids, 'user_id' => false ) );
 
 		$this->assertTrue( $count === count( $expected_ids ) );
 
 		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_ids );
 		$this->assertTrue( empty( $not_deleted ) );
+	}
+
+	/**
+	 * @group delete
+	 */
+	public function test_buddydrive_delete_user() {
+		$expected_ids = array();
+		$user_id = $this->factory->user->create();
+
+		$args = array(
+			'type'      => buddydrive_get_file_post_type(),
+			'user_id'   => $user_id,
+			'title'     => 'screenshot-1.png',
+			'content'   => 'foo file',
+			'mime_type' => 'image/png',
+			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+		);
+
+		$expected_ids[] = buddydrive_save_item( $args );
+
+		$args = array_merge( $args, array(
+			'title'     => 'readme.txt',
+			'content'   => 'bar file',
+			'mime_type' => 'text/plain',
+			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'readme.txt',
+		) );
+
+		$expected_ids[] = buddydrive_save_item( $args );
+
+		wp_delete_user( $user_id );
+
+		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_ids );
+		$this->assertTrue( empty( $not_deleted ) );
+	}
+
+	/**
+	 * @group delete
+	 */
+	public function test_buddydrive_delete_item_zero() {
+		$expected_id = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+		) );
+
+		$count = buddydrive_delete_item( array( 'ids' => 0, 'user_id' => false ) );
+
+		$this->assertEmpty( $count );
+
+		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_id );
+		$this->assertTrue( ! empty( $not_deleted ) );
 	}
 }

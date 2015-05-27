@@ -421,7 +421,7 @@ class BuddyDrive_Item {
 		$buddydrive_items = false;
 
 		if ( ! empty( $ids ) ) {
-			$ids = (array) $ids;
+			$ids = wp_parse_id_list( $ids );
 
 			$in = '("' . implode( '","', $ids ) . '")';
 			$buddydrive_items = $wpdb->get_results( "SELECT ID, post_title, post_type FROM {$wpdb->base_prefix}posts WHERE ID IN {$in}");
@@ -447,12 +447,12 @@ class BuddyDrive_Item {
 	public function delete( $ids = false, $user_id = false ) {
 		global $wpdb;
 
-		$buddydrive_ids = $new_space = false;
-		$filesize = 0;
+		$buddydrive_ids = array();
+		$new_space      = false;
+		$filesize       = 0;
+		$ids            = array_filter( wp_parse_id_list( $ids ) );
 
 		if ( ! empty( $ids ) ) {
-			$ids = (array) $ids;
-
 			//we need to get the children
 			$in = '("' . implode( '","', $ids ) . '")';
 			$buddydrive_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_parent IN {$in}");
@@ -475,7 +475,7 @@ class BuddyDrive_Item {
 			}
 		}
 
-		if ( count( $buddydrive_ids ) < 1 ) {
+		if ( empty( $buddydrive_ids ) ) {
 			return false;
 		}
 

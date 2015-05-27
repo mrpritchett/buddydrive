@@ -369,8 +369,9 @@ add_action( 'wp_ajax_buddydrive_getgroups', 'buddydrive_list_user_groups' );
 function buddydrive_delete_items() {
 
 	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 		return;
+	}
 
 	// Check the nonce
 	check_admin_referer( 'buddydrive_actions', '_wpnonce_buddydrive_actions' );
@@ -381,12 +382,13 @@ function buddydrive_delete_items() {
 
 	$items = explode( ',', $items );
 
-	$items_nbre = buddydrive_delete_item( array( 'ids' => $items ) );
+	$items_nbre = buddydrive_delete_item( array( 'ids' => $items, 'user_id' => false ) );
 
-	if ( ! empty( $items_nbre) )
+	if ( ! empty( $items_nbre) ) {
 		echo json_encode( array( 'result' => $items_nbre, 'items' => $items ) );
-	else
+	} else {
 		echo json_encode( array( 'result' => 0 ) );
+	}
 
 	die();
 
@@ -636,7 +638,7 @@ function buddydrive_share_in_group() {
 	if ( ! empty( $result ) ) {
 		// Update the group's latest activity
 		groups_update_last_activity( $group_id );
-		
+
 		echo 1;
 	} else {
 		_e( 'this is embarassing, it did not work :(', 'buddydrive' );
