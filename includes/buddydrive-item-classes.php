@@ -457,34 +457,44 @@ class BuddyDrive_Item {
 
 			$buddydrive_ids = array_merge( $buddydrive_ids, $ids );
 
-		} else if ( ! empty( $user_id ) && empty( $ids ) ) {
+		} elseif ( ! empty( $user_id ) && empty( $ids ) ) {
 			// in case a user is deleted
 			$buddydrive_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_author = %d AND post_type IN (%s, %s)", $user_id, buddydrive_get_folder_post_type(), buddydrive_get_file_post_type() ) );
 
+			$new_user = (int) apply_filters( 'buddydrive_set_owner_on_user_deleted', 0 );
+
+			// The new user must have the power to post in any group
+			if ( ! empty( $new_user ) && user_can( $new_user, 'bp_moderate' ) && ! empty( $buddydrive_ids ) ) {
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}posts SET post_author = %d WHERE post_author = %d AND post_type IN (%s, %s)", $new_user, $user_id, buddydrive_get_folder_post_type(), buddydrive_get_file_post_type() ) );
+
+				foreach ( $buddydrive_ids as $post_id ) {
+					clean_post_cache( $post_id );
+				}
+			}
 		}
 
-		if ( count( $buddydrive_ids ) < 1 )
-				return false;
+		if ( count( $buddydrive_ids ) < 1 ) {
+			return false;
+		}
 
-		foreach ( $buddydrive_ids as $id ){
+		if ( empty( $new_user ) ) {
+			foreach ( $buddydrive_ids as $id ){
+				$buddyfile = buddydrive_get_buddyfile( $id );
 
-			$buddyfile = buddydrive_get_buddyfile( $id );
+				if ( ! empty( $buddyfile ) ) {
 
-			if ( ! empty( $buddyfile ) ) {
+					if ( empty( $user_id ) || $buddyfile->user_id != $user_id )
+						$user_id = $buddyfile->user_id;
 
-				if ( empty( $user_id ) || $buddyfile->user_id != $user_id )
-					$user_id = $buddyfile->user_id;
+					if ( ! empty( $buddyfile->path ) && file_exists( $buddyfile->path ) ) {
+						$filesize += filesize( $buddyfile->path );
 
-				if ( ! empty( $buddyfile->path ) && file_exists( $buddyfile->path ) ) {
-					$filesize += filesize( $buddyfile->path );
-
-					unlink( $buddyfile->path );
+						unlink( $buddyfile->path );
+					}
 				}
 
+				wp_delete_post( $id, true );
 			}
-
-			wp_delete_post( $id, true );
-
 		}
 
 		if ( ! empty( $user_id ) ) {
@@ -492,19 +502,19 @@ class BuddyDrive_Item {
 			$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
 			$user_total_space = intval( $user_total_space );
 
-			if ( $filesize < $user_total_space )
+			if ( $filesize < $user_total_space ) {
 				$new_space = $user_total_space - $filesize;
-			else
+			} else {
 				$new_space = 0;
+			}
 
-			if ( ! empty( $ids ) )
+			if ( ! empty( $ids ) ) {
 				update_user_meta( $user_id, '_buddydrive_total_space', $new_space );
+			}
 
 		}
 
-
 		return count( $buddydrive_ids );
-
 	}
 
 
