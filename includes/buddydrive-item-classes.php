@@ -448,8 +448,8 @@ class BuddyDrive_Item {
 		global $wpdb;
 
 		$buddydrive_ids = array();
+		$spaces         = array();
 		$new_space      = false;
-		$filesize       = 0;
 		$ids            = array_filter( wp_parse_id_list( $ids ) );
 
 		if ( ! empty( $ids ) ) {
@@ -485,11 +485,13 @@ class BuddyDrive_Item {
 
 				if ( ! empty( $buddyfile ) ) {
 
-					if ( empty( $user_id ) || $buddyfile->user_id != $user_id )
-						$user_id = $buddyfile->user_id;
-
 					if ( ! empty( $buddyfile->path ) && file_exists( $buddyfile->path ) ) {
-						$filesize += filesize( $buddyfile->path );
+
+						if ( ! isset( $spaces[ $buddyfile->user_id ] ) ) {
+							$spaces[ $buddyfile->user_id ] = filesize( $buddyfile->path );
+						} else {
+							$spaces[ $buddyfile->user_id ] += filesize( $buddyfile->path );
+						}
 
 						unlink( $buddyfile->path );
 					}
@@ -499,21 +501,18 @@ class BuddyDrive_Item {
 			}
 		}
 
-		if ( ! empty( $user_id ) ) {
+		if ( ! empty( $spaces ) ) {
 
-			$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
-			$user_total_space = intval( $user_total_space );
+			foreach ( $spaces as $u_id => $space ) {
+				$user_total_space = get_user_meta( $u_id, '_buddydrive_total_space', true );
+				$user_total_space = intval( $user_total_space );
 
-			if ( $filesize < $user_total_space ) {
-				$new_space = $user_total_space - $filesize;
-			} else {
-				$new_space = 0;
+				if ( $space < $user_total_space ) {
+					buddydrive_update_user_space( $u_id, -1 * absint( $space ) );
+				} else {
+					delete_user_meta( $u_id, '_buddydrive_total_space' );
+				}
 			}
-
-			if ( ! empty( $ids ) ) {
-				update_user_meta( $user_id, '_buddydrive_total_space', $new_space );
-			}
-
 		}
 
 		return count( $buddydrive_ids );

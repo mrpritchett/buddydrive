@@ -166,6 +166,41 @@ function buddydrive_querystring() {
 }
 
 /**
+ * Update a user's upload space
+ *
+ * @since  1.3.0
+ *
+ * @param  int     $user_id  the ID of the user
+ * @param  int     $bytes    the number of bytes to add to user's space
+ * @return bool              true on success, false otherwise
+ */
+function buddydrive_update_user_space( $user_id = 0, $bytes = 0 ) {
+	if ( empty( $user_id ) || empty( $bytes ) ) {
+		return false;
+	}
+
+	// Get the user's uploaded bytes
+	$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
+
+	if ( ! empty( $user_total_space ) ) {
+		$user_total_space = intval( $user_total_space ) + intval( $bytes );
+	} else {
+		$user_total_space = intval( $bytes );
+	}
+
+	// no negative space!
+	if ( $user_total_space < 0 ) {
+		delete_user_meta( $user_id, '_buddydrive_total_space' );
+
+	// Update user's space
+	} else {
+		update_user_meta( $user_id, '_buddydrive_total_space', $user_total_space );
+	}
+
+	return true;
+}
+
+/**
  * Upload a file
  *
  * @since  1.3.0
@@ -204,21 +239,12 @@ function buddydrive_upload_item( $file = array(), $user_id = 0 ) {
 
 	/**
 	 * file was uploaded !!
-	 * Now we can create the buddydrive_file_post_type
+	 * Now we can update the user's space
 	 */
 	if ( isset( $upload['file'] ) && empty( $upload['error'] ) ) {
 		$action_suffix = '_succeeded';
 
-		// Get the user's uploaded bytes
-		$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
-		$update_space     = $file['buddyfile-upload']['size'];
-
-		if ( ! empty( $user_total_space ) ) {
-			$update_space = intval( $user_total_space ) + intval( $update_space );
-		}
-
-		// Update user's quota
-		update_user_meta( $user_id, '_buddydrive_total_space', $update_space );
+		buddydrive_update_user_space( $user_id, $file['buddyfile-upload']['size'] );
 	}
 
 	/**
@@ -389,8 +415,8 @@ function buddydrive_update_item( $args = '', $item = false ) {
  */
 function buddydrive_delete_item( $args = '' ) {
 	$defaults = array(
-		'ids'              => false,
-		'user_id'          => bp_loggedin_user_id()
+		'ids'      => false,
+		'user_id'  => bp_loggedin_user_id()
 	);
 
 	$params = wp_parse_args( $args, $defaults );

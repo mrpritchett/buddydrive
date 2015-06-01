@@ -164,6 +164,9 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 	 * @group save
 	 */
 	public function test_buddydrive_save_item() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
 		$meta = new stdClass();
 		$meta->privacy = 'public';
 		$expected_ids = array();
@@ -182,7 +185,7 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'title'            => 'screenshot-1.png',
 			'content'          => 'foo bar file',
 			'mime_type'        => 'image/png',
-			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
 			'metas'            => $meta,
 		) );
 
@@ -198,6 +201,9 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 	 * @group update
 	 */
 	public function test_buddydrive_update_item() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
 		$meta = new stdClass();
 		$meta->privacy = 'public';
 		$expected_ids = array();
@@ -208,7 +214,7 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'title'            => 'screenshot-1.png',
 			'content'          => 'foo bar file',
 			'mime_type'        => 'image/png',
-			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
 			'metas'            => $meta,
 		) );
 
@@ -247,6 +253,9 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 	 * @group save
 	 */
 	public function test_buddydrive_delete_item() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
 		$expected_ids = array();
 
 		$args = array(
@@ -255,7 +264,7 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'title'     => 'screenshot-1.png',
 			'content'   => 'foo file',
 			'mime_type' => 'image/png',
-			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'guid'      => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
 		);
 
 		$expected_ids[] = buddydrive_save_item( $args );
@@ -264,7 +273,7 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'title'     => 'readme.txt',
 			'content'   => 'bar file',
 			'mime_type' => 'text/plain',
-			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'readme.txt',
+			'guid'      => trailingslashit( $upload_dir['url'] ) . 'readme.txt',
 		) );
 
 		$expected_ids[] = buddydrive_save_item( $args );
@@ -281,6 +290,9 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 	 * @group delete
 	 */
 	public function test_buddydrive_delete_user() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
 		$expected_ids = array();
 		$user_id = $this->factory->user->create();
 
@@ -290,7 +302,7 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'title'     => 'screenshot-1.png',
 			'content'   => 'foo file',
 			'mime_type' => 'image/png',
-			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'guid'      => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
 		);
 
 		$expected_ids[] = buddydrive_save_item( $args );
@@ -299,7 +311,7 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'title'     => 'readme.txt',
 			'content'   => 'bar file',
 			'mime_type' => 'text/plain',
-			'guid'      => trailingslashit( buddydrive()->upload_url ) . 'readme.txt',
+			'guid'      => trailingslashit( $upload_dir['url'] ) . 'readme.txt',
 		) );
 
 		$expected_ids[] = buddydrive_save_item( $args );
@@ -314,13 +326,16 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 	 * @group delete
 	 */
 	public function test_buddydrive_delete_item_zero() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
 		$expected_id = buddydrive_save_item( array(
 			'type'             => buddydrive_get_file_post_type(),
 			'user_id'          => $this->user_id,
 			'title'            => 'screenshot-1.png',
 			'content'          => 'foo file',
 			'mime_type'        => 'image/png',
-			'guid'             => trailingslashit( buddydrive()->upload_url ) . 'screenshot-1.png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
 		) );
 
 		$count = buddydrive_delete_item( array( 'ids' => 0, 'user_id' => false ) );
