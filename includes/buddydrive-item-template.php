@@ -679,7 +679,7 @@ function buddydrive_group_avatar() {
 			'object'     => 'group',
 			'type'       => 'thumb',
 			'avatar_dir' => 'group-avatars',
-			'alt'        => sprintf( __( 'Group logo of %d', 'buddypress' ), esc_attr( $group_name ) ),
+			'alt'        => sprintf( __( 'Group logo of %d', 'buddydrive' ), esc_attr( $group_name ) ),
 			'width'      => $width,
 			'height'     => $height,
 			'title'      => esc_attr( $group_name )
