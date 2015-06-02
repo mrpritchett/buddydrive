@@ -368,6 +368,11 @@ function buddydrive_update_item( $args = '', $item = false ) {
 
 	$meta->privacy = $params['privacy'];
 
+	// Delete the thumbnail if the public file became private
+	if ( 'public' === $item->check_for && 'public' !== $meta->privacy ) {
+		buddydrive_delete_thumbnail( $item->ID );
+	}
+
 	if ( $meta->privacy === 'password' && ! empty( $params['password'] ) ) {
 		$meta->password = $params['password'];
 	}
@@ -626,29 +631,42 @@ function buddydrive_remove_item_from_group( $item_id =false , $group_id = false 
  */
 function wp_embed_handler_buddydrive( $matches, $attr, $url, $rawattr ) {
 
-	$link = $title = $icon = $content = $mime_type = $filelist = false;
+	$link = $title = $icon = $content = $mime_type = $filelist = $hw_attr = false;
 	$current_blog = get_current_blog_id();
 
-	if ( is_multisite() && $current_blog != bp_get_root_blog_id() )
+	if ( is_multisite() && (int) $current_blog !== (int) bp_get_root_blog_id() ) {
 		switch_to_blog( bp_get_root_blog_id() );
+	}
 
 	if ( $matches[1] == 'file' ) {
 		$buddyfile = buddydrive_get_buddyfile( $matches[2], buddydrive_get_file_post_type() );
 
-		if( empty( $buddyfile ) )
-			return false;
+		if ( empty( $buddyfile ) ) {
+			return '';
+		}
 
-		$link = $buddyfile->link;
-		$title = $buddyfile->title;
-		$content = $buddyfile->content;
-		$icon = wp_mime_type_icon( $buddyfile->ID );
+		$link      = $buddyfile->link;
+		$title     = $buddyfile->title;
+		$content   = $buddyfile->content;
 		$mime_type = $buddyfile->mime_type;
+		$icon      = wp_mime_type_icon( $buddyfile->ID );
+
+		if ( 'public' === $buddyfile->check_for ) {
+			$thumbnail = buddydrive_get_thumbnail( $buddyfile->ID, 'thumburl', false );
+			if ( ! empty( $thumbnail[0] ) ) {
+				$icon = $thumbnail[0];
+				$hw_attr = image_hwstring( $thumbnail[1], $thumbnail[2] );
+			}
+		}
+
+	// It's a folfer
 	} else {
 
 		$buddyfile = buddydrive_get_buddyfile( $matches[2], buddydrive_get_folder_post_type() );
 
-		if ( empty( $buddyfile ) )
-			return false;
+		if ( empty( $buddyfile ) ) {
+			return '';
+		}
 
 		$buddydrive_root_link = ( $buddyfile->check_for == 'groups' ) ? buddydrive_get_group_buddydrive_url( $buddyfile->group ) : buddydrive_get_user_buddydrive_url( $buddyfile->user_id ) ;
 		$link = $buddydrive_root_link .'?folder-'. $buddyfile->ID;
@@ -658,11 +676,18 @@ function wp_embed_handler_buddydrive( $matches, $attr, $url, $rawattr ) {
 	}
 
 	$embed = '<table style="width:auto"><tr>';
-	$embed .= '<td style="vertical-align:middle;width:60px;"><a href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '"><img src="' . esc_url( $icon ) . '" alt="' . esc_attr( $mime_type ) . '" class="buddydrive-thumb"></a></td>';
+
+	$tdwidth = 'width:60px;';
+	if ( ! empty( $hw_attr ) ) {
+		$tdwidth = '';
+	}
+
+	$embed .= '<td style="vertical-align:middle;' . $tdwidth . '"><a href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '"><img src="' . esc_url( $icon ) . '" alt="' . esc_attr( $mime_type ) . '" class="buddydrive-thumb" ' . $hw_attr . '></a></td>';
 	$embed .= '<td style="vertical-align:middle"><h6 style="margin:0"><a href="' . esc_url( $link ) . '" title="' . esc_attr( $title ) . '">' . esc_html( $title ) . '</a></h6>';
 
-	if ( ! empty( $content ) )
+	if ( ! empty( $content ) ) {
 		$embed .= '<p style="margin:0">'. esc_html( $content ). '</p>';
+	}
 
 	if ( $matches[1] == 'folder' ) {
 		global $buddydrive_template;
@@ -683,8 +708,9 @@ function wp_embed_handler_buddydrive( $matches, $attr, $url, $rawattr ) {
 
 	$embed .= '</td></tr></table>';
 
-	if ( is_multisite() && $current_blog != bp_get_root_blog_id() )
+	if ( is_multisite() && (int) $current_blog !== (int) bp_get_root_blog_id() ) {
 		restore_current_blog();
+	}
 
 	return apply_filters( 'embed_buddydrive', $embed, $matches, $attr, $url, $rawattr );
 }
@@ -788,4 +814,112 @@ function buddydrive_count_user_files( $user_id = 0 ) {
 	$bp->users_file_count[ $user_id ] = count_user_posts( $user_id, buddydrive_get_file_post_type() );
 
 	return $bp->users_file_count[ $user_id ];
+}
+
+/**
+ * Set a file thumbnail (if public)
+ *
+ * @since 1.3.0
+ *
+ * @param int $buddyfile_id the file ID
+ * @param string whether to get the url or the patch to the thumbnail
+ * @return string|bool the url to the created thumbnail, false if errors
+ */
+function buddydrive_set_thumbnail( $buddyfile_id = 0, $buddyfile = array() ) {
+	if ( empty( $buddyfile_id ) || empty( $buddyfile['type'] ) || 0 !== strpos( $buddyfile['type'], 'image/' ) ) {
+		return false;
+	}
+
+	if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
+		require_once( ABSPATH . "/wp-admin/includes/image.php" );
+	}
+
+	// Temporary filter sizes & relative path
+	add_filter( 'intermediate_image_sizes_advanced', 'buddydrive_public_restrict_image_sizes', 10, 1 );
+	add_filter( '_wp_relative_upload_path',          'buddydrive_public_relative_path',        10, 2 );
+
+	$file_metada = wp_generate_attachment_metadata( $buddyfile_id, $buddyfile['file'] );
+
+	// Remove it so no other attachments will be affected
+	remove_filter( 'intermediate_image_sizes_advanced', 'buddydrive_public_restrict_image_sizes', 10, 1 );
+	remove_filter( '_wp_relative_upload_path',          'buddydrive_public_relative_path',        10, 2 );
+
+	if ( ! empty( $file_metada['sizes']['thumbnail']['file'] ) ) {
+		wp_update_attachment_metadata( $buddyfile_id, $file_metada );
+		$old_location = trailingslashit( buddydrive()->upload_dir ) . $file_metada['sizes']['thumbnail']['file'];
+		$new_location = trailingslashit( buddydrive()->thumbdir ) . $file_metada['sizes']['thumbnail']['file'];
+
+		if ( file_exists( $old_location ) && is_dir( buddydrive()->thumbdir ) ) {
+			@ rename( $old_location, $new_location );
+		}
+
+		return trailingslashit( buddydrive()->thumburl ) . $file_metada['sizes']['thumbnail']['file'];
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Get a file thumbnail (if public)
+ *
+ * @since 1.3.0
+ *
+ * @param int $buddyfile_id the file ID
+ * @param string whether to get the url or the patch to the thumbnail
+ */
+function buddydrive_get_thumbnail( $buddyfile_id = 0, $type = 'thumburl', $link_only = true ) {
+	if ( empty( $buddyfile_id ) || ( 'thumbdir' !== $type && 'thumburl' !== $type ) ) {
+		return false;
+	}
+
+	$file_metada = wp_get_attachment_metadata( $buddyfile_id );
+	if ( empty( $file_metada['sizes']['thumbnail']['file'] ) ) {
+		return false;
+	}
+
+	$link = trailingslashit( buddydrive()->{$type} ) . $file_metada['sizes']['thumbnail']['file'];
+
+	if ( ! empty( $link_only ) ) {
+		return $link;
+	} else {
+		return array( $link, $file_metada['sizes']['thumbnail']['width'], $file_metada['sizes']['thumbnail']['height'] );
+	}
+}
+
+/**
+ * Delete a file thumbnail (if public)
+ *
+ * @since 1.3.0
+ *
+ * @param int $buddyfile_id the file ID
+ */
+function buddydrive_delete_thumbnail( $buddyfile_id = 0 ) {
+	if ( empty( $buddyfile_id ) ) {
+		return false;
+	}
+
+	$thumbnail_path = buddydrive_get_thumbnail( $buddyfile_id, 'thumbdir' );
+
+	if ( ! empty( $thumbnail_path ) ) {
+		delete_post_meta( $buddyfile_id, '_wp_attachment_metadata' );
+
+		if ( file_exists( $thumbnail_path ) ) {
+			@unlink( $thumbnail_path );
+		}
+	}
+}
+
+/**
+ * Does the current group supports BuddyDrive ?
+ *
+ * @since 1.3.0
+ *
+ * @return bool true if the current group does, false otherwise
+ */
+function buddydrive_current_group_is_enabled() {
+	if ( ! bp_is_group() ) {
+		return false;
+	}
+
+	return (bool) apply_filters( 'buddydrive_current_group_is_enabled', groups_get_groupmeta( bp_get_current_group_id(), '_buddydrive_enabled' ) );
 }

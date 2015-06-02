@@ -495,6 +495,11 @@ class BuddyDrive_Item {
 
 						unlink( $buddyfile->path );
 					}
+
+					// Delete the thumbnail
+					if ( 'public' === $buddyfile->check_for ) {
+						buddydrive_delete_thumbnail( $buddyfile->ID );
+					}
 				}
 
 				wp_delete_post( $id, true );
@@ -826,8 +831,10 @@ class BuddyDrive_Attachment extends BP_Attachment {
 			 * @param array an associative array to inform about the upload base dir and url
 			 */
 			$this->upload_data = apply_filters( 'buddydrive_get_upload_data', array(
-				'dir' => $this->upload_path,
-				'url' => $this->url,
+				'dir'      => $this->upload_path,
+				'url'      => $this->url,
+				'thumbdir' => $this->upload_path . '-thumbnails',
+				'thumburl' => $this->url . '-thumbnails',
 			) );
 
 			if ( $this->upload_data['dir'] != $this->upload_path ) {
@@ -853,8 +860,13 @@ class BuddyDrive_Attachment extends BP_Attachment {
 		// Let's be sure old filter is fired
 		$this->get_upload_data();
 
+		// Create a public folder for thumbnails
+		if ( ! empty( $this->upload_data['thumbdir'] ) && ! is_dir( $this->upload_data['thumbdir'] ) ) {
+			wp_mkdir_p( $this->upload_data['thumbdir'] );
+		}
+
 		// Check if upload path already exists
-		if ( ! file_exists( $this->upload_path ) ) {
+		if ( ! is_dir( $this->upload_path ) ) {
 
 			// If path does not exist, attempt to create it
 			if ( ! wp_mkdir_p( $this->upload_path ) ) {
@@ -953,6 +965,37 @@ class BuddyDrive_Attachment extends BP_Attachment {
 		 * @param array $value Array containing the path, URL, and other helpful settings.
 		 */
 		return apply_filters( 'buddydrive_upload_datas', $upload_data );
+	}
+
+	/**
+	 * Build script datas for the Uploader UI
+	 *
+	 * @since 1.3.0
+	 *
+	 * @return array the javascript localization data
+	 */
+	public function script_data() {
+		// Get default script data
+		$script_data = parent::script_data();
+
+		$script_data['bp_params'] = array(
+			'object'  => buddydrive_get_file_post_type(),
+			'item_id' => bp_loggedin_user_id(),
+			'privacy' => 'public',
+		);
+
+		if ( buddydrive_current_group_is_enabled() ) {
+			$script_data['bp_params']['privacy']         = 'groups';
+			$script_data['bp_params']['privacy_item_id'] = bp_get_current_group_id();
+		}
+
+		// Include our specific css
+		$script_data['extra_css'] = array( 'buddydrive-public-style' );
+
+		// Include our specific js
+		$script_data['extra_js']  = array( 'buddydrive-public-js' );
+
+		return apply_filters( 'buddydrive_attachment_script_data', $script_data );
 	}
 }
 endif;

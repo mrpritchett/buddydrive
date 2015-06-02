@@ -26,7 +26,7 @@ class BuddyDrive_Functions_Tests extends BuddyDrive_TestCase {
 			'url' => trailingslashit( $this->upload_data['baseurl'] ) . 'buddydrive'
 		);
 
-		$this->assertSame( $expected, buddydrive_get_upload_data() );
+		$this->assertSame( $expected, array_intersect_key( buddydrive_get_upload_data(), array( 'dir' => true, 'url' => true ) ) );
 	}
 
 	public function filter_upload_dir( $upload_data = array() ) {

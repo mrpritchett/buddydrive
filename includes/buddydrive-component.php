@@ -306,6 +306,8 @@ class BuddyDrive_Component extends BP_Component {
 		if ( is_array( $upload_data ) ) {
 			buddydrive()->upload_dir = $upload_data['dir'];
 			buddydrive()->upload_url = $upload_data['url'];
+			buddydrive()->thumbdir   = $upload_data['thumbdir'];
+			buddydrive()->thumburl   = $upload_data['thumburl'];
 		}
 
 	}

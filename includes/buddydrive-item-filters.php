@@ -207,3 +207,65 @@ function buddydrive_add_to_group_forbidden_names( $names = array() ) {
 	return $names;
 }
 add_filter( 'groups_forbidden_names', 'buddydrive_add_to_group_forbidden_names' );
+
+/**
+ * Add some custom strings to the BP Uploader
+ *
+ * @since 1.3.0
+ *
+ * @param array $strings the BP Uploader strings
+ * @return array
+ */
+function buddydrive_editor_strings( $strings = array() ) {
+	$buddydrive = buddydrive();
+
+	$strings['buddydrive_insert'] = esc_html__( 'Insert', 'buddydrive' );
+	if ( ! empty( $buddydrive->editor_id ) ) {
+		$strings['buddydrive_editor_id'] = esc_html( $buddydrive->editor_id );
+	}
+
+	return $strings;
+}
+
+/**
+ * Add some custom ssettings to the BP Uploader
+ *
+ * @since 1.3.0
+ *
+ * @param array $strings the BP Uploader settings
+ * @return array
+ */
+function buddydrive_editor_settings( $settings = array() ) {
+	if ( isset( $settings['defaults'] ) && ! isset( $settings['defaults']['multi_selection'] ) ) {
+		$settings['defaults']['multi_selection'] = false;
+	}
+
+	return $settings;
+}
+
+/**
+ * Only keep the Thumbnail sizes for BuddyDrive public files
+ *
+ * @since 1.3.0
+ *
+ * @param array $sizes the WordPress available sizes (thumbnail, large, medium)
+ * @return array       an array only containing the thumbnail size
+ */
+function buddydrive_public_restrict_image_sizes( $sizes = array() ) {
+	return array_intersect_key( $sizes, array( 'thumbnail' => true ) );
+}
+
+/**
+ * Change the relative path to match with WordPress upload organisation
+ *
+ * @since 1.3.0
+ *
+ * @param  string $new_path the relative path to the protected file
+ * @return string           the path to the public file
+ */
+function buddydrive_public_relative_path( $new_path = '', $path = '' ) {
+	$bp_upload_dir = bp_upload_dir();
+	$bd_relative = ltrim( str_replace( $bp_upload_dir['basedir'], '',buddydrive()->upload_dir ), '/' );
+
+	return ltrim( str_replace( $bd_relative, '', $new_path ), '/' );
+}
