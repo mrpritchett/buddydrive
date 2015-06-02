@@ -81,7 +81,10 @@ function buddydrive_register_public_file_scripts() {
 	/**
 	 * Filter here if you wish to override and adapt the Editor css to your needs
 	 *
-	 * @param string url to the css of the Editor
+	 * @param array {
+	 *   $file url to the css of the Editor
+	 *   $deps an array of your dependencies if needed, an empty array otherwise
+	 * }
 	 */
 	$css = apply_filters( 'buddydrive_register_public_file_css', array(
 		'file' => buddydrive_get_includes_url() . "css/buddydrive-public{$min}.css",
