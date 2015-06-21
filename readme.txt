@@ -4,7 +4,7 @@ Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 4.2.2
 Tested up to: 4.2.2
-Stable tag: 1.2.3
+Stable tag: 1.3.0
 License: GPLv2
 
 Share files the BuddyPress way!

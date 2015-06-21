@@ -754,6 +754,7 @@ class BuddyDrive_List_Table extends WP_List_Table {
 			$this->get_columns(),
 			array(),
 			$this->get_sortable_columns(),
+			$this->get_primary_column_name(),
 		);
 
 		return $this->_column_headers;
@@ -1048,5 +1049,17 @@ class BuddyDrive_List_Table extends WP_List_Table {
 
 	function column_default( $item = array(), $column_name ) {
 		return apply_filters( "buddydrive_list_table_custom_column", '', $column_name, (int) $item['ID'] );
+	}
+
+	/**
+	 * Get name of default primary column
+	 *
+	 * @since BuddyDrive (1.3.0)
+	 * @access protected
+	 *
+	 * @return string
+	 */
+	protected function get_default_primary_column_name() {
+		return 'comment';
 	}
 }

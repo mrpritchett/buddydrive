@@ -18,7 +18,7 @@ PS: you can download latest stable on [WordPress.org](http://wordpress.org/plugi
 Configuration needed
 --------------------
 
-+ Requires at least WordPress 4.2.2 and BuddyPress 2.3-RC
++ Requires at least WordPress 4.2.2 and BuddyPress 2.3
 
 Installation
 ------------

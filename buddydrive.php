@@ -3,7 +3,7 @@
 Plugin Name: BuddyDrive
 Plugin URI: http://imathi.eu/tag/buddydrive/
 Description: A plugin to share files, the BuddyPress way!
-Version: 1.3.0-beta
+Version: 1.3.0
 Author: imath
 Author URI: http://imathi.eu/
 License: GPLv2
@@ -35,7 +35,7 @@ class BuddyDrive {
 	 *
 	 * @var      string
 	 */
-	public static $required_bp_version = '2.3.0-rc';
+	public static $required_bp_version = '2.3.0';
 
 	/**
 	 * BuddyPress config.
@@ -104,7 +104,7 @@ class BuddyDrive {
 
 		/** Version ***********************************************************/
 
-		$this->version    = '1.3.0-beta';
+		$this->version    = '1.3.0';
 
 		/** Paths *************************************************************/
 
