@@ -34,7 +34,7 @@ function buddydrive_is_install() {
 	if ( empty( $buddydrive_version ) ) {
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -50,7 +50,7 @@ function buddydrive_is_update() {
 	if ( ! empty( $buddydrive_version ) && version_compare( $buddydrive_version, buddydrive_get_version(), '<' ) ) {
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -290,18 +290,16 @@ function buddydrive_root_url() {
 /**
  * Builds an array for BuddyDrive upload data
  *
- * @uses wp_upload_dir() to get WordPress basedir and baseurl
+ * @uses BuddyDrive_Attachment() to get BuddyDrive basedir and baseurl
  * @return array
  */
 function buddydrive_get_upload_data() {
-	$upload_datas = wp_upload_dir();
+	if ( ! class_exists( 'BuddyDrive_Attachment' ) ) {
+		return false;
+	}
 
-	$buddydrive_dir = $upload_datas["basedir"] .'/buddydrive';
-	$buddydrive_url = $upload_datas["baseurl"] .'/buddydrive';
-	$buddydrive_upload_data = array( 'dir' => $buddydrive_dir, 'url' => $buddydrive_url );
-
-	//finally returns $buddydrive_upload_data, you can filter if you know what you're doing!
-	return apply_filters( 'buddydrive_get_upload_data', $buddydrive_upload_data );
+	$buddydrive_attachment = new BuddyDrive_Attachment();
+	return (array) $buddydrive_attachment->get_upload_data();
 }
 
 /**
@@ -511,16 +509,30 @@ function buddydrive_array_checked( $value = false, $array = false ) {
  * @return array the mime types allowed by admin
  */
 function buddydrive_allowed_file_types( $allowed_file_types ) {
+	// Get allowed extensions
+	$allowed_ext = buddydrive_get_allowed_upload_exts();
 
-	$allowed_ext = bp_get_option( '_buddydrive_allowed_extensions' );
-
-	if ( empty( $allowed_ext ) || ! is_array( $allowed_ext ) || count( $allowed_ext ) < 1 )
+	if ( empty( $allowed_ext ) || ! is_array( $allowed_ext ) || count( $allowed_ext ) < 1 ) {
 		return $allowed_file_types;
+	}
 
 	$allowed_ext = array_flip( $allowed_ext );
 	$allowed_ext = array_intersect_key( $allowed_file_types, $allowed_ext );
 
 	return $allowed_ext;
+}
+
+/**
+ * Get allowed upload extensions
+ *
+ * @since 1.3
+ *
+ * @uses   buddydrive_allowed_file_types() to get the option defined by admin
+ * @return array a list of allowed extensions.
+ */
+function buddydrive_get_allowed_upload_exts() {
+	$bd_exts = bp_get_option( '_buddydrive_allowed_extensions', array() );
+	return (array) apply_filters( 'buddydrive_get_allowed_upload_types', $bd_exts );
 }
 
 /**
@@ -563,28 +575,24 @@ function buddydrive_maybe_redirect_oldlink() {
  * Takes WordPress ones + BuddyDrive ones index 9 to 11
  * @uses apply_filters call 'buddydrive_get_upload_error_strings' to add custom errors
  *                     You'll need to start at index 12.
- * @return array
+ * @return array list of BuddyDrive errors
  */
 function buddydrive_get_upload_error_strings() {
 	$custom_errors = apply_filters( 'buddydrive_get_upload_error_strings', array() );
 
 	$upload_errors = array(
-		false,
-		__( 'The uploaded file exceeds the upload_max_filesize directive in php.ini.', 'buddydrive' ),
-		__( 'The uploaded file exceeds the MAX_FILE_SIZE directive that was specified in the HTML form.', 'buddydrive' ),
-		__( 'The uploaded file was only partially uploaded.', 'buddydrive' ),
-		__( 'No file was uploaded.', 'buddydrive' ),
-		'',
-		__( 'Missing a temporary folder.', 'buddydrive' ),
-		__( 'Failed to write file to disk.', 'buddydrive' ),
-		__( 'File upload stopped by extension.', 'buddydrive' ),
-		__( 'Not enough space left to upload your file', 'buddydrive' ),
-		sprintf( __('This file is too big. Files must be less than %s MB in size.', 'buddydrive' ), buddydrive_max_upload_size() ),
-		__( 'You have used your space quota. Please delete files before uploading.', 'buddydrive' ),
+		9  => __( 'Not enough space left to upload your file', 'buddydrive' ),
+		10 => sprintf( __('This file is too big. Files must be less than %s MB in size.', 'buddydrive' ), buddydrive_max_upload_size() ),
+		11 => __( 'You have used your space quota. Please delete files before uploading.', 'buddydrive' ),
 	);
 
 	if ( ! empty( $custom_errors ) && ! array_intersect_key( $upload_errors, $custom_errors ) ) {
 		foreach ( $custom_errors as $key_error => $error_message ) {
+			// Custom errors need to start at 12 index.
+			if ( $key_error < 12 ) {
+				continue;
+			}
+
 			$upload_errors[ $key_error ] = $error_message;
 		}
 	}

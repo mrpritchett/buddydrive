@@ -12,7 +12,7 @@ if ( !class_exists( 'WP_List_Table' ) ) require( ABSPATH . 'wp-admin/includes/cl
 
 /**
  * Adds the BuddyDrive item menu to the BuddyPress array of components admin ui
- * 
+ *
  * @param  array  $custom_menus
  * @return array including BuddyDrive menu
  */
@@ -67,7 +67,7 @@ function buddydrive_files_admin_load() {
 
 		$item_ids = wp_parse_id_list( $_GET['bid'] );
 
-		$count = buddydrive_delete_item( array( 'ids' => $item_ids ) );
+		$count = buddydrive_delete_item( array( 'ids' => $item_ids, 'user_id' => false ) );
 
 		$redirect_to = add_query_arg( 'deleted', $count, $redirect_to );
 
@@ -89,7 +89,7 @@ function buddydrive_files_admin_load() {
 		add_meta_box( 'submitdiv', _x( 'Save', 'buddydrive-item admin edit screen', 'buddydrive' ), 'buddydrive_admin_edit_metabox_status', get_current_screen()->id, 'side', 'high' );
 		add_meta_box( 'buddydrive_item_privacy', _x( 'Privacy', 'buddydrive-item admin edit screen', 'buddydrive' ), 'buddydrive_admin_edit_metabox_privacy', get_current_screen()->id, 'side', 'core' );
 		add_meta_box( 'buddydrive_item_children', _x( 'Files', 'buddydrive-item admin edit screen', 'buddydrive' ), 'buddydrive_admin_edit_metabox_list_files', get_current_screen()->id, 'normal', 'core' );
-		
+
 		do_action( 'buddydrive_files_admin_meta_boxes' );
 
 		// Enqueue javascripts
@@ -105,7 +105,7 @@ function buddydrive_files_admin_load() {
 	}
 
 	if ( $doaction && 'save' == $doaction ) {
-	
+
 		// Get item ID
 		$item_id = isset( $_REQUEST['bid'] ) ? (int) $_REQUEST['bid'] : '';
 
@@ -124,9 +124,9 @@ function buddydrive_files_admin_load() {
 			wp_redirect( $redirect_to );
 			exit;
 		}
-		
+
 		$args = array();
-		
+
 		if( !empty( $_POST['buddydrive-edit']['item-title'] ) )
 			$args['title'] = wp_kses( $_POST['buddydrive-edit']['item-title'], array() );
 		if( !empty( $_POST['buddydrive-edit']['item-content'] ) )
@@ -137,11 +137,11 @@ function buddydrive_files_admin_load() {
 			$args['password'] = wp_kses( $_POST['buddydrive-edit']['password'], array() );
 		if( !empty( $_POST['buddydrive-edit']['buddygroup'] ) )
 			$args['group'] = $_POST['buddydrive-edit']['buddygroup'];
-		
+
 		$args['parent_folder_id'] = !empty( $_POST['buddydrive-edit']['folder'] ) ? intval( $_POST['buddydrive-edit']['folder'] ) : 0 ;
-			
+
 		$updated = buddydrive_update_item( $args, $item );
-		
+
 		if( !empty( $updated ) )
 			$redirect_to = add_query_arg( 'updated', 1, $redirect_to );
 		else
@@ -149,13 +149,13 @@ function buddydrive_files_admin_load() {
 
 		wp_redirect( apply_filters( 'buddydrive_item_admin_edit_redirect', $redirect_to ) );
 		exit;
-	
+
 	}
 }
 
 /**
  * Choose the right section to display
- * 
+ *
  * @uses buddydrive_files_admin_edit() to load the edit page of a single item
  * @uses buddydrive_files_admin_delete() to request for a confirmation
  * @uses buddydrive_files_admin_index() to load the list of BuddyDrive items
@@ -163,7 +163,7 @@ function buddydrive_files_admin_load() {
 function buddydrive_files_admin() {
 	// Decide whether to load the index or edit screen
 	$doaction = ! empty( $_REQUEST['action'] ) ? $_REQUEST['action'] : '';
-	
+
 	if ( ! empty( $_REQUEST['action2'] ) && $_REQUEST['action2'] != "-1" ) {
 		$doaction = $_REQUEST['action2'];
 	}
@@ -268,7 +268,7 @@ function buddydrive_files_admin_edit() {
 	$messages = array();
 	$is_error = ! empty( $_REQUEST['error']   ) ? $_REQUEST['error']   : false;
 	$updated  = ! empty( $_REQUEST['updated'] ) ? $_REQUEST['updated'] : false;
-	
+
 	if ( $is_error ) {
 		$messages[] = __( 'An error occurred when trying to update your item details.', 'buddydrive' );
 	} else if ( ! empty( $updated ) ) {
@@ -347,7 +347,7 @@ function buddydrive_files_admin_edit() {
 
 /**
  * The Action metabox (save updates)
- * 
+ *
  * @param  object $item The BuddyDrive Item object
  * @uses add_query_args() to add some args to the url
  * @uses bp_get_admin_url() to build the admin url
@@ -378,7 +378,7 @@ function buddydrive_admin_edit_metabox_status( $item ) {
 
 /**
  * Privacy Metabox settings
- * 
+ *
  * @param  object $item The BuddyDrive Item object
  * @uses get_post_meta() to get the privacy settings
  * @uses buddydrive_get_show_owner_avatar() to get owner's avatar
@@ -390,7 +390,7 @@ function buddydrive_admin_edit_metabox_status( $item ) {
  */
 function buddydrive_admin_edit_metabox_privacy( $item ) {
 
-	$privacy_status = get_post_meta( $item->ID, '_buddydrive_sharing_option', true ); 
+	$privacy_status = get_post_meta( $item->ID, '_buddydrive_sharing_option', true );
 	$owner = $item->user_id;
 	$avatar  = buddydrive_get_show_owner_avatar( $owner );
 	?>
@@ -436,14 +436,14 @@ function buddydrive_admin_edit_metabox_privacy( $item ) {
 		</div>
 
 	<?php endif;?>
-	
+
 	<?php if( $item->post_type == buddydrive_get_file_post_type() ) :?>
-		
+
 		<div class="buddydrive-folder-section" id="buddydrive-folder-section-options">
 			<label for="buddydrive-folder-option"><?php _e( 'Folder', 'buddydrive' );?></label>
 			<?php buddydrive_select_folder_options( $owner, $item->post_parent, 'buddydrive-edit[folder]' );?>
 		</div>
-		
+
 	<?php endif;?>
 
 <?php
@@ -461,9 +461,9 @@ function buddydrive_admin_edit_metabox_privacy( $item ) {
  */
 function buddydrive_admin_edit_files_loop( $folder_id = 0, $paged = 1 ) {
 	$form_url = add_query_arg( array( 'page' => 'buddydrive-files'), bp_get_admin_url( 'admin.php' ) );
-	
+
 	if ( buddydrive_has_items( array( 'buddydrive_parent' => $folder_id, 'paged' => $paged ) ) ) :?>
-						
+
 		<?php while ( buddydrive_has_items() ): buddydrive_the_item(); ?>
 
 			<tr id="item-<?php buddydrive_item_id();?>">
@@ -479,7 +479,7 @@ function buddydrive_admin_edit_files_loop( $folder_id = 0, $paged = 1 ) {
 						$delete_url = wp_nonce_url( $base_url . "&amp;action=delete", 'buddydrive-delete' );
 						?>
 						<span class="edit">
-							<a href="<?php echo esc_url( $edit_url );?>"><?php esc_html_e( 'Edit', 'buddydrive' );?></a> | 
+							<a href="<?php echo esc_url( $edit_url );?>"><?php esc_html_e( 'Edit', 'buddydrive' );?></a> |
 						</span>
 						<span class="delete">
 							<a href="<?php echo esc_url( $delete_url );?>"><?php esc_html_e( 'Delete', 'buddydrive' );?></a>
@@ -502,7 +502,7 @@ function buddydrive_admin_edit_files_loop( $folder_id = 0, $paged = 1 ) {
 					<a href="#more-buddydrive"><?php _e( 'Load More', 'buddydrive' ); ?></a>
 				</td>
 			</tr>
-		<?php endif;?>			
+		<?php endif;?>
 
 	<?php else:?>
 		<tr><td colspan="4"><?php _e( 'No files attached to this folder', 'buddydrive' );?></td></tr>
@@ -511,7 +511,7 @@ function buddydrive_admin_edit_files_loop( $folder_id = 0, $paged = 1 ) {
 
 /**
  * List the files of a folder in a metabox
- * 
+ *
  * @param  object $item BuddyDrive Item object
  * @uses buddydrive_get_folder_post_type() to check  for the BuddyFolder post type
  * @uses buddydrive_admin_edit_files_loop() to list the attached files
@@ -550,7 +550,7 @@ function buddydrive_admin_edit_metabox_list_files( $item ) {
 
 /**
  * Ask for a confirmation before deleting BuddyDrive items
- * 
+ *
  * @uses is_super_admin() too check current user is admin
  * @uses wp_parse_id_list() to parse the comma separated list of BuddyDrive item ids
  * @uses buddydrive_get_buddyfiles_by_ids() to get some data about each BuddyDrive items of this list
@@ -588,7 +588,7 @@ function buddydrive_files_admin_delete(){
 		<ul class="buddydrive-items-delete-list">
 		<?php foreach ( $items as $item ) : ?>
 			<li>
-				<?php echo esc_html( $item->post_title ) ?> 
+				<?php echo esc_html( $item->post_title ) ?>
 				<?php if( $item->post_type == buddydrive_get_folder_post_type() ):?>
 					<?php _e('(and all the files of this folder)', 'buddydrive');?>
 				<?php endif;?>
@@ -613,8 +613,8 @@ function buddydrive_files_admin_delete(){
 class BuddyDrive_List_Table extends WP_List_Table {
 
 	/**
-	 * What type of view is being displayed? 
-	 * 
+	 * What type of view is being displayed?
+	 *
 	 * @since BuddyDrive (1.0)
 	 */
 	public $view = 'all';
@@ -704,7 +704,7 @@ class BuddyDrive_List_Table extends WP_List_Table {
 			$this->view = $_GET['buddydrive_type'];
 			$type =  $_GET['buddydrive_type'];
 		}
-		
+
 		$buddydrive_args = array(
 			'buddydrive_scope'  => 'admin',
 			'per_page'        => $per_page,
@@ -722,7 +722,7 @@ class BuddyDrive_List_Table extends WP_List_Table {
 
 
 		$buddydrive_items = array();
-		
+
 		if ( buddydrive_has_items( $buddydrive_args ) ) {
 			while ( buddydrive_has_items() ) {
 				buddydrive_the_item();
@@ -754,6 +754,7 @@ class BuddyDrive_List_Table extends WP_List_Table {
 			$this->get_columns(),
 			array(),
 			$this->get_sortable_columns(),
+			$this->get_primary_column_name(),
 		);
 
 		return $this->_column_headers;
@@ -772,8 +773,8 @@ class BuddyDrive_List_Table extends WP_List_Table {
 	 * Outputs the BuddyDrive Items data table
 	 *
 	 * @since BuddyDrive (1.0)
-	 * @uses WP_List_Table::display_tablenav() 
-	 * @uses WP_List_Table::get_table_classes() 
+	 * @uses WP_List_Table::display_tablenav()
+	 * @uses WP_List_Table::get_table_classes()
 	 * @uses WP_List_Table::print_column_headers()
 	 * @uses WP_List_Table::display_rows_or_placeholder()
 	*/
@@ -976,12 +977,12 @@ class BuddyDrive_List_Table extends WP_List_Table {
 	 * @param array $item A singular item (one full row)
 	 * @uses get_post_meta() to get item's privacy
 	 * @uses buddydrive_get_group_avatar() to get the avatar of the group the BuddyItem is attached to
-	 * 
+	 *
 	 */
 	function column_status( $item = array() ) {
 		$privacy = get_post_meta( $item['ID'], '_buddydrive_sharing_option', true );
 		$status_desc = '';
-	
+
 		if( !empty( $privacy ) ) {
 			switch ( $privacy ) {
 				case 'private' :
@@ -995,11 +996,11 @@ class BuddyDrive_List_Table extends WP_List_Table {
 				case 'public'  :
 					$status_desc = '<i class="icon bd-icon-unlocked"></i> ' . __( 'Public', 'buddydrive' );
 					break;
-					
+
 				case 'friends'  :
 					$status_desc = '<i class="icon bd-icon-users"></i> ' . __( 'Friends only', 'buddydrive' );
 					break;
-				
+
 				case 'groups'  :
 					$avatar  = buddydrive_get_group_avatar( $item['ID'] );
 					$status_desc = $avatar;
@@ -1048,5 +1049,17 @@ class BuddyDrive_List_Table extends WP_List_Table {
 
 	function column_default( $item = array(), $column_name ) {
 		return apply_filters( "buddydrive_list_table_custom_column", '', $column_name, (int) $item['ID'] );
+	}
+
+	/**
+	 * Get name of default primary column
+	 *
+	 * @since BuddyDrive (1.3.0)
+	 * @access protected
+	 *
+	 * @return string
+	 */
+	protected function get_default_primary_column_name() {
+		return 'comment';
 	}
 }

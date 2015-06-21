@@ -68,6 +68,49 @@ function buddydrive_view_add_script_data( $count = 0 ) {
 add_action( 'buddydrive_has_items_catch_total_count', 'buddydrive_view_add_script_data', 10, 1 );
 
 /**
+ * Register css and script to be used by the BuddyDrive Editor
+ *
+ * @since 1.3.0
+ */
+function buddydrive_register_public_file_scripts() {
+	$min = '.min';
+	if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG )  {
+		$min = '';
+	}
+
+	/**
+	 * Filter here if you wish to override and adapt the Editor css to your needs
+	 *
+	 * @param array {
+	 *   $file url to the css of the Editor
+	 *   $deps an array of your dependencies if needed, an empty array otherwise
+	 * }
+	 */
+	$css = apply_filters( 'buddydrive_register_public_file_css', array(
+		'file' => buddydrive_get_includes_url() . "css/buddydrive-public{$min}.css",
+		'deps' => array( 'dashicons' ),
+	) );
+
+	// Register the style
+	wp_register_style(
+		'buddydrive-public-style',
+		$css['file'],
+		$css['deps'],
+		buddydrive_get_version()
+	);
+
+	// Register the script
+	wp_register_script(
+		'buddydrive-public-js',
+		buddydrive_get_includes_url() . "js/buddydrive-public{$min}.js",
+		array(),
+		buddydrive_get_version(),
+		true
+	);
+}
+add_action( 'buddydrive_register_scripts', 'buddydrive_register_public_file_scripts' );
+
+/**
  * Resets WordPress post data
  *
  * @uses wp_reset_postdata()

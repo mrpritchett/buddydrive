@@ -679,7 +679,7 @@ function buddydrive_group_avatar() {
 			'object'     => 'group',
 			'type'       => 'thumb',
 			'avatar_dir' => 'group-avatars',
-			'alt'        => sprintf( __( 'Group logo of %d', 'buddypress' ), esc_attr( $group_name ) ),
+			'alt'        => sprintf( __( 'Group logo of %d', 'buddydrive' ), esc_attr( $group_name ) ),
 			'width'      => $width,
 			'height'     => $height,
 			'title'      => esc_attr( $group_name )
@@ -1165,3 +1165,54 @@ function buddydrive_wpadmin_profile_stats( $args ) {
 	echo '<li class="buddydrive-profile-stats">' . $space_left . '</li>';
 }
 add_action( 'bp_members_admin_user_stats', 'buddydrive_wpadmin_profile_stats', 10, 1 );
+
+/**
+ * An Editor other plugins can use for their need.
+ *
+ * @since 1.3.0
+ *
+ * @param string $editor_id the Editor's id to insert the BuddyDrive oembed link into.
+ */
+function buddydrive_editor( $editor_id = '' ) {
+	$buddydrive       = buddydrive();
+	$current_user_can = (bool) apply_filters( 'buddydrive_editor_can', is_user_logged_in() );
+
+	// Bail if current user can't use it and if not in front end
+	if ( ! $current_user_can || is_admin() ) {
+		return;
+	}
+
+	// Enqueue Thickbox
+	wp_enqueue_style ( 'thickbox' );
+	wp_enqueue_script( 'thickbox' );
+
+	if ( ! empty( $editor_id ) ) {
+		$buddydrive->editor_id = $editor_id;
+	}
+
+	// Temporary filters to add custom strings and settings
+	add_filter( 'bp_attachments_get_plupload_l10n',             'buddydrive_editor_strings',  10, 1 );
+	add_filter( 'bp_attachments_get_plupload_default_settings', 'buddydrive_editor_settings', 10, 1 );
+
+	// Enqueue BuddyPress attachments scripts
+	bp_attachments_enqueue_scripts( 'BuddyDrive_Attachment' );
+
+	// Remove the temporary filters
+	remove_filter( 'bp_attachments_get_plupload_l10n',             'buddydrive_editor_strings',  10, 1 );
+	remove_filter( 'bp_attachments_get_plupload_default_settings', 'buddydrive_editor_settings', 10, 1 );
+
+	$url = remove_query_arg( array_keys( $_REQUEST ) );
+	?>
+	<a href="<?php echo esc_url( $url );?>#TB_inline?inlineId=buddydrive-public-uploader" title="<?php esc_attr_e( 'Add file', 'buddydrive' );?>" id="buddydrive-btn" class="thickbox button">
+		<?php echo esc_html_e( 'Add File', 'buddydrive' ); ?>
+	</a>
+	<div id="buddydrive-public-uploader" style="display:none;">
+		<?php /* Markup for the uploader */ ?>
+			<div class="buddydrive-uploader"></div>
+			<div class="buddydrive-uploader-status"></div>
+
+		<?php bp_attachments_get_template_part( 'uploader' );
+		/* Markup for the uploader */ ?>
+	</div>
+	<?php
+}

@@ -45,7 +45,8 @@ class BuddyDrive_Component extends BP_Component {
 		if ( get_current_blog_id() == bp_get_root_blog_id() ) {
 			add_action( 'init', array( &$this, 'register_post_types' ), 9 );
 
-			$this->register_upload_dir();
+			// Register the BuddyDrive upload dir
+			add_action( 'bp_init', array( $this, 'register_upload_dir' ) );
 		}
 
 		// register the embed handler
@@ -299,12 +300,14 @@ class BuddyDrive_Component extends BP_Component {
 	 *
 	 * @uses buddydrive_get_upload_data() to get the specific BuddyDrive upload datas
 	 */
-	private function register_upload_dir() {
+	public function register_upload_dir() {
 		$upload_data = buddydrive_get_upload_data();
 
 		if ( is_array( $upload_data ) ) {
 			buddydrive()->upload_dir = $upload_data['dir'];
 			buddydrive()->upload_url = $upload_data['url'];
+			buddydrive()->thumbdir   = $upload_data['thumbdir'];
+			buddydrive()->thumburl   = $upload_data['thumburl'];
 		}
 
 	}

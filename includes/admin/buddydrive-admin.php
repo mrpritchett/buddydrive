@@ -299,22 +299,9 @@ class BuddyDrive_Admin {
 	public function activation_notice() {
 		// we need to eventually create the upload dir and the .htaccess file
 		$buddydrive_upload = buddydrive_get_upload_data();
-		$buddydrive_dir = $buddydrive_upload['dir'];
 
-		if( !file_exists( $buddydrive_dir ) ){
-			// we first create the initial dir
-			@wp_mkdir_p( $buddydrive_dir );
-
-			// then we need to check for .htaccess and eventually create it
-			if( !file_exists( $buddydrive_dir .'/.htaccess' ) ) {
-
-				// Defining the rule, we need to make it unreachable and use php to reach it
-				$rules = array( 'Order Allow,Deny','Deny from all' );
-
-				// creating the .htaccess file
-				insert_with_markers( $buddydrive_dir .'/.htaccess', 'Buddydrive', $rules );
-			}
-
+		if ( empty( $buddydrive_upload['dir'] ) || ! file_exists( $buddydrive_upload['dir'] ) ){
+			bp_core_add_admin_notice( __( 'The main BuddyDrive directory is missing', 'buddydrive' ) );
 		}
 	}
 
@@ -428,30 +415,45 @@ class BuddyDrive_Admin {
 				</a>
 			</h2>
 
-			<div class="changelog">
-				<h2 class="about-headline-callout"><?php _e( 'Share files, the BuddyPress way!', 'buddydrive' ); ?></h2>
+			<div class="headline-feature">
+				<h3><?php esc_html_e( 'Meet the BuddyDrive Editor', 'buddydrive' ); ?></h3>
+
+				<div class="featured-image">
+					<img src="<?php echo esc_url( buddydrive_get_images_url() . '/buddydrive-editor.png' );?>" alt="<?php esc_attr_e( 'The BuddyDrive Editor', 'buddydrive' ); ?>">
+				</div>
 
 				<div class="feature-section">
-					<p>
-						<?php _e( 'BuddyDrive is a BuddyPress plugin to power the management of your members files and folders. It requires version 1.7 of BuddyPress.', 'buddydrive' ); ?>
-						<?php _e( 'Each member of your community will get a BuddyDrive area in their member&#39;s page.', 'buddydrive' );?>
-					</p>
+					<h3><?php esc_html_e( 'BuddyDrive is now using the BuddyPress Attachments API!', 'buddydrive' ); ?></h3>
+					<p><?php esc_html_e( 'Introduced in BuddyPress 2.3, BuddyDrive uses this API to manage user uploads the BuddyPress way. It gave birth to a new BuddyDrive Editor. Now, you and plugins can use it to easily share public files with your community members.', 'buddydrive' ); ?> <a href="https://github.com/imath/buddydrive/wiki/The-BuddyDrive-Editor"><?php esc_html_e( 'Learn more &rarr;', 'buddydrive' ); ?></a></p>
+				</div>
+
+				<div class="clear"></div>
+			</div>
+
+			<div class="feature-list">
+				<h2><?php printf( __( 'The other improvements in %s', 'buddydrive' ), $display_version ); ?></h2>
+
+				<div class="feature-section col two-col">
+					<div>
+						<h4><?php esc_html_e( 'Bulk-deleting files in the Administration screen', 'buddydrive' ); ?></h4>
+						<p><?php _e( 'When the community administrator bulk-deletes files having different owners, each owner&#39;s quota will now be updated.', 'buddydrive' ); ?></p>
+
+						<h4><?php esc_html_e( 'Representation of embed public image files.', 'buddydrive' ); ?></h4>
+						<p><?php esc_html_e( 'When you share a link to a file into the activity stream, a private message, a post, a page, ..., BuddyDrive is catching this link to build some specific output.', 'buddydrive' ); ?></p>
+						<p><?php esc_html_e( 'Now, if this link is about a public image, a thumbnail will be displayed next to the file title (and description if provided).', 'buddydrive' ); ?></p>
+					</div>
+					<div class="last-feature">
+						<h4><?php esc_html_e( 'BuddyPress single group&#39;s latest activity', 'buddydrive' ); ?></h4>
+						<p><?php esc_html_e( 'When a file is shared with the members of a group, the latest activity of the group will be updated.', 'buddydrive' ); ?></p>
+						
+						<h4><?php esc_html_e( 'Reassign deleted files', 'buddydrive' ); ?></h4>
+						<p><?php esc_html_e( 'If you need to keep files when a user leaves your community (sad), you can use the following filter making sure to return the ID of a user having the bp_moderate capability.', 'buddydrive' ); ?></p>
+						<p><code>buddydrive_set_owner_on_user_deleted</code></p>
+					</div>
 				</div>
 			</div>
 
-			<div class="changelog">
-				<h2 class="about-headline-callout"><?php printf( __( '%s is fixing some annoying issues.', 'buddydrive' ), $display_version ); ?></h2>
-
-				<div class="feature-section">
-					<ul>
-						<li><?php _e( 'Now Administrators can view users private files and folders on front-end.', 'buddydrive' ); ?></li>
-						<li><?php _e( 'Improves translation by allowing the mo file to be out of the plugin&#39;s directory', 'buddydrive' );?></li>
-						<li><?php _e( 'Removes accents from filename when saving a file to avoid char encoding troubles.', 'buddydrive' );?></li>
-						<li><?php _e( 'Makes sure the quota and other upload restrictions are doing their job.', 'buddydrive' );?></li>
-						<li><?php _e( 'Introduces some filters to add new upload restrictions. (for Advanced users)', 'buddydrive' );?></li>
-					</ul>
-				</div>
-			</div>
+			<?php if ( ! empty( $_REQUEST['is_new_install' ] ) ) : ?>
 
 			<div class="changelog">
 				<h2 class="about-headline-callout"><?php esc_html_e( 'and always..', 'buddydrive' ); ?></h2>
@@ -532,6 +534,8 @@ class BuddyDrive_Admin {
 					</div>
 				</div>
 			</div>
+
+			<?php endif; ?>
 
 			<div class="changelog">
 				<div class="return-to-dashboard">

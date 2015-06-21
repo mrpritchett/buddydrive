@@ -2,16 +2,16 @@
 Contributors: imath
 Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
-Requires at least: 3.9
-Tested up to: 4.2
-Stable tag: 1.2.3
+Requires at least: 4.2.2
+Tested up to: 4.2.2
+Stable tag: 1.3.0
 License: GPLv2
 
 Share files the BuddyPress way!
 
 == Description ==
 
-BuddyDrive is a BuddyPress plugin (it requires at least version 2.0) that uses WordPress built in features for the management of its post attachments to allow the members of a community to share a file or a list of files thanks to the BuddyDrive folders.
+BuddyDrive is a BuddyPress plugin (it requires at least version 2.3) that uses WordPress built in features for the management of its post attachments to allow the members of a community to share a file or a list of files thanks to the BuddyDrive folders.
 Depending on the BuddyPress settings, the access to the BuddyDrive user's content can be restricted to :
 
 * the owner of the item only,
@@ -45,6 +45,15 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 5. BuddyDrive settings page
 
 == Changelog ==
+
+= 1.3.0 =
+
+* Requires BuddyPress 2.3
+* Uses the BuddyPress Attachments API to manage user submitted media.
+* Introduces the BuddyDrive editor, a specific tool plugins can use to attached file to their content.
+* Updates the group's latest activity when a file is shared with the members of the group.
+* Improve the Bulk delete feature in the Administration screen to make sure each user's quota will be updated.
+* Now includes a thumbnail for public image files when embed in the activity stream, a private message, a post, a page, ...
 
 = 1.2.3 =
 * Spanish translation, props sr_blasco
@@ -98,6 +107,9 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 1.3.0 =
+As usual, backup your database before upgrading
 
 = 1.2.3 =
 As usual, backup your database before upgrading

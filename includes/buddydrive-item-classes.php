@@ -188,16 +188,16 @@ class BuddyDrive_Item {
 			$defaults = array(
 				'id'                => false,
 				'name'              => false,
-				'group_id'	        => false,
-				'user_id'	        => false,
-				'per_page'	        => 10,
-				'paged'		        => 1,
+				'group_id'          => false,
+				'user_id'           => false,
+				'per_page'          => 10,
+				'paged'             => 1,
 				'type'              => false,
 				'buddydrive_scope'  => false,
 				'search'            => false,
 				'buddydrive_parent' => 0,
-				'exclude'		    => false,
-				'orderby' 		    => 'title',
+				'exclude'           => false,
+				'orderby'           => 'title',
 				'order'             => 'ASC'
 			);
 
@@ -205,57 +205,57 @@ class BuddyDrive_Item {
 			extract( $r );
 
 
-			$paged = ! empty( $_POST['page'] ) ? intval( $_POST['page'] ) : $paged;
+			$paged = ! empty( $_POST['page'] ) ? intval( $_POST['page'] ) : $r['paged'];
 
-			if ( ! empty( $id ) ){
+			if ( ! empty( $r['id'] ) ){
 				$query_args = array(
-					'post_status'	 => 'publish',
-					'post_type'	     => $type,
-					'p'              => $id,
-					'posts_per_page' => $per_page,
-					'paged'		     => $paged,
+					'post_status'    => 'publish',
+					'post_type'      => $r['type'],
+					'p'              => $r['id'],
+					'posts_per_page' => $r['per_page'],
+					'paged'          => $paged,
 				);
 
-			} else if ( ! empty( $name ) && ! empty( $type ) ) {
+			} else if ( ! empty( $r['name'] ) && ! empty( $r['type'] ) ) {
 
 				$query_args = array(
-					'post_status'	 => 'publish',
-					'post_type'	     => $type,
-					'name'           => $name,
-					'posts_per_page' => $per_page,
-					'paged'		     => $paged,
+					'post_status'    => 'publish',
+					'post_type'      => $r['type'],
+					'name'           => $r['name'],
+					'posts_per_page' => $r['per_page'],
+					'paged'          => $paged,
 				);
 
 			} else {
 
 				$query_args = array(
-					'post_status'	 => 'publish',
-					'post_type'	     => $type,
-					'post_parent'    => $buddydrive_parent,
-					'posts_per_page' => $per_page,
-					'paged'		     => $paged,
-					'orderby' 		 => $orderby,
-					'order'          => $order,
-					'meta_query'	 => array()
+					'post_status'    => 'publish',
+					'post_type'      => $r['type'],
+					'post_parent'    => $r['buddydrive_parent'],
+					'posts_per_page' => $r['per_page'],
+					'paged'          => $paged,
+					'orderby'        => $r['orderby'],
+					'order'          => $r['order'],
+					'meta_query'     => array()
 				);
 
-				switch ( $buddydrive_scope ) {
+				switch ( $r['buddydrive_scope'] ) {
 
 					case 'files' :
-						if ( ! empty( $user_id ) && $user_id == bp_displayed_user_id() )
-							$query_args['author'] = $user_id;
+						if ( ! empty( $r['user_id'] ) && (int) $r['user_id'] === (int) bp_displayed_user_id() ) {
+							$query_args['author'] = $r['user_id'];
+						}
 
 						if ( ! bp_is_my_profile() && ! bp_current_user_can( 'bp_moderate' ) ) {
-							$privacy[] = 'private';
-							/* Password protected should be displayed.. so commenting here in case user's feedback invalids this */
-							//$privacy[] = 'password';
+							$privacy = array( 'private' );
 
-							if ( bp_is_active( 'friends' ) && ! friends_check_friendship( $user_id, bp_loggedin_user_id() ) )
+							if ( bp_is_active( 'friends' ) && ! friends_check_friendship( $r['user_id'], bp_loggedin_user_id() ) ) {
 								$privacy[] = 'friends';
+							}
 
 							$query_args['meta_query'][] = array(
-								'key'	  => '_buddydrive_sharing_option',
-								'value'	  => $privacy,
+								'key'     => '_buddydrive_sharing_option',
+								'value'   => $privacy,
 								'compare' => 'NOT IN'
 							);
 						}
@@ -267,18 +267,18 @@ class BuddyDrive_Item {
 							$ids = friends_get_friend_user_ids( bp_loggedin_user_id() );
 
 							if ( ! empty( $ids ) ) {
-								$query_args['author'] = implode(',', $ids);
+								$query_args['author'] = implode( ',', $ids );
 
 								$query_args['meta_query'][] = array(
-									'key'	  => '_buddydrive_sharing_option',
-									'value'	  => 'friends',
+									'key'     => '_buddydrive_sharing_option',
+									'value'   => 'friends',
 									'compare' => '='
 								);
 							} else {
 								// we need to use a dummy query to avoid listing all files !
 								$query_args['meta_query'][] = array(
-									'key'	  => '_buddydrive_sharing_option',
-									'value'	  => 'dummyvalue',
+									'key'     => '_buddydrive_sharing_option',
+									'value'   => 'dummyvalue',
 									'compare' => '='
 								);
 							}
@@ -287,40 +287,42 @@ class BuddyDrive_Item {
 						break;
 
 					case 'groups' :
-						if ( bp_is_active( 'groups' ) && ! empty( $group_id ) && empty( $buddydrive_parent ) ) {
+						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
 							$query_args['meta_query'][] = array(
-								'key'	  => '_buddydrive_sharing_groups',
-								'value'	  => $group_id,
-								'compare' => 'IN' // Allows $group_id to be an array
+								'key'     => '_buddydrive_sharing_groups',
+								'value'   => $r['group_id'],
+								'compare' => 'IN' // Allows $r['group_id'] to be an array
 							);
 						}
 						break;
 
 					case 'admin' :
-						if ( ! empty( $user_id ) )
-							$query_args['author'] = $user_id;
+						if ( ! empty( $r['user_id'] ) ) {
+							$query_args['author'] = $r['user_id'];
+						}
 
-						if ( bp_is_active( 'groups' ) && ! empty( $group_id ) && empty( $buddydrive_parent ) ) {
+						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
 							$query_args['meta_query'][] = array(
-								'key'	  => '_buddydrive_sharing_groups',
-								'value'	  => $group_id,
+								'key'     => '_buddydrive_sharing_groups',
+								'value'   => $r['group_id'],
 								'compare' => 'IN' // Allows $group_id to be an array
 							);
 						}
 						// Search is only possible for Super Admin, as searching makes it difficult to garanty privacy
-						if ( ! empty( $search ) ) {
-							$query_args['s'] = $search;
+						if ( ! empty( $r['search'] ) ) {
+							$query_args['s'] = $r['search'];
 						}
 						break;
 				}
 
 			}
 
-			if ( ! empty( $exclude ) ) {
-				if ( ! is_array( $exclude ) )
-					$exclude = explode( ',', $exclude );
+			if ( ! empty( $r['exclude'] ) ) {
+				if ( ! is_array( $r['exclude'] ) ) {
+					$r['exclude'] = explode( ',', $r['exclude'] );
+				}
 
-				$query_args['post__not_in'] = $exclude;
+				$query_args['post__not_in'] = $r['exclude'];
 			}
 
 
@@ -330,13 +332,13 @@ class BuddyDrive_Item {
 
 			// Let's also set up some pagination
 			$this->pag_links = paginate_links( array(
-				'base' => add_query_arg( 'items_page', '%#%' ),
-				'format' => '',
-				'total' => ceil( (int) $this->query->found_posts / (int) $this->query->query_vars['posts_per_page'] ),
-				'current' => (int) $paged,
+				'base'      => add_query_arg( 'items_page', '%#%' ),
+				'format'    => '',
+				'total'     => ceil( (int) $this->query->found_posts / (int) $this->query->query_vars['posts_per_page'] ),
+				'current'   => (int) $paged,
 				'prev_text' => '&larr;',
 				'next_text' => '&rarr;',
-				'mid_size' => 1
+				'mid_size'  => 1
 			) );
 		}
 
@@ -419,7 +421,7 @@ class BuddyDrive_Item {
 		$buddydrive_items = false;
 
 		if ( ! empty( $ids ) ) {
-			$ids = (array) $ids;
+			$ids = wp_parse_id_list( $ids );
 
 			$in = '("' . implode( '","', $ids ) . '")';
 			$buddydrive_items = $wpdb->get_results( "SELECT ID, post_title, post_type FROM {$wpdb->base_prefix}posts WHERE ID IN {$in}");
@@ -445,66 +447,80 @@ class BuddyDrive_Item {
 	public function delete( $ids = false, $user_id = false ) {
 		global $wpdb;
 
-		$buddydrive_ids = $new_space = false;
-		$filesize = 0;
+		$buddydrive_ids = array();
+		$spaces         = array();
+		$new_space      = false;
+		$ids            = array_filter( wp_parse_id_list( $ids ) );
 
 		if ( ! empty( $ids ) ) {
-			$ids = (array) $ids;
-
 			//we need to get the children
 			$in = '("' . implode( '","', $ids ) . '")';
 			$buddydrive_ids = $wpdb->get_col( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_parent IN {$in}");
 
 			$buddydrive_ids = array_merge( $buddydrive_ids, $ids );
 
-		} else if ( ! empty( $user_id ) && empty( $ids ) ) {
+		} elseif ( ! empty( $user_id ) && empty( $ids ) ) {
 			// in case a user is deleted
 			$buddydrive_ids = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_author = %d AND post_type IN (%s, %s)", $user_id, buddydrive_get_folder_post_type(), buddydrive_get_file_post_type() ) );
 
+			$new_user = (int) apply_filters( 'buddydrive_set_owner_on_user_deleted', 0 );
+
+			// The new user must have the power to post in any group
+			if ( ! empty( $new_user ) && user_can( $new_user, 'bp_moderate' ) && ! empty( $buddydrive_ids ) ) {
+				$wpdb->query( $wpdb->prepare( "UPDATE {$wpdb->base_prefix}posts SET post_author = %d WHERE post_author = %d AND post_type IN (%s, %s)", $new_user, $user_id, buddydrive_get_folder_post_type(), buddydrive_get_file_post_type() ) );
+
+				foreach ( $buddydrive_ids as $post_id ) {
+					clean_post_cache( $post_id );
+				}
+			}
 		}
 
-		if ( count( $buddydrive_ids ) < 1 )
-				return false;
+		if ( empty( $buddydrive_ids ) ) {
+			return false;
+		}
 
-		foreach ( $buddydrive_ids as $id ){
+		if ( empty( $new_user ) ) {
+			foreach ( $buddydrive_ids as $id ){
+				$buddyfile = buddydrive_get_buddyfile( $id );
 
-			$buddyfile = buddydrive_get_buddyfile( $id );
+				if ( ! empty( $buddyfile ) ) {
 
-			if ( ! empty( $buddyfile ) ) {
+					if ( ! empty( $buddyfile->path ) && file_exists( $buddyfile->path ) ) {
 
-				if ( empty( $user_id ) || $buddyfile->user_id != $user_id )
-					$user_id = $buddyfile->user_id;
+						if ( ! isset( $spaces[ $buddyfile->user_id ] ) ) {
+							$spaces[ $buddyfile->user_id ] = filesize( $buddyfile->path );
+						} else {
+							$spaces[ $buddyfile->user_id ] += filesize( $buddyfile->path );
+						}
 
-				if ( ! empty( $buddyfile->path ) && file_exists( $buddyfile->path ) ) {
-					$filesize += filesize( $buddyfile->path );
+						unlink( $buddyfile->path );
+					}
 
-					unlink( $buddyfile->path );
+					// Delete the thumbnail
+					if ( 'public' === $buddyfile->check_for ) {
+						buddydrive_delete_thumbnail( $buddyfile->ID );
+					}
 				}
 
+				wp_delete_post( $id, true );
 			}
-
-			wp_delete_post( $id, true );
-
 		}
 
-		if ( ! empty( $user_id ) ) {
+		if ( ! empty( $spaces ) ) {
 
-			$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
-			$user_total_space = intval( $user_total_space );
+			foreach ( $spaces as $u_id => $space ) {
+				$user_total_space = get_user_meta( $u_id, '_buddydrive_total_space', true );
+				$user_total_space = intval( $user_total_space );
 
-			if ( $filesize < $user_total_space )
-				$new_space = $user_total_space - $filesize;
-			else
-				$new_space = 0;
-
-			if ( ! empty( $ids ) )
-				update_user_meta( $user_id, '_buddydrive_total_space', $new_space );
-
+				if ( $space < $user_total_space ) {
+					buddydrive_update_user_space( $u_id, -1 * absint( $space ) );
+				} else {
+					delete_user_meta( $u_id, '_buddydrive_total_space' );
+				}
+			}
 		}
-
 
 		return count( $buddydrive_ids );
-
 	}
 
 
@@ -579,7 +595,6 @@ class BuddyDrive_Uploader {
 
 	public function __construct() {
 		$this->setup_actions();
-		$this->includes();
 		$this->display();
 	}
 
@@ -588,14 +603,6 @@ class BuddyDrive_Uploader {
 	 */
 	public function setup_actions() {
 		add_action( 'wp_footer', array( $this, 'enqueue_scripts' ), 1 );
-	}
-
-	/**
-	 * Includes the needed php files
-	 */
-	public function includes() {
-		require_once(ABSPATH . "wp-admin" . '/includes/file.php');
-		require_once(ABSPATH . "wp-admin" . '/includes/media.php');
 	}
 
 	/**
@@ -781,3 +788,214 @@ class BuddyDrive_Uploader {
 		<?php
 	}
 }
+
+if ( class_exists( 'BP_Attachment' ) ) :
+/**
+ * The Attachments class
+ *
+ * @since 1.3.0
+ */
+class BuddyDrive_Attachment extends BP_Attachment {
+	/**
+	 * The constuctor
+	 *
+	 * @since 1.3.0
+	 */
+	public function __construct() {
+		parent::__construct( array(
+			'action'               => 'buddydrive_upload',
+			'file_input'           => 'buddyfile-upload',
+			'base_dir'             => 'buddydrive',
+			'upload_error_strings' => buddydrive_get_upload_error_strings(),
+			'allowed_mime_types'   => buddydrive_get_allowed_upload_exts(),
+		) );
+	}
+
+	/**
+	 * Get BuddyDrive upload data
+	 *
+	 * @since 1.3.0
+	 *
+	 * @return array an associative array to inform about the upload base dir and url
+	 */
+	public function get_upload_data() {
+		// Make sure to run this part once
+		if ( empty( $this->upload_data['dir'] ) ) {
+			/**
+			 * In previous version it was possible to change
+			 * the upload data before upload dir has been created
+			 * using this filter. Keeping it for backcompat
+			 *
+			 * @since  1.2.0
+			 *
+			 * @param array an associative array to inform about the upload base dir and url
+			 */
+			$this->upload_data = apply_filters( 'buddydrive_get_upload_data', array(
+				'dir'      => $this->upload_path,
+				'url'      => $this->url,
+				'thumbdir' => $this->upload_path . '-thumbnails',
+				'thumburl' => $this->url . '-thumbnails',
+			) );
+
+			if ( $this->upload_data['dir'] != $this->upload_path ) {
+				$this->upload_path = $this->upload_data['dir'];
+			}
+
+			if ( $this->upload_data['url'] != $this->url ) {
+				$this->url = $this->upload_data['url'];
+			}
+		}
+
+		return $this->upload_data;
+	}
+
+	/**
+	 * Create the BuddyDrive dir and add an .htaccess in it
+	 *
+	 * @since 1.3.0
+	 *
+	 * @return bool true on dir created, false otherwise
+	 */
+	public function create_dir() {
+		// Let's be sure old filter is fired
+		$this->get_upload_data();
+
+		// Create a public folder for thumbnails
+		if ( ! empty( $this->upload_data['thumbdir'] ) && ! is_dir( $this->upload_data['thumbdir'] ) ) {
+			wp_mkdir_p( $this->upload_data['thumbdir'] );
+		}
+
+		// Check if upload path already exists
+		if ( ! is_dir( $this->upload_path ) ) {
+
+			// If path does not exist, attempt to create it
+			if ( ! wp_mkdir_p( $this->upload_path ) ) {
+				return false;
+			}
+
+			// then we need to check for .htaccess and eventually create it
+			if ( ! file_exists( $this->upload_path .'/.htaccess' ) ) {
+				$this->required_wp_files['misc'] = 'misc';
+				$this->includes();
+
+				// Defining the rule, we need to make it unreachable and use php to reach it
+				$rules = array( 'Order Allow,Deny','Deny from all' );
+
+				// creating the .htaccess file
+				insert_with_markers( $this->upload_path .'/.htaccess', 'Buddydrive', $rules );
+				unset( $this->required_wp_files['misc'] );
+			}
+		}
+
+		// Directory exists
+		return true;
+	}
+
+	/**
+	 * BuddyDrive specific upload rules
+	 *
+	 * @since 1.3.0
+	 *
+	 * @param  array $file the temporary file attributes (before it has been moved)
+	 * @return array the file
+	 */
+	public function validate_upload( $file = array() ) {
+		// there's already an error
+		if ( ! empty( $file['error'] ) ) {
+			return $file;
+		}
+
+		// This codes are restricted to BuddyDrive
+		$buddydrive_errors = array(
+			9  => 1,
+			10 => 1,
+			11 => 1,
+		);
+
+		// what's left in user's quota ?
+		$space_left = buddydrive_get_user_space_left( 'diff' );
+		$file_size = filesize( $file['tmp_name'] );
+
+		// File is bigger than space left
+		if ( $space_left < $file_size ) {
+			$file['error'] = 9;
+		}
+
+		// File is bigger than the max allowed for BuddyDrive files
+		if ( $file_size > buddydrive_max_upload_size( true ) ) {
+			$file['error'] = 10;
+		}
+
+		// No more space left
+		if ( $space_left <= 0 ) {
+			$file['error'] = 11;
+		}
+
+		if ( ! isset( $buddydrive_errors[ $file['error'] ] ) ) {
+			/**
+			 * Validation for custom errors
+			 *
+			 * @since 1.2.2
+			 *
+			 * @param $file the file data
+			 */
+			return apply_filters( 'buddydrive_upload_errors', $file );
+		}
+
+		return $file;
+	}
+
+	/**
+	 * Set the directory when uploading a file
+	 *
+	 * @since 1.3.0
+	 *
+	 * @return array upload data (path, url, basedir...)
+	 */
+	public function upload_dir_filter() {
+		$upload_data = parent::upload_dir_filter();
+		/**
+		 * Filters BuddyDrive's upload data.
+		 *
+		 * If people used to filter 'buddydrive_upload_datas', we need
+		 * to have it here
+		 *
+		 * @since 1.0
+		 *
+		 * @param array $value Array containing the path, URL, and other helpful settings.
+		 */
+		return apply_filters( 'buddydrive_upload_datas', $upload_data );
+	}
+
+	/**
+	 * Build script datas for the Uploader UI
+	 *
+	 * @since 1.3.0
+	 *
+	 * @return array the javascript localization data
+	 */
+	public function script_data() {
+		// Get default script data
+		$script_data = parent::script_data();
+
+		$script_data['bp_params'] = array(
+			'object'  => buddydrive_get_file_post_type(),
+			'item_id' => bp_loggedin_user_id(),
+			'privacy' => 'public',
+		);
+
+		if ( buddydrive_current_group_is_enabled() ) {
+			$script_data['bp_params']['privacy']         = 'groups';
+			$script_data['bp_params']['privacy_item_id'] = bp_get_current_group_id();
+		}
+
+		// Include our specific css
+		$script_data['extra_css'] = array( 'buddydrive-public-style' );
+
+		// Include our specific js
+		$script_data['extra_js']  = array( 'buddydrive-public-js' );
+
+		return apply_filters( 'buddydrive_attachment_script_data', $script_data );
+	}
+}
+endif;

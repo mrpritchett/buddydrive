@@ -156,7 +156,7 @@ table#buddydrive-dir img{
 	text-decoration:none;
 }
 
-#buddydrive-file-uploader.hide, 
+#buddydrive-file-uploader.hide,
 #buddydrive-folder-editor.hide,
 #buddydrive-edit-item.hide,
 #buddydrive-file-uploader .hide,
@@ -315,4 +315,15 @@ i.icon.bd-icon-unlocked:before{
 
 i.icon.bd-icon-file:before{
 	content: "\f498";
+}
+
+.bp-user #buddypress table#buddydrive-dir,
+.single-item.groups #buddypress table#buddydrive-dir {
+	table-layout: auto;
+}
+
+.bp-user #buddypress table#buddydrive-dir td div.buddydrive-file-content,
+.single-item.groups #buddypress table#buddydrive-dir td div.buddydrive-file-content {
+	display:block;
+	width:inherit;
 }

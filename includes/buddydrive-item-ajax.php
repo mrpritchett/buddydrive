@@ -22,8 +22,14 @@ if ( ! defined( 'ABSPATH' ) ) exit;
 function buddydrive_save_new_buddyfile() {
 
 	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 		return;
+	}
+
+	if ( ! empty( $_POST['bp_params'] ) && buddydrive_get_file_post_type() === $_POST['bp_params']['object'] ) {
+		buddydrive_add_public_file();
+		return;
+	}
 
 	// Check the nonce
 	check_admin_referer( 'buddydrive-form' );
@@ -31,40 +37,15 @@ function buddydrive_save_new_buddyfile() {
 	$output = '';
 	$privacy = $group = $password = $parent = false;
 
-	// In multisite, we need to remove some filters
-	if ( is_multisite() ) {
-		remove_filter( 'upload_mimes', 'check_upload_mimes' );
-		remove_filter( 'upload_size_limit', 'upload_size_limit_filter' );
-	}
-
-	// temporarly overrides wp upload dir / wp mime types & wp upload size settings with BuddyDrive ones
-	add_filter( 'upload_dir', 'buddydrive_temporarly_filters_wp_upload_dir', 10, 1);
-	add_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes', 10, 1 );
-
-	// Accents can be problematic.
-	add_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
-
-	$buddydrive_file = wp_handle_upload( $_FILES['buddyfile-upload'], array( 'action' => 'buddydrive_upload', 'upload_error_strings' => buddydrive_get_upload_error_strings() ) );
+	$buddydrive_file = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
 
 	if ( ! empty( $buddydrive_file ) && is_array( $buddydrive_file ) && empty( $buddydrive_file['error'] ) ) {
-		/**
-		 * file was uploaded !!
-		 * Now we can create the buddydrive_file_post_type
-		 *
-		 */
 
-		//let's take care of quota !
-		$user_id = bp_loggedin_user_id();
-		$user_total_space = get_user_meta( $user_id, '_buddydrive_total_space', true );
-		$update_space = !empty( $user_total_space ) ? intval( $user_total_space ) + intval( $_FILES['buddyfile-upload']['size'] ) : intval( $_FILES['buddyfile-upload']['size'] );
-		update_user_meta( $user_id, '_buddydrive_total_space', $update_space );
-
-
-		$name = $_FILES['buddyfile-upload']['name'];
+		$name       = $_FILES['buddyfile-upload']['name'];
 		$name_parts = pathinfo( $name );
-		$name = trim( substr( $name, 0, -( 1 + strlen( $name_parts['extension'] ) ) ) );
-		$content = !empty( $_POST['buddydesc'] ) ? wp_kses( $_POST['buddydesc'], array() ) : false;
-		$meta = false;
+		$name       = $name_parts['filename'];
+		$content    = !empty( $_POST['buddydesc'] ) ? wp_kses( $_POST['buddydesc'], array() ) : false;
+		$meta       = false;
 
 		if ( ! empty( $_POST['buddyshared'] ) ) {
 
@@ -101,23 +82,30 @@ function buddydrive_save_new_buddyfile() {
 		will look for an  id instead of a post name, so to avoid this,
 		we add a prefix to the name
 		*/
-		if ( is_numeric( $name ) )
+		if ( is_numeric( $name ) ) {
 			$name = 'f-' . $name;
+		}
 
 		// Construct the buddydrive_file_post_type array
 		$args = array(
-			'type' => buddydrive_get_file_post_type(),
-			'guid' => $buddydrive_file['url'],
-			'title' => $name,
-			'content' => $content,
+			'type'      => buddydrive_get_file_post_type(),
+			'guid'      => $buddydrive_file['url'],
+			'title'     => $name,
+			'content'   => $content,
 			'mime_type' => $buddydrive_file['type'],
-			'metas' => $meta
+			'metas'     => $meta
 		);
 
-		if ( ! empty( $parent ) )
+		if ( ! empty( $parent ) ) {
 			$args['parent_folder_id'] = $parent;
+		}
 
 		$buddyfile_id = buddydrive_save_item( $args );
+
+		// Try to create a thumbnail if it's an image and a public file
+		if ( ! empty( $buddyfile_id ) && 'public' === $meta->privacy ) {
+			buddydrive_set_thumbnail( $buddyfile_id, $buddydrive_file );
+		}
 
 		echo $buddyfile_id;
 
@@ -125,18 +113,108 @@ function buddydrive_save_new_buddyfile() {
 		echo '<div class="error-div"><a class="dismiss" href="#">' . __( 'Dismiss', 'buddydrive' ) . '</a><strong>' . sprintf( __( '&#8220;%s&#8221; has failed to upload due to an error : %s', 'buddydrive' ), esc_html( $_FILES['buddyfile-upload']['name'] ), $buddydrive_file['error'] ) . '</strong><br /></div>';
 	}
 
-
-	// let's restore wp upload dir settings !
-	remove_filter( 'upload_dir', 'buddydrive_temporarly_filters_wp_upload_dir', 10, 1);
-	remove_filter( 'upload_mimes', 'buddydrive_allowed_upload_mimes', 10, 1 );
-
-	// Stop filtering.
-	remove_filter( 'sanitize_file_name', 'remove_accents', 10, 1 );
-
 	die();
 }
 add_action( 'wp_ajax_buddydrive_upload', 'buddydrive_save_new_buddyfile' );
 
+/**
+ * Handle public file uploaded using buddydrive_editor
+ *
+ * @since 1.3.0
+ */
+function buddydrive_add_public_file() {
+	/**
+	 * Sending the json response will be different if
+	 * the current Plupload runtime is html4
+	 */
+	$is_html4 = false;
+	if ( ! empty( $_POST['html4' ] ) ) {
+		$is_html4 = true;
+	}
+
+	// Check the nonce
+	check_admin_referer( 'bp-uploader' );
+
+	// Init the BuddyPress parameters
+	$bp_params = (array) $_POST['bp_params' ];
+
+	// Check params
+	if ( empty( $bp_params['item_id'] ) ) {
+		bp_attachments_json_response( false, $is_html4 );
+	}
+
+	// Capability check
+	if ( ! is_user_logged_in() || (int) bp_loggedin_user_id() !== (int) $bp_params['item_id'] ) {
+		bp_attachments_json_response( false, $is_html4 );
+	}
+
+	$bd_file = buddydrive_upload_item( $_FILES, $bp_params['item_id'] );
+
+	// Error while trying to upload the file
+	if ( ! empty( $bd_file['error'] ) ) {
+		bp_attachments_json_response( false, $is_html4, array(
+			'type'    => 'upload_error',
+			'message' => $bd_file['error'],
+		) );
+	}
+
+	$name_parts = pathinfo( $bd_file['file'] );
+	$url        = $bd_file['url'];
+	$mime       = $bd_file['type'];
+	$file       = $bd_file['file'];
+	$title      = $name_parts['filename'];
+
+	if ( is_numeric( $title ) ) {
+		$title = 'f-' . $title;
+	}
+
+	$meta = new stdClass();
+	
+	// Defaults to public.
+	$meta->privacy = 'public';
+	if ( ! empty( $bp_params['privacy'] ) ) {
+		$meta->privacy = $bp_params['privacy'];
+
+		if ( ! empty( $bp_params['privacy_item_id'] ) && 'groups' === $meta->privacy ) {
+			$meta->groups = $bp_params['privacy_item_id'];
+		}
+	}
+
+	$buddyfile_id = buddydrive_save_item( array(
+		'type'      => buddydrive_get_file_post_type(),
+		'guid'      => $url,
+		'title'     => $title,
+		'mime_type' => $mime,
+		'metas'     => $meta
+	) );
+
+	if ( empty( $buddyfile_id ) ) {
+		bp_attachments_json_response( false, $is_html4, array(
+			'type'    => 'upload_error',
+			'message' => __( 'Error while creating the file, sorry.', 'buddydrive' ),
+		) );
+	} else {
+		$icon = wp_mime_type_icon( $buddyfile_id );
+
+		// Try to create a thumbnail if it's an image and a public file
+		if ( ! empty( $buddyfile_id ) && 'public' === $meta->privacy ) {
+			$thumbnail = buddydrive_set_thumbnail( $buddyfile_id, $bd_file );
+
+			if ( ! empty( $thumbnail ) ) {
+				$icon = $thumbnail;
+			}
+		}
+	}
+
+	$response = buddydrive_get_buddyfile( $buddyfile_id );
+
+	// Finally return file to the editor
+	bp_attachments_json_response( true, $is_html4, array(
+		'name' => esc_html( $response->title ),
+		'icon' => $icon,
+		'url'  => esc_url_raw( $response->link ),
+	) );
+}
 
 /**
  * Gets the latest created file once uploaded
@@ -402,8 +480,9 @@ add_action( 'wp_ajax_buddydrive_getgroups', 'buddydrive_list_user_groups' );
 function buddydrive_delete_items() {
 
 	// Bail if not a POST action
-	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
+	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 		return;
+	}
 
 	// Check the nonce
 	check_admin_referer( 'buddydrive_actions', '_wpnonce_buddydrive_actions' );
@@ -414,12 +493,13 @@ function buddydrive_delete_items() {
 
 	$items = explode( ',', $items );
 
-	$items_nbre = buddydrive_delete_item( array( 'ids' => $items ) );
+	$items_nbre = buddydrive_delete_item( array( 'ids' => $items, 'user_id' => false ) );
 
-	if ( ! empty( $items_nbre) )
+	if ( ! empty( $items_nbre) ) {
 		echo json_encode( array( 'result' => $items_nbre, 'items' => $items ) );
-	else
+	} else {
 		echo json_encode( array( 'result' => 0 ) );
+	}
 
 	die();
 
@@ -666,12 +746,16 @@ function buddydrive_share_in_group() {
 		}
 
 	}
-	if ( ! empty( $result ) )
-		echo 1;
-	else
-		_e( 'this is embarassing, it did not work :(', 'buddydrive' );
-	die();
+	if ( ! empty( $result ) ) {
+		// Update the group's latest activity
+		groups_update_last_activity( $group_id );
 
+		echo 1;
+	} else {
+		_e( 'this is embarassing, it did not work :(', 'buddydrive' );
+	}
+
+	die();
 }
 add_action( 'wp_ajax_buddydrive_groupupdate', 'buddydrive_share_in_group' );
 
