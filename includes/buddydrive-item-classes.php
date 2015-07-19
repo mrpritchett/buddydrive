@@ -313,6 +313,25 @@ class BuddyDrive_Item {
 							$query_args['s'] = $r['search'];
 						}
 						break;
+
+					default :
+						// non public meta values are restricted to admins
+						if ( 'public' !== $r['buddydrive_scope'] && ! bp_current_user_can( 'bp_moderate' ) ) {
+							$meta_value = 'dummyvalue';
+						} else {
+							$meta_value = $r['buddydrive_scope'];
+						}
+
+						/**
+						 * Use the scope to build a meta query
+						 *
+						 * if the scope match a sharing option, files or folders will be fetched
+						 */
+						$query_args['meta_query'][] = array(
+							'key'     => '_buddydrive_sharing_option',
+							'value'   => $meta_value,
+							'compare' => '='
+						);
 				}
 
 			}
