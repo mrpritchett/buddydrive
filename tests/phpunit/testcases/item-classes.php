@@ -36,6 +36,10 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 		$this->expected_ids['bar'] = buddydrive_save_item( $args );
 	}
 
+	public function set_displayed_user_id( $user_id = 0 ) {
+		return $this->user_id;
+	}
+
 	public function tearDown() {
 		parent::tearDown();
 
@@ -102,5 +106,103 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 
 		$file = wp_list_pluck( $by_user_id->query->posts, 'ID' );
 		$this->assertTrue( $this->expected_ids['bar'] === (int) $file[0] );
+	}
+
+	/**
+	 * @group get
+	 * @group scope
+	 */
+	public function test_buddydrive_item_get_by_scope() {
+		$u2 = $this->factory->user->create();
+
+		// Admin
+		$this->set_current_user( 1 );
+
+		$by_scope = new BuddyDrive_Item();
+
+		// Get by scope
+		$by_scope->get( array(
+			'type'              => buddydrive_get_file_post_type(),
+			'buddydrive_scope'  => 'admin',
+		) );
+
+		// Admin should see everything
+		$this->assertTrue( (int) $by_scope->query->found_posts === 2 );
+
+		// Update the privacy of the file
+		$file_object = buddydrive_get_buddyfile( $this->expected_ids['foo'] );
+
+		buddydrive_update_item( array(
+			'privacy' => 'public',
+		), $file_object );
+
+		// Any user
+		$this->set_current_user( $u2 );
+
+		add_filter( 'bp_displayed_user_id', array( $this, 'set_displayed_user_id' ), 10, 1 );
+
+		$by_scope = new BuddyDrive_Item();
+
+		// Get by scope
+		$by_scope->get( array(
+			'type'              => buddydrive_get_file_post_type(),
+			'buddydrive_scope'  => 'files',
+		) );
+
+		$file = wp_list_pluck( $by_scope->query->posts, 'ID' );
+		$this->assertTrue( $this->expected_ids['foo'] === (int) $file[0], 'only public files should be listed' );
+
+		// The owner
+		$this->set_current_user( $this->user_id );
+
+		$by_scope = new BuddyDrive_Item();
+
+		// Get by scope
+		$by_scope->get( array(
+			'type'              => buddydrive_get_file_post_type(),
+			'buddydrive_scope'  => 'files',
+		) );
+
+		// Owner should see everything
+		$this->assertTrue( (int) $by_scope->query->found_posts === 2 );
+
+		remove_filter( 'bp_displayed_user_id', array( $this, 'set_displayed_user_id' ), 10, 1 );
+
+		// Any user
+		$this->set_current_user( $u2 );
+
+		// Update the privacy and owner of the file
+		$file_object = buddydrive_get_buddyfile( $this->expected_ids['bar'] );
+
+		buddydrive_update_item( array(
+			'privacy' => 'public',
+			'user_id' => $u2,
+		), $file_object );
+
+		$by_scope = new BuddyDrive_Item();
+
+		// Get by scope
+		$by_scope->get( array(
+			'type'              => buddydrive_get_file_post_type(),
+			'buddydrive_scope'  => 'public',
+		) );
+
+		// Custom loops should be able to list all public files
+		$this->assertTrue( (int) $by_scope->query->found_posts === 2 );
+
+		buddydrive_update_item( array(
+			'privacy' => 'private',
+		), $file_object );
+
+		$by_scope = new BuddyDrive_Item();
+
+		// Get by scope
+		$by_scope->get( array(
+			'type'              => buddydrive_get_file_post_type(),
+			'buddydrive_scope'  => 'public',
+		) );
+
+		// Custom loops should be able to list all public files
+		$this->assertTrue( (int) $by_scope->query->found_posts === 1 );
 	}
 }

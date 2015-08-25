@@ -167,7 +167,6 @@ class BuddyDrive_Item {
 		return $result;
 	}
 
-
 	/**
 	 * The selection query
 	 *
@@ -202,8 +201,6 @@ class BuddyDrive_Item {
 			);
 
 			$r = wp_parse_args( $args, $defaults );
-			extract( $r );
-
 
 			$paged = ! empty( $_POST['page'] ) ? intval( $_POST['page'] ) : $r['paged'];
 
@@ -344,7 +341,6 @@ class BuddyDrive_Item {
 				$query_args['post__not_in'] = $r['exclude'];
 			}
 
-
 			// Run the query, and store as an object property, so we can access from
 			// other methods
 			$this->query = new WP_Query( $query_args );
@@ -360,9 +356,7 @@ class BuddyDrive_Item {
 				'mid_size'  => 1
 			) );
 		}
-
 	}
-
 
 	/**
 	 * do we have items to show ?
@@ -371,14 +365,12 @@ class BuddyDrive_Item {
 		return $this->query->have_posts();
 	}
 
-
 	/**
 	 * Part of our BuddyDrive loop
 	 */
 	public function the_post() {
 		return $this->query->the_post();
 	}
-
 
 	/**
 	 * list BuddyDrive Files attached to a folder if any
@@ -398,7 +390,6 @@ class BuddyDrive_Item {
 		$buddydrive_children = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_parent = %d", $folder_id ) );
 		return $buddydrive_children;
 	}
-
 
 	/**
 	 * Updates the privacy of files attached to a folder
@@ -426,7 +417,6 @@ class BuddyDrive_Item {
 		}
 	}
 
-
 	/**
 	 * Retrieves some items datas for an array of BuddyDrive items
 	 *
@@ -449,7 +439,6 @@ class BuddyDrive_Item {
 
 		return $buddydrive_items;
 	}
-
 
 	/**
 	 * Deletes a list of items or all the items of a given user
@@ -542,7 +531,6 @@ class BuddyDrive_Item {
 		return count( $buddydrive_ids );
 	}
 
-
 	/**
 	 * Removes a BuddyDrive item from a group
 	 *
@@ -573,7 +561,6 @@ class BuddyDrive_Item {
 		return 1;
 	}
 
-
 	/**
 	 * Handles the group deletion and restore a privacy to a BuddyDrive item
 	 * @param  integer $group_id
@@ -598,7 +585,6 @@ class BuddyDrive_Item {
 
 		return true;
 	}
-
 }
 
 
