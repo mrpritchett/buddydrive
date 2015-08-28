@@ -56,7 +56,7 @@ class BuddyDrive_Item {
 	 */
 	public function save() {
 		$this->id               = apply_filters_ref_array( 'buddydrive_item_id_before_save',         array( $this->id,                &$this ) );
-		$this->type             = apply_filters_ref_array( 'buddydrive_item_user_id_before_save',    array( $this->type,              &$this ) );
+		$this->type             = apply_filters_ref_array( 'buddydrive_item_type_before_save',       array( $this->type,              &$this ) );
 		$this->user_id          = apply_filters_ref_array( 'buddydrive_item_user_id_before_save',    array( $this->user_id,           &$this ) );
 		$this->parent_folder_id = apply_filters_ref_array( 'buddydrive_item_parent_id_before_save',  array( $this->parent_folder_id,  &$this ) );
 		$this->title            = apply_filters_ref_array( 'buddydrive_item_title_before_save',      array( $this->title,             &$this ) );
