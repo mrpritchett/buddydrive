@@ -264,16 +264,19 @@ function buddydrive_has_items( $args = '' ) {
 		$defaulttype = array( buddydrive_get_folder_post_type(), buddydrive_get_file_post_type() );
 		$user = $group_id = $buddyscope = false;
 
-		if ( bp_displayed_user_id() )
+		if ( bp_displayed_user_id() ) {
 			$user = bp_displayed_user_id();
+		}
 
 		$buddyscope = bp_current_action();
 
-		if ( $buddyscope == buddydrive_get_friends_subnav_slug() )
+		if ( $buddyscope == buddydrive_get_friends_subnav_slug() ){
 			$buddyscope = 'friends';
+		}
 
-		if ( is_admin() )
+		if ( is_admin() ) {
 			$buddyscope = 'admin';
+		}
 
 		if ( bp_is_active( 'groups' ) && buddydrive_is_group() ) {
 			$group = groups_get_current_group();
@@ -302,7 +305,11 @@ function buddydrive_has_items( $args = '' ) {
 				'order'             => 'ASC'
 			);
 
-		$r = wp_parse_args( $args, $defaults );
+		$r = bp_parse_args( $args, $defaults, 'buddydrive_has_items' );
+
+		if ( 'admin' === $r['buddydrive_scope'] && ! bp_current_user_can( 'bp_moderate' ) ) {
+			$r['buddydrive_scope'] = 'files';
+		}
 
 		$buddydrive_template = new BuddyDrive_Item();
 

@@ -3,8 +3,8 @@ Contributors: imath
 Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 4.2.2
-Tested up to: 4.2.2
-Stable tag: 1.3.0
+Tested up to: 4.3
+Stable tag: 1.3.1
 License: GPLv2
 
 Share files the BuddyPress way!
@@ -46,8 +46,13 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 
 == Changelog ==
 
-= 1.3.0 =
+= 1.3.1 =
+* Allow custom loop to list files according to the files privacy
+* Allow BuddyDrive's group nav item visibility/access to be overriden
+* Adapt to WP List Table changes introduced in WordPress 4.3
+* Use the correct filter for the type being saved in BuddyDrive_Item->save()
 
+= 1.3.0 =
 * Requires BuddyPress 2.3
 * Uses the BuddyPress Attachments API to manage user submitted media.
 * Introduces the BuddyDrive editor, a specific tool plugins can use to attached file to their content.
@@ -107,6 +112,9 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 1.3.1 =
+As usual, backup your database before upgrading
 
 = 1.3.0 =
 As usual, backup your database before upgrading

@@ -3,9 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Buddydrive 1.0\n"
-"Report-Msgid-Bugs-To: http://wordpress.org/support/plugin/buddydrive\n"
-"POT-Creation-Date: 2015-06-21 13:50:29+00:00\n"
-"PO-Revision-Date: 2015-06-21 15:51+0100\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/buddydrive\n"
+"POT-Creation-Date: 2015-08-28 15:52:53+00:00\n"
+"PO-Revision-Date: 2015-08-28 17:54+0100\n"
 "Last-Translator: imath <mathchristo@yahoo.fr>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -511,19 +511,19 @@ msgstr "Nom et Description"
 #: includes/admin/buddydrive-items.php:310
 #: includes/admin/buddydrive-items.php:535
 #: includes/buddydrive-item-ajax.php:536
-#: includes/buddydrive-item-template.php:1145 templates/buddydrive-loop.php:22
+#: includes/buddydrive-item-template.php:1152 templates/buddydrive-loop.php:22
 #: templates/buddydrive-loop.php:54
 msgid "Name"
 msgstr "Nom"
 
 #: includes/admin/buddydrive-items.php:314
 #: includes/buddydrive-item-ajax.php:540
-#: includes/buddydrive-item-template.php:1043
+#: includes/buddydrive-item-template.php:1050
 msgid "Description"
 msgstr "Description"
 
 #: includes/admin/buddydrive-items.php:315
-#: includes/buddydrive-item-classes.php:699
+#: includes/buddydrive-item-classes.php:704
 msgid "140 characters to do so"
 msgstr "140 caractères max."
 
@@ -541,8 +541,8 @@ msgid "Save Changes"
 msgstr "Sauvegarder"
 
 #: includes/admin/buddydrive-items.php:399
-#: includes/buddydrive-item-template.php:724
-#: includes/buddydrive-item-template.php:752
+#: includes/buddydrive-item-template.php:731
+#: includes/buddydrive-item-template.php:759
 msgid "Owner"
 msgstr "Propriétaire"
 
@@ -640,7 +640,7 @@ msgstr "Supprimer définitivement"
 
 #: includes/admin/buddydrive-items.php:602
 #: includes/buddydrive-item-ajax.php:586
-#: includes/buddydrive-item-classes.php:783
+#: includes/buddydrive-item-classes.php:788
 #: includes/buddydrive-item-template.php:186
 msgid "Cancel"
 msgstr "Annuler"
@@ -697,19 +697,19 @@ msgstr "Télécharger"
 
 #: includes/admin/buddydrive-items.php:989
 #: includes/buddydrive-item-functions.php:774
-#: includes/buddydrive-item-template.php:770
+#: includes/buddydrive-item-template.php:777
 msgid "Private"
 msgstr "Privé"
 
 #: includes/admin/buddydrive-items.php:993
 #: includes/buddydrive-item-functions.php:775
-#: includes/buddydrive-item-template.php:779
+#: includes/buddydrive-item-template.php:786
 msgid "Password protected"
 msgstr "Protégé"
 
 #: includes/admin/buddydrive-items.php:997
 #: includes/buddydrive-item-functions.php:776
-#: includes/buddydrive-item-template.php:773
+#: includes/buddydrive-item-template.php:780
 msgid "Public"
 msgstr "Public"
 
@@ -990,7 +990,7 @@ msgid "Password : %s"
 msgstr "Mot de passe : %s"
 
 #: includes/buddydrive-item-ajax.php:113
-#: includes/buddydrive-item-classes.php:636
+#: includes/buddydrive-item-classes.php:641
 msgid "Dismiss"
 msgstr "Fermer"
 
@@ -1021,7 +1021,7 @@ msgid "Privacy of this item rely on its parent folder"
 msgstr "La visibilité de ce fichier dépend de son dossier parent"
 
 #: includes/buddydrive-item-ajax.php:586
-#: includes/buddydrive-item-template.php:1130
+#: includes/buddydrive-item-template.php:1137
 msgid "Edit Item"
 msgstr "Modifier"
 
@@ -1045,70 +1045,70 @@ msgstr ""
 msgid "%1$s shared a %2$s Item"
 msgstr "%1$s a partagé un contenu %2$s"
 
-#: includes/buddydrive-item-classes.php:618
+#: includes/buddydrive-item-classes.php:623
 msgid "You have attempted to queue too many files."
 msgstr "Vous essayez d&rsquo;envoyer trop de fichiers à la fois."
 
-#: includes/buddydrive-item-classes.php:619
+#: includes/buddydrive-item-classes.php:624
 msgid "%s exceeds the maximum upload size for this site."
 msgstr "%s dépasse la limite d&rsquo;envoi de ce site."
 
-#: includes/buddydrive-item-classes.php:620
+#: includes/buddydrive-item-classes.php:625
 msgid "This file is empty. Please try another."
 msgstr "Le fichier est vide. Merci d&rsquo;en essayer un autre."
 
-#: includes/buddydrive-item-classes.php:621
+#: includes/buddydrive-item-classes.php:626
 msgid "This file type is not allowed. Please try another."
 msgstr ""
 "Ce type de fichier n&rsquo;est pas autorisé. Merci d&rsquo;en essayer un "
 "autre"
 
-#: includes/buddydrive-item-classes.php:622
+#: includes/buddydrive-item-classes.php:627
 msgid "This file is not an image. Please try another."
 msgstr ""
 "Ce fichier n&rsquo;est pas une image. Merci d&rsquo;en envoyer un autre."
 
-#: includes/buddydrive-item-classes.php:623
+#: includes/buddydrive-item-classes.php:628
 msgid "Memory exceeded. Please try another smaller file."
 msgstr "Mémoire dépassée. Veuillez réessayer avec un fichier plus petit."
 
-#: includes/buddydrive-item-classes.php:624
+#: includes/buddydrive-item-classes.php:629
 msgid "This is larger than the maximum size. Please try another."
 msgstr ""
 "Ce fichier est plus grand que la taille maximale. Merci d&rsquo;en envoyer "
 "un autre"
 
-#: includes/buddydrive-item-classes.php:625
+#: includes/buddydrive-item-classes.php:630
 msgid "An error occurred in the upload. Please try again later."
 msgstr ""
 "Une erreur est survenue lors de l&rsquo;envoi. Veuillez réessayer plus tard."
 
-#: includes/buddydrive-item-classes.php:626
+#: includes/buddydrive-item-classes.php:631
 msgid ""
 "There was a configuration error. Please contact the server administrator."
 msgstr ""
 "Il y a une erreur de configuration. Veuillez contacter l&rsquo;"
 "administrateur de votre serveur."
 
-#: includes/buddydrive-item-classes.php:627
+#: includes/buddydrive-item-classes.php:632
 msgid "You may only upload 1 file."
 msgstr "Vous pouvez seulement envoyer 1 fichier."
 
-#: includes/buddydrive-item-classes.php:628
+#: includes/buddydrive-item-classes.php:633
 msgid "HTTP error."
 msgstr "Erreur HTTP."
 
-#: includes/buddydrive-item-classes.php:629
+#: includes/buddydrive-item-classes.php:634
 msgid "Upload failed."
 msgstr "L&rsquo;envoi a échoué."
 
-#: includes/buddydrive-item-classes.php:630
+#: includes/buddydrive-item-classes.php:635
 msgid "Please try uploading this file with the %1$sbrowser uploader%2$s."
 msgstr ""
 "Veuillez essayer de mettre ce fichier en ligne à l&rsquo;aide de l&rsquo;"
 "%1$soutil du navigateur%2$s."
 
-#: includes/buddydrive-item-classes.php:631
+#: includes/buddydrive-item-classes.php:636
 msgid ""
 "%s exceeds the maximum upload size for the multi-file uploader when used in "
 "your browser."
@@ -1116,35 +1116,35 @@ msgstr ""
 "%s exceeds the maximum upload size for the multi-file uploader when used in "
 "your browser."
 
-#: includes/buddydrive-item-classes.php:632
+#: includes/buddydrive-item-classes.php:637
 msgid "IO error."
 msgstr "Erreur I/O (Entrées-Sorties)."
 
-#: includes/buddydrive-item-classes.php:633
+#: includes/buddydrive-item-classes.php:638
 msgid "Security error."
 msgstr "Erreur de sécurité."
 
-#: includes/buddydrive-item-classes.php:634
+#: includes/buddydrive-item-classes.php:639
 msgid "File canceled."
 msgstr "Fichier annulé."
 
-#: includes/buddydrive-item-classes.php:635
+#: includes/buddydrive-item-classes.php:640
 msgid "Upload stopped."
 msgstr "L&rsquo;envoi est stoppé."
 
-#: includes/buddydrive-item-classes.php:637
+#: includes/buddydrive-item-classes.php:642
 msgid "Crunching&hellip;"
 msgstr "En cours de traitement&hellip;"
 
-#: includes/buddydrive-item-classes.php:638
+#: includes/buddydrive-item-classes.php:643
 msgid "moved to the trash."
 msgstr "déplacé dans la Corbeille."
 
-#: includes/buddydrive-item-classes.php:639
+#: includes/buddydrive-item-classes.php:644
 msgid "&#8220;%s&#8221; has failed to upload."
 msgstr "&#8220;%s&#8221; n&rsquo;a pas pu être mis en ligne."
 
-#: includes/buddydrive-item-classes.php:663
+#: includes/buddydrive-item-classes.php:668
 msgid ""
 "The web browser on your device cannot be used to upload files. You may be "
 "able to use the <a href=\"http://wordpress.org/extend/mobile/\">native app "
@@ -1154,44 +1154,44 @@ msgstr ""
 "ligne. Vous devriez pouvoir le faire en passant par <a href=\"http://"
 "wordpress.org/extend/mobile/\">une application native</a>."
 
-#: includes/buddydrive-item-classes.php:698
+#: includes/buddydrive-item-classes.php:703
 msgid "Describe your file"
 msgstr "Décrivez votre fichier"
 
-#: includes/buddydrive-item-classes.php:700
-#: includes/buddydrive-item-classes.php:708
-#: includes/buddydrive-item-classes.php:721
+#: includes/buddydrive-item-classes.php:705
+#: includes/buddydrive-item-classes.php:713
+#: includes/buddydrive-item-classes.php:726
 #: includes/buddydrive-item-template.php:181
 msgid "Next Step"
 msgstr "Suivant"
 
-#: includes/buddydrive-item-classes.php:715
+#: includes/buddydrive-item-classes.php:720
 #: includes/buddydrive-item-template.php:177
 msgid "Define your sharing options"
 msgstr "Définissez vos options de visibilité"
 
-#: includes/buddydrive-item-classes.php:749
+#: includes/buddydrive-item-classes.php:754
 msgid "Allowed Files"
 msgstr "Fichiers autorisés"
 
-#: includes/buddydrive-item-classes.php:768
+#: includes/buddydrive-item-classes.php:773
 msgid "Upload your file!"
 msgstr "Envoyez votre fichier!"
 
-#: includes/buddydrive-item-classes.php:774
+#: includes/buddydrive-item-classes.php:779
 msgid "Drop your file here"
 msgstr "Déposer votre fichier ici"
 
-#: includes/buddydrive-item-classes.php:775
+#: includes/buddydrive-item-classes.php:780
 msgctxt "Uploader: Drop your file here - or - Select your File"
 msgid "or"
 msgstr "Ou"
 
-#: includes/buddydrive-item-classes.php:776
+#: includes/buddydrive-item-classes.php:781
 msgid "Select your File"
 msgstr "Sélectionnez le"
 
-#: includes/buddydrive-item-classes.php:782
+#: includes/buddydrive-item-classes.php:787
 msgid "Maximum upload file size: %d%s."
 msgstr "Taille maximale d&rsquo;un fichier mis en ligne&nbsp;: %d%s."
 
@@ -1290,78 +1290,78 @@ msgstr "Ajouter le dossier"
 msgid "<span id=\"buddy-quota\">%s</span>&#37; used"
 msgstr "<span id=\"buddy-quota\">%s</span>&#37; utilisé"
 
-#: includes/buddydrive-item-template.php:592
+#: includes/buddydrive-item-template.php:599
 msgid "User Avatar of %s"
 msgstr "Avatar de %s"
 
-#: includes/buddydrive-item-template.php:682
+#: includes/buddydrive-item-template.php:689
 msgid "Group logo of %d"
 msgstr "Logo du groupe %d"
 
-#: includes/buddydrive-item-template.php:776
+#: includes/buddydrive-item-template.php:783
 msgid "Friends"
 msgstr "Amis"
 
-#: includes/buddydrive-item-template.php:785
+#: includes/buddydrive-item-template.php:792
 msgid "Group"
 msgstr "Groupe"
 
-#: includes/buddydrive-item-template.php:832
+#: includes/buddydrive-item-template.php:839
 msgid "folder"
 msgstr "dossier"
 
-#: includes/buddydrive-item-template.php:837
+#: includes/buddydrive-item-template.php:844
 msgid "file"
 msgstr "fichier"
 
-#: includes/buddydrive-item-template.php:1053
-#: includes/buddydrive-item-template.php:1061
-#: includes/buddydrive-item-template.php:1069
-#: includes/buddydrive-item-template.php:1077
+#: includes/buddydrive-item-template.php:1060
+#: includes/buddydrive-item-template.php:1068
+#: includes/buddydrive-item-template.php:1076
+#: includes/buddydrive-item-template.php:1084
 msgid "Link"
 msgstr "Lien"
 
-#: includes/buddydrive-item-template.php:1057
-#: includes/buddydrive-item-template.php:1065
-#: includes/buddydrive-item-template.php:1073
-#: includes/buddydrive-item-template.php:1081
+#: includes/buddydrive-item-template.php:1064
+#: includes/buddydrive-item-template.php:1072
+#: includes/buddydrive-item-template.php:1080
+#: includes/buddydrive-item-template.php:1088
 msgid "Share"
 msgstr "Partager"
 
-#: includes/buddydrive-item-template.php:1083
+#: includes/buddydrive-item-template.php:1090
 msgid "Remove"
 msgstr "Supprimer"
 
-#: includes/buddydrive-item-template.php:1103
+#: includes/buddydrive-item-template.php:1110
 msgid "Password required"
 msgstr "Mot de passe requis"
 
-#: includes/buddydrive-item-template.php:1124
+#: includes/buddydrive-item-template.php:1131
 msgid "New File"
 msgstr "Nouveau fichier"
 
-#: includes/buddydrive-item-template.php:1127
+#: includes/buddydrive-item-template.php:1134
 msgid "New Folder"
 msgstr "Nouveau dossier"
 
-#: includes/buddydrive-item-template.php:1133
+#: includes/buddydrive-item-template.php:1140
 msgid "Delete Item(s)"
 msgstr "Supprimer"
 
-#: includes/buddydrive-item-template.php:1143
+#: includes/buddydrive-item-template.php:1150
 msgid "Order by:"
 msgstr "Classer par :"
 
-#: includes/buddydrive-item-template.php:1146 templates/buddydrive-loop.php:22
+#: includes/buddydrive-item-template.php:1153 templates/buddydrive-loop.php:22
 #: templates/buddydrive-loop.php:54
 msgid "Last edit"
 msgstr "Dernière modif."
 
-#: includes/buddydrive-item-template.php:1206
+#: includes/buddydrive-item-template.php:1213
 msgid "Add file"
 msgstr "Ajouter fichier"
 
-#: includes/buddydrive-item-template.php:1207
+#: includes/buddydrive-item-template.php:1214
 msgid "Add File"
 msgstr "Ajouter Fichier"
 

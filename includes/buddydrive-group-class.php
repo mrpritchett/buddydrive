@@ -224,16 +224,18 @@ class BuddyDrive_Group extends BP_Group_Extension {
 	 * @return boolean true or false
 	 */
 	public function enable_nav_item() {
-
+		$retval   = false;
 		$group_id = bp_get_current_group_id();
 
-		if ( empty( $group_id ) )
-			return false;
+		if ( empty( $group_id ) ) {
+			return $retval;
+		}
 
-		if ( groups_get_groupmeta( $group_id, '_buddydrive_enabled' ) )
-			return true;
-		else
-			return false;
+		if ( groups_get_groupmeta( $group_id, '_buddydrive_enabled' ) ) {
+			$retval = true;
+		}
+
+		return (bool) apply_filters( 'buddydrive_group_enable_nav_item', $retval, $group_id );
 	}
 }
 
