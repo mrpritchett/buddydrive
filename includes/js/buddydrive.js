@@ -422,8 +422,8 @@ jQuery(document).ready(function($){
 
 		    $.post(ajaxurl, data, function(response) {
 			
-				$('#buddydrive-edit-item').html(response);
-				$('#buddydrive-edit-item').removeClass('hide');
+				$( '#buddydrive-edit-item' ).html( response );
+				$( '#buddydrive-edit-item, #buddydrive-edit-item div' ).removeClass( 'hide' );
 			
 		    } );
 		}
