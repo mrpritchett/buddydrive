@@ -4,7 +4,7 @@ Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 4.2.2
 Tested up to: 4.3
-Stable tag: 1.3.1
+Stable tag: 1.3.2
 License: GPLv2
 
 Share files the BuddyPress way!
@@ -45,6 +45,11 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 5. BuddyDrive settings page
 
 == Changelog ==
+
+= 1.3.2 =
+* Fix a regression introduced in 1.3.1 when opening folders shared in groups.
+* Introduce a new filter to customize the main BuddyDrive query.
+* Make sure custom fields are shown when editing files.
 
 = 1.3.1 =
 * Allow custom loop to list files according to the files privacy
@@ -112,6 +117,9 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 1.3.2 =
+As usual, backup your database before upgrading
 
 = 1.3.1 =
 As usual, backup your database before upgrading

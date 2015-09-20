@@ -341,9 +341,16 @@ class BuddyDrive_Item {
 				$query_args['post__not_in'] = $r['exclude'];
 			}
 
-			// Run the query, and store as an object property, so we can access from
-			// other methods
-			$this->query = new WP_Query( $query_args );
+			
+			/**
+			 * Use the 'buddydrive_item_get' filter to customize the query args
+			 * 
+			 * @since 1.3.2
+			 * 
+			 * @param array $query_args the arguments for the BuddyDrive query
+			 * @param array $r          the requested arguments
+			 */
+			$this->query = new WP_Query( apply_filters( 'buddydrive_item_get', $query_args, $r ) );
 
 			// Let's also set up some pagination
 			$this->pag_links = paginate_links( array(

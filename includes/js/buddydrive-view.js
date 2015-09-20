@@ -7,8 +7,14 @@ function openFolder( srcstring ) {
 	var folder_id = srcstring.replace('?folder-', '');
 	var buddyscope = false;
 
-	if( jQuery('#subnav.item-list-tabs li.current a').length )
-		buddyscope = jQuery('#subnav.item-list-tabs li.current a').attr('id');
+	/**
+	 * This should be improved!
+	 */
+	if ( jQuery('#subnav.item-list-tabs li.current a').length ) {
+		buddyscope = jQuery( '#subnav.item-list-tabs li.current a' ).prop( 'id' );
+	} else if ( jQuery( '#buddydrive-home' ).data( 'group' ) ) {
+		buddyscope = 'groups';
+	}
 
 	folder_id = Number(folder_id) + 0;
 
@@ -106,8 +112,14 @@ jQuery(document).ready(function($){
 
 		$.cookie( 'buddydrive-oldestpage', 1, {path: '/'} );
 
-		if( $('#subnav.item-list-tabs li.current a').length )
-			buddyscope = $('#subnav.item-list-tabs li.current a').attr('id');
+		/**
+		 * This should be improved!
+		 */
+		if ( $('#subnav.item-list-tabs li.current a').length ) {
+			buddyscope = $( '#subnav.item-list-tabs li.current a' ).prop( 'id' );
+		} else if ( $( '#buddydrive-home' ).data( 'group' ) ) {
+			buddyscope = 'groups';
+		}
 
 		parent_id = $(this).attr('data-folder');
 		$('#buddy-new-folder').hide();
