@@ -961,11 +961,12 @@ class BuddyDrive_Attachment extends BP_Attachment {
 	 * Set the directory when uploading a file
 	 *
 	 * @since 1.3.0
+	 * @since 1.3.3 Add the $upload_dir parameter
 	 *
 	 * @return array upload data (path, url, basedir...)
 	 */
-	public function upload_dir_filter() {
-		$upload_data = parent::upload_dir_filter();
+	public function upload_dir_filter( $upload_dir = array() ) {
+		$upload_data = parent::upload_dir_filter( $upload_dir );
 		/**
 		 * Filters BuddyDrive's upload data.
 		 *
