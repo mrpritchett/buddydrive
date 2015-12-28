@@ -791,6 +791,9 @@ function buddydrive_item_privacy() {
 			else
 				_e( 'Group', 'buddydrive' );
 			break;
+		default:
+			do_action('buddydrive_default_item_privacy');
+		break;
 	}
 }
 

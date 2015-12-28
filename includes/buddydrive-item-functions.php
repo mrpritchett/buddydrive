@@ -572,7 +572,7 @@ function buddydrive_get_buddyfile( $name = false, $type = false ) {
 				break;
 
 			default :
-				$buddyfile->check_for = 'private';
+				$buddyfile->check_for = apply_filters('buddydrive_default_check_for','private',$buddyfile);
 				break;
 		}
 	}
