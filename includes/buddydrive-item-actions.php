@@ -246,6 +246,9 @@ function buddydrive_file_downloader() {
 						$can_donwload = false;
 					}
 					break;
+				default:
+					$can_donwload = apply_filters('buddydrive_file_downloader_can_download',$can_download,$buddydrive_file);
+				break;	
 			}
 
 		} else {
