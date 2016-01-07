@@ -791,6 +791,16 @@ function buddydrive_item_privacy() {
 			else
 				_e( 'Group', 'buddydrive' );
 			break;
+		default:
+			/**
+			 * Hook here to output the content for your custom privacy options
+			 * 
+			 * @since 1.3.3
+			 * 
+			 * @param array $status The privacy status.
+			 */ 
+			do_action( 'buddydrive_default_item_privacy', $status );
+		break;
 	}
 }
 

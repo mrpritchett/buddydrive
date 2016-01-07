@@ -572,8 +572,16 @@ function buddydrive_get_buddyfile( $name = false, $type = false ) {
 				break;
 
 			default :
-				$buddyfile->check_for = 'private';
-				break;
+				/**
+				 * Filter here for custom privacy options
+				 * 
+				 * @since 1.3.3
+				 * 
+				 * @param string $value     By default 'private'.
+				 * @param object $buddyfile The BuddyDrive file object.
+				 */ 
+				$buddyfile->check_for = apply_filters( 'buddydrive_get_buddyfile_check_for', $buddyfile->check_for, $buddyfile );
+			break;
 		}
 	}
 

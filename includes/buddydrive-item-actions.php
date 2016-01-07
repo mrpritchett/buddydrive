@@ -246,6 +246,17 @@ function buddydrive_file_downloader() {
 						$can_donwload = false;
 					}
 					break;
+				default:
+					/**
+					 * Filter here for custom privacy options
+					 * 
+					 * @since 1.3.3
+					 * 
+					 * @param bool   $can_download    True if the file can be downloaded, false otherwise.
+					 * @param object $buddydrive_file The BuddyDrive file object.
+					 */ 
+					$can_donwload = apply_filters( 'buddydrive_file_downloader_can_download', $can_download, $buddydrive_file );
+				break;	
 			}
 
 		} else {
