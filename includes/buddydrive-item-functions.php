@@ -572,8 +572,16 @@ function buddydrive_get_buddyfile( $name = false, $type = false ) {
 				break;
 
 			default :
-				$buddyfile->check_for = 'private';
-				break;
+				/**
+				 * Filter here for custom privacy options
+				 * 
+				 * @since 1.3.3
+				 * 
+				 * @param string $value     By default 'private'.
+				 * @param object $buddyfile The BuddyDrive file object.
+				 */ 
+				$buddyfile->check_for = apply_filters( 'buddydrive_get_buddyfile_check_for', $buddyfile->check_for, $buddyfile );
+			break;
 		}
 	}
 
@@ -863,6 +871,7 @@ function buddydrive_set_thumbnail( $buddyfile_id = 0, $buddyfile = array() ) {
  * Get a file thumbnail (if public)
  *
  * @since 1.3.0
+ * @since 1.3.3 Make sure Attachment metadata is an array
  *
  * @param int $buddyfile_id the file ID
  * @param string whether to get the url or the patch to the thumbnail
@@ -873,7 +882,7 @@ function buddydrive_get_thumbnail( $buddyfile_id = 0, $type = 'thumburl', $link_
 	}
 
 	$file_metada = wp_get_attachment_metadata( $buddyfile_id );
-	if ( empty( $file_metada['sizes']['thumbnail']['file'] ) ) {
+	if ( ! is_array( $file_metada ) || empty( $file_metada['sizes']['thumbnail']['file'] ) ) {
 		return false;
 	}
 
