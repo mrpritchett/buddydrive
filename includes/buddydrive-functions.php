@@ -12,6 +12,10 @@ function buddydrive_get_db_version(){
 	return get_option( '_buddydrive_version' );
 }
 
+function buddydrive_get_db_number_version() {
+	return get_option( '_buddydrive_db_version', 0 );
+}
+
 /**
  * What is the version of the plugin.
  *
@@ -20,6 +24,10 @@ function buddydrive_get_db_version(){
  */
 function buddydrive_get_version() {
 	return buddydrive()->version;
+}
+
+function buddydrive_get_number_version() {
+	return buddydrive()->db_version;
 }
 
 /**
@@ -416,8 +424,9 @@ function buddydrive_do_activation_redirect() {
 	delete_transient( '_buddydrive_activation_redirect' );
 
 	// Bail if activating from network, or bulk
-	if ( isset( $_GET['activate-multi'] ) )
+	if ( isset( $_GET['activate-multi'] ) ) {
 		return;
+	}
 
 	$query_args = array( 'page' => 'buddydrive-about' );
 
@@ -440,17 +449,20 @@ function buddydrive_do_activation_redirect() {
  */
 function buddydrive_check_version() {
 	// Bail if config does not match what we need
-	if ( buddydrive::bail() )
+	if ( buddydrive::bail() ) {
 		return;
+	}
 
 	if ( version_compare( buddydrive_get_db_version(), buddydrive_get_version(), '=' ) ) {
 		return;
 	}
 
 	if ( buddydrive_is_install() ) {
-		// Do installation routine
+		// Set the DB Version
+		update_option( '_buddydrive_db_version', buddydrive_get_number_version() );
+
 	} else if ( buddydrive_is_update() ) {
-		// Do upgrade routine
+		// Do simple upgrade things here
 	}
 
 	// Finally upgrade plugin version
@@ -598,4 +610,180 @@ function buddydrive_get_upload_error_strings() {
 	}
 
 	return $upload_errors;
+}
+
+function buddydrive_get_stati( $no_filter = false ) {
+	$stati = array(
+		'buddydrive_public' => array(
+			'label'                     => _x( 'Public', 'file or folder status', 'buddydrive' ),
+			'public'                    => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_privacy'        => 'public',
+		),
+		'buddydrive_private' => array(
+			'label'                     => _x( 'Private', 'file or folder status', 'buddydrive' ),
+			'private'                   => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_privacy'        => 'private',
+		),
+		'buddydrive_password' => array(
+			'label'                     => _x( 'Password protected', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_privacy'        => 'password',
+		),
+		'buddydrive_friends' => array(
+			'label'                     => _x( 'Restricted to friends', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_privacy'        => 'friends',
+		),
+		'buddydrive_groups' => array(
+			'label'                     => _x( 'Restricted to a group', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_privacy'        => 'groups',
+		),
+		'buddydrive_members' => array(
+			'label'                     => _x( 'Restricted to Members', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_privacy'        => 'members',
+		),
+	);
+
+	if ( true === $no_filter ) {
+		return $stati;
+	} else {
+		return apply_filters( 'buddydrive_get_stati', $stati );
+	}
+}
+
+function buddydrive_get_privacy( $status = false ) {
+	if ( is_numeric( $status ) ) {
+		$status = get_post_status( $status );
+	}
+
+	if ( ! $status ) {
+		return false;
+	}
+
+	$status_object = get_post_stati( array( 'name' => $status ), 'objects' );
+	$status_object = reset( $status_object );
+
+	if ( ! empty( $status_object->buddydrive_privacy ) ) {
+		return $status_object->buddydrive_privacy;
+	} else {
+		return false;
+	}
+}
+
+function buddydrive_get_visible_groups() {
+	global $wpdb;
+	$bp = buddypress();
+
+	// Get all public groups
+	$visible_groups = $wpdb->get_col( "SELECT id FROM {$bp->groups->table_name} WHERE status = 'public'" );
+
+	if ( is_user_logged_in() ) {
+		$current_user_groups = groups_get_user_groups( bp_loggedin_user_id() );
+
+		if ( ! empty( $current_user_groups['groups'] ) ) {
+			$visible_groups = array_unique( array_merge( $visible_groups, $current_user_groups['groups'] ) );
+		}
+	}
+
+	return $visible_groups;
+}
+
+function buddydrive_update_items_status( $per_page = false ) {
+	global $wpdb;
+
+	$buddydrive_stati = buddydrive_get_stati( true );
+	$privacy          = array();
+	foreach ( $buddydrive_stati as $key_status => $status ) {
+		$privacy[ $status['buddydrive_privacy'] ] = $key_status;
+	}
+
+	$sql = array(
+		'select' => "SELECT p.ID as post_id, m.meta_value FROM {$wpdb->posts} p LEFT JOIN {$wpdb->postmeta} m on( p.ID = m.post_id )",
+		'where'  => array(
+			'status'   => "p.post_status = 'publish'",
+			'meta_key' => $wpdb->prepare( 'meta_key = %s', '_buddydrive_sharing_option' ),
+		),
+	);
+
+	if ( ! empty( $per_page ) ) {
+		$sql['limit'] = $wpdb->prepare( 'LIMIT %d', $per_page );
+	}
+
+	$sql['where'] = 'WHERE ' . join( ' AND ', $sql['where'] );
+
+	$items = $wpdb->get_results( join( ' ', $sql ) );
+
+	$updated = 0;
+
+	if ( empty( $items ) ) {
+		return $updated;
+	}
+
+	foreach ( $items as $item ) {
+		if ( ! isset( $privacy[ $item->meta_value ] ) ) {
+			$status = 'buddydrive_private';
+		} else {
+			$status = $privacy[ $item->meta_value ];
+		}
+
+		$update_r = (int) $wpdb->update( $wpdb->posts, array( 'post_status' => $status ), array( 'ID' => $item->post_id ), array( '%s' ), array( '%d' ) );
+
+		// Log an error if the update failed
+		if ( empty( $update_r ) ) {
+			error_log( sprintf( 'The item ID %s could not be updated to the status %s.', $item->post_id, $status ) );
+
+		// Increment the count if it succeeded
+		} else {
+			$updated += $update_r;
+		}
+	}
+
+	return $updated;
+}
+
+function buddydrive_get_upgrade_tasks() {
+	global $wpdb;
+
+	$routines = array(
+		'200' => array(
+			array(
+				'action_id' => 'upgrade_item_stati',
+				'count'     => $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p LEFT JOIN {$wpdb->postmeta} m on( p.ID = m.post_id ) WHERE p.post_status = 'publish' AND m.meta_key = %s", '_buddydrive_sharing_option' ),
+				'message'   => _x( 'Status of files and folders - %d item(s) to upgrade', 'Upgrader feedback message', 'buddydrive' ),
+				'callback'  => 'buddydrive_update_items_status'
+			),
+			array(
+				'action_id' => 'upgrade_db_version',
+				'count'     => 1,
+				'message'   => _x( 'Database version - 1 item to update', 'Upgrader feedback message', 'buddydrive' ),
+				'callback'  => ''
+			),
+		),
+	);
+
+	$tasks = array();
+
+	// Only keep the upgrade routine we need to perform according
+	// to the current db version
+	foreach ( $routines as $db_version => $list ) {
+		if ( (int) $db_version > (int) buddydrive_get_db_number_version() ) {
+			$tasks = array_merge( $tasks, $list );
+		}
+	}
+
+	return $tasks;
 }

@@ -129,8 +129,13 @@ function buddydrive_select_user_group( $user_id = false, $selected = false, $nam
 	 * @return string the select box
 	 */
 	function buddydrive_get_select_user_group( $user_id = false, $selected = false, $name = false ) {
-		if ( empty( $user_id ) )
+		if ( empty( $user_id ) ) {
 			$user_id = bp_loggedin_user_id();
+		}
+
+		if ( is_array( $selected ) ) {
+			$selected = reset( $selected );
+		}
 
 		$name = ! empty( $name ) ? ' name="'.$name.'"' : false ;
 
@@ -819,10 +824,11 @@ function buddydrive_item_privacy() {
 		$buddyfile_id = buddydrive_get_item_id();
 		$item_privacy_id = !( empty( $buddydrive_template->query->post->post_parent ) ) ? $buddydrive_template->query->post->post_parent : $buddyfile_id ;
 
-		$status['privacy'] = get_post_meta( $item_privacy_id, '_buddydrive_sharing_option', true );
+		$status['privacy'] = buddydrive_get_privacy( $item_privacy_id );
 
-		if ( $status['privacy'] == 'groups' )
+		if ( 'groups' === $status['privacy'] ) {
 			$status['group'] = get_post_meta( $item_privacy_id, '_buddydrive_sharing_groups', true );
+		}
 
 		return apply_filters( 'buddydrive_get_item_privacy', $status );
 	}

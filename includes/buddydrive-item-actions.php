@@ -171,111 +171,39 @@ function buddydrive_file_downloader() {
 			$buddydrive_file = buddydrive_get_buddyfile( $parent, buddydrive_get_folder_post_type() );
 		}
 
-		$can_donwload = false;
-
-		if ( ! empty( $buddydrive_file->check_for ) ) {
-
-			switch( $buddydrive_file->check_for ) {
-
-				case 'private' :
-					if ( $buddydrive_file->user_id == bp_loggedin_user_id() || is_super_admin() )
-						$can_donwload = true;
-					break;
-
-				case 'password' :
-					if ( $buddydrive_file->user_id == bp_loggedin_user_id() || is_super_admin() )
-						$can_donwload = true;
-					elseif ( empty( $_POST['buddyfile-form'] ) ) {
-						bp_core_add_message( __( 'This file is password protected', 'buddydrive' ), 'error' );
-						add_action( 'buddydrive_directory_content', 'buddydrive_file_password_form' );
-						$can_donwload = false;
-					} else {
-						//check admin referer
-
-						if ( $buddydrive_file->password == $_POST['buddyfile-form']['password']  )
-							$can_donwload = true;
-
-						else {
-							$redirect = buddydrive_get_user_buddydrive_url( $buddydrive_file->user_id );
-							bp_core_add_message( __( 'Wrong password', 'buddydrive' ), 'error' );
-							bp_core_redirect( $redirect );
-							$can_donwload = false;
-						}
-
-					}
-					break;
-
-				case 'public' :
-					$can_donwload = true;
-					break;
-
-				case 'friends' :
-					if ( $buddydrive_file->user_id == bp_loggedin_user_id() || is_super_admin() )
-						$can_donwload = true;
-					elseif ( bp_is_active( 'friends' ) && friends_check_friendship( $buddydrive_file->user_id, bp_loggedin_user_id() ) )
-						$can_donwload = true;
-					else {
-						$redirect = buddydrive_get_user_buddydrive_url( $buddydrive_file->user_id );
-						bp_core_add_message( __( 'You must be a friend of this member to download the file', 'buddydrive' ), 'error' );
-						bp_core_redirect( $redirect );
-						$can_donwload = false;
-					}
-					break;
-
-				case 'groups' :
-					if ( $buddydrive_file->user_id == bp_loggedin_user_id() || is_super_admin() )
-						$can_donwload = true;
-					elseif ( ! bp_is_active( 'groups' ) ) {
-						bp_core_add_message( __( 'Group component is deactivated, please contact the administrator.', 'buddydrive' ), 'error' );
-						bp_core_redirect( buddydrive_get_root_url() );
-						$can_donwload = false;
-					}
-					elseif ( groups_is_user_member( bp_loggedin_user_id(), intval( $buddydrive_file->group ) ) )
-						$can_donwload = true;
-					else {
-						$group = groups_get_group( array( 'group_id' => $buddydrive_file->group ) );
-
-						if ( 'hidden' == $group->status )
-							$redirect = wp_get_referer();
-
-						else
-							$redirect = bp_get_group_permalink( $group );
-
-						bp_core_add_message( __( 'You must be member of the group to download the file', 'buddydrive' ), 'error' );
-						bp_core_redirect( $redirect );
-						$can_donwload = false;
-					}
-					break;
-				default:
-					/**
-					 * Filter here for custom privacy options
-					 * 
-					 * @since 1.3.3
-					 * 
-					 * @param bool   $can_download    True if the file can be downloaded, false otherwise.
-					 * @param object $buddydrive_file The BuddyDrive file object.
-					 */ 
-					$can_donwload = apply_filters( 'buddydrive_file_downloader_can_download', $can_download, $buddydrive_file );
-				break;	
-			}
-
-		} else {
-			if ( $buddydrive_file->user_id == bp_loggedin_user_id() || is_super_admin() )
-				$can_donwload = true;
+		// Attach the submitted password to the file if submitted
+		if ( isset( $_POST['buddyfile-form']['password'] ) ) {
+			$buddydrive_file->pass_submitted = $_POST['buddyfile-form']['password'];
 		}
 
-		// we have a file! let's force download.
-		if ( file_exists( $buddydrive_file_path ) && !empty( $can_donwload ) ){
-			do_action( 'buddydrive_file_downloaded', $buddydrive_file );
-			status_header( 200 );
-			header( 'Cache-Control: cache, must-revalidate' );
-			header( 'Pragma: public' );
-			header( 'Content-Description: File Transfer' );
-			header( 'Content-Length: ' . filesize( $buddydrive_file_path ) );
-			header( 'Content-Disposition: attachment; filename='.$buddydrive_file_name );
-			header( 'Content-Type: ' .$buddydrive_file_mime );
-			readfile( $buddydrive_file_path );
-			die();
+		$can_download = buddydrive_check_download( $buddydrive_file, bp_loggedin_user_id() );
+
+		// Oops...
+		if ( is_wp_error( $can_download ) ) {
+			if ( 401 === $can_download->get_error_data() ) {
+				wp_die( __( 'You are not allowed to download this file.', 'buddydrive' ) , __( 'Unauthorized access', 'buddydrive' ), 401 );
+			} elseif ( 403 === $can_download->get_error_data() ) {
+				add_action( 'buddydrive_directory_content', 'buddydrive_file_password_form' );
+			} else {
+				bp_core_add_message( $can_download->get_error_message(), 'error' );
+				bp_core_redirect( $can_download->get_error_data() );
+			}
+
+		// Download the file !
+		} else {
+			// we have a file! let's force download.
+			if ( file_exists( $buddydrive_file_path ) && true === $can_download ){
+				do_action( 'buddydrive_file_downloaded', $buddydrive_file );
+				status_header( 200 );
+				header( 'Cache-Control: cache, must-revalidate' );
+				header( 'Pragma: public' );
+				header( 'Content-Description: File Transfer' );
+				header( 'Content-Length: ' . filesize( $buddydrive_file_path ) );
+				header( 'Content-Disposition: attachment; filename='.$buddydrive_file_name );
+				header( 'Content-Type: ' .$buddydrive_file_mime );
+				readfile( $buddydrive_file_path );
+				die();
+			}
 		}
 
 	} else if ( ! bp_displayed_user_id() && bp_is_current_component( 'buddydrive' ) && 'folder' == bp_current_action() ) {
@@ -420,10 +348,11 @@ add_action( 'messages_message_before_save', 'buddydrive_update_message_content',
  * @uses BuddyDrive_Item::update_children() to update the files
  */
 function buddydrive_update_children( $params, $args, $item ) {
-	if ( $item->post_type != buddydrive_get_folder_post_type() )
+	if ( $item->post_type != buddydrive_get_folder_post_type() ) {
 		return;
+	}
 
-	$parent_id = intval( $params['id'] );
+	$parent_id = (int) $params['id'];
 	$metas = $params['metas'];
 
 	$buddydrive_update_children = new BuddyDrive_Item();

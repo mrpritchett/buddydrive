@@ -291,6 +291,11 @@ class BuddyDrive_Component extends BP_Component {
 		// Register the post type for files.
 		register_post_type( buddydrive_get_folder_post_type(), $args_folder );
 
+		// Register BuddyDrive post status
+		foreach ( (array) buddydrive_get_stati() as $status_id => $status_args ) {
+			register_post_status( $status_id, $status_args );
+		}
+
 		parent::register_post_types();
 	}
 

@@ -35,75 +35,68 @@ function buddydrive_save_new_buddyfile() {
 	check_admin_referer( 'buddydrive-form' );
 
 	$output = '';
-	$privacy = $group = $password = $parent = false;
+	$privacy = $password = $parent = $customs = false;
+	$groups = array();
 
 	$buddydrive_file = buddydrive_upload_item( $_FILES, bp_loggedin_user_id() );
 
 	if ( ! empty( $buddydrive_file ) && is_array( $buddydrive_file ) && empty( $buddydrive_file['error'] ) ) {
+		$name           = $_FILES['buddyfile-upload']['name'];
+		$name_parts     = pathinfo( $name );
+		$name           = $name_parts['filename'];
+		$content        = false;
+		if ( ! empty( $_POST['buddydesc'] ) ) {
+			$content    = wp_kses( $_POST['buddydesc'], array() );
+		}
 
-		$name       = $_FILES['buddyfile-upload']['name'];
-		$name_parts = pathinfo( $name );
-		$name       = $name_parts['filename'];
-		$content    = !empty( $_POST['buddydesc'] ) ? wp_kses( $_POST['buddydesc'], array() ) : false;
-		$meta       = false;
+		// Defaults to private
+		$privacy = 'private';
 
 		if ( ! empty( $_POST['buddyshared'] ) ) {
+			$privacy = $_POST['buddyshared'];
 
-			$privacy  = ! empty( $_POST['buddyshared'] ) ? $_POST['buddyshared'] : 'private';
-			$group    = ! empty( $_POST['buddygroup'] ) && 'groups' == $privacy ? $_POST['buddygroup'] : false;
-			$password = ! empty( $_POST['buddypass'] ) ? wp_kses( $_POST['buddypass'], array() ) : false;
+			// Shared in a group
+			if ( ! empty( $_POST['buddygroup'] ) && 'groups' === $privacy ) {
+				$groups = $_POST['buddygroup'];
+			}
 
+			// Using a password
+			if ( ! empty( $_POST['buddypass'] ) ) {
+				$password = $_POST['buddypass'];
+			}
 		}
 
 		if ( ! empty( $_POST['buddyfolder'] ) ) {
-
-			$parent = intval( $_POST['buddyfolder'] );
-
-			$privacy = get_post_meta( $parent, '_buddydrive_sharing_option', true );
-
-			if ( $privacy == 'groups' )
-				$group = get_post_meta( $parent, '_buddydrive_sharing_groups', true );
+			$parent  = (int) $_POST['buddyfolder'];
 		}
-
-		$meta = new stdClass();
-
-		$meta->privacy = $privacy;
-
-		$meta->password = ! empty( $password ) ? $password : false ;
-
-		$meta->groups = ! empty( $group ) ? $group : false;
 
 		if ( ! empty( $_POST['customs'] ) ) {
-			$meta->buddydrive_meta = json_decode( wp_unslash( $_POST['customs'] ) );
-		}
-
-		/*
-		if the name is completely numeric, buddydrive_get_buddyfile
-		will look for an  id instead of a post name, so to avoid this,
-		we add a prefix to the name
-		*/
-		if ( is_numeric( $name ) ) {
-			$name = 'f-' . $name;
+			$customs = json_decode( wp_unslash( $_POST['customs'] ) );
 		}
 
 		// Construct the buddydrive_file_post_type array
 		$args = array(
-			'type'      => buddydrive_get_file_post_type(),
-			'guid'      => $buddydrive_file['url'],
-			'title'     => $name,
-			'content'   => $content,
-			'mime_type' => $buddydrive_file['type'],
-			'metas'     => $meta
+			'type'             => buddydrive_get_file_post_type(),
+			'title'            => $name,
+			'content'          => $content,
+			'mime_type'        => $buddydrive_file['type'],
+			'guid'             => $buddydrive_file['url'],
+			'privacy'          => $privacy,
+			'groups'           => $groups,
+			'password'         => $password,
 		);
 
 		if ( ! empty( $parent ) ) {
 			$args['parent_folder_id'] = $parent;
 		}
 
-		$buddyfile_id = buddydrive_save_item( $args );
+		if ( ! empty( $customs ) ) {
+			$args['customs'] = $customs;
+		}
 
-		// Try to create a thumbnail if it's an image and a public file
-		if ( ! empty( $buddyfile_id ) && 'public' === $meta->privacy ) {
+		$buddyfile_id = buddydrive_add_item( $args );
+
+		if ( ! empty( $buddyfile_id ) && 'public' === $privacy ) {
 			buddydrive_set_thumbnail( $buddyfile_id, $buddydrive_file );
 		}
 
@@ -163,29 +156,23 @@ function buddydrive_add_public_file() {
 	$mime       = $bd_file['type'];
 	$file       = $bd_file['file'];
 	$title      = $name_parts['filename'];
-
-	if ( is_numeric( $title ) ) {
-		$title = 'f-' . $title;
-	}
-
-	$meta = new stdClass();
-	
-	// Defaults to public.
-	$meta->privacy = 'public';
+	$privacy    = 'public';
+	$groups     = array();
 	if ( ! empty( $bp_params['privacy'] ) ) {
-		$meta->privacy = $bp_params['privacy'];
+		$privacy = $bp_params['privacy'];
 
-		if ( ! empty( $bp_params['privacy_item_id'] ) && 'groups' === $meta->privacy ) {
-			$meta->groups = $bp_params['privacy_item_id'];
+		if ( ! empty( $bp_params['privacy_item_id'] ) && 'groups' === $privacy ) {
+			$groups = (array) $bp_params['privacy_item_id'];
 		}
 	}
 
-	$buddyfile_id = buddydrive_save_item( array(
+	$buddyfile_id = buddydrive_add_item( array(
 		'type'      => buddydrive_get_file_post_type(),
 		'guid'      => $url,
 		'title'     => $title,
 		'mime_type' => $mime,
-		'metas'     => $meta
+		'privacy'   => $privacy,
+		'groups'    => $groups,
 	) );
 
 	if ( empty( $buddyfile_id ) ) {
@@ -197,7 +184,7 @@ function buddydrive_add_public_file() {
 		$icon = wp_mime_type_icon( $buddyfile_id );
 
 		// Try to create a thumbnail if it's an image and a public file
-		if ( ! empty( $buddyfile_id ) && 'public' === $meta->privacy ) {
+		if ( ! empty( $buddyfile_id ) && 'public' === $privacy ) {
 			$thumbnail = buddydrive_set_thumbnail( $buddyfile_id, $bd_file );
 
 			if ( ! empty( $thumbnail ) ) {

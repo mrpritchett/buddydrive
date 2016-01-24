@@ -55,26 +55,37 @@ class BuddyDrive_Item {
 	 * @return int $result the id of the item created
 	 */
 	public function save() {
-		$this->id               = apply_filters_ref_array( 'buddydrive_item_id_before_save',         array( $this->id,                &$this ) );
-		$this->type             = apply_filters_ref_array( 'buddydrive_item_type_before_save',       array( $this->type,              &$this ) );
-		$this->user_id          = apply_filters_ref_array( 'buddydrive_item_user_id_before_save',    array( $this->user_id,           &$this ) );
-		$this->parent_folder_id = apply_filters_ref_array( 'buddydrive_item_parent_id_before_save',  array( $this->parent_folder_id,  &$this ) );
-		$this->title            = apply_filters_ref_array( 'buddydrive_item_title_before_save',      array( $this->title,             &$this ) );
-		$this->content          = apply_filters_ref_array( 'bbuddydrive_item_content_before_save',   array( $this->content,           &$this ) );
-		$this->mime_type        = apply_filters_ref_array( 'bbuddydrive_item_mime_type_before_save', array( $this->mime_type,         &$this ) );
-		$this->guid             = apply_filters_ref_array( 'bbuddydrive_item_guid_before_save',      array( $this->guid,              &$this ) );
-		$this->metas            = apply_filters_ref_array( 'buddydrive_item_metas_before_save',      array( $this->metas,             &$this ) );
+		$this->id               = apply_filters_ref_array( 'buddydrive_item_id_before_save',        array( $this->id,                &$this ) );
+		$this->type             = apply_filters_ref_array( 'buddydrive_item_type_before_save',      array( $this->type,              &$this ) );
+		$this->user_id          = apply_filters_ref_array( 'buddydrive_item_user_id_before_save',   array( $this->user_id,           &$this ) );
+		$this->parent_folder_id = apply_filters_ref_array( 'buddydrive_item_parent_id_before_save', array( $this->parent_folder_id,  &$this ) );
+		$this->title            = apply_filters_ref_array( 'buddydrive_item_title_before_save',     array( $this->title,             &$this ) );
+		$this->content          = apply_filters_ref_array( 'buddydrive_item_content_before_save',   array( $this->content,           &$this ) );
+		$this->mime_type        = apply_filters_ref_array( 'buddydrive_item_mime_type_before_save', array( $this->mime_type,         &$this ) );
+		$this->guid             = apply_filters_ref_array( 'buddydrive_item_guid_before_save',      array( $this->guid,              &$this ) );
+		$this->metas            = apply_filters_ref_array( 'buddydrive_item_metas_before_save',     array( $this->metas,             &$this ) );
 
 
 		// Use this, not the filters above
 		do_action_ref_array( 'buddydrive_item_before_save', array( &$this ) );
 
-		if ( ! $this->title || ! $this->type )
+		if ( ! $this->title || ! $this->type ) {
 			return false;
+		}
+
+		// Defaults to private
+		$post_status = 'buddydrive_private';
+
+		if ( ! empty( $this->metas->privacy ) ) {
+			$buddydrive_status = get_post_stati( array( 'buddydrive_privacy' => $this->metas->privacy ) );
+
+			if ( is_array( $buddydrive_status ) ) {
+				$post_status = reset( $buddydrive_status );
+			}
+		}
 
 		// If we have an existing ID, update the post, otherwise insert it.
 		if ( $this->id ) {
-
 			$wp_update_post_args = array(
 				'ID'		     => $this->id,
 				'post_author'	 => $this->user_id,
@@ -84,25 +95,45 @@ class BuddyDrive_Item {
 				'post_parent'    => $this->parent_folder_id,
 				'post_mime_type' => $this->mime_type,
 				'guid'           => $this->guid,
-				'post_status'	 => 'publish'
+				'post_status'	 => $post_status,
 			);
 
-			if ( ! empty( $this->metas->password ) )
+			if ( ! empty( $this->metas->password ) ) {
 				$wp_update_post_args['post_password'] = $this->metas->password;
+			}
+
+			// If the file or folder is shared within groups
+			if ( 'buddydrive_groups' === $post_status ) {
+				// First get existing groups
+				$existing_groups = (array) get_post_meta( $this->id, '_buddydrive_sharing_groups' );
+
+				if ( ! empty( $this->metas->groups ) ) {
+					$remove_group = array_diff( $existing_groups, (array) $this->metas->groups );
+					$add_group    = array_diff( (array) $this->metas->groups, $existing_groups );
+				}
+
+				// No more groups ?
+				if ( ( empty( $existing_groups ) && empty( $add_group ) ) || empty( $this->metas->groups ) ) {
+					$wp_update_post_args['post_status'] = 'buddydrive_private';
+					delete_post_meta( $this->id, '_buddydrive_sharing_groups' );
+				}
+			}
 
 			$result = wp_update_post( $wp_update_post_args );
 
 			if ( $result ) {
 
-				if ( ! empty( $this->metas->privacy ) )
-					update_post_meta( $this->id, '_buddydrive_sharing_option', $this->metas->privacy );
-				else
-					delete_post_meta( $this->id, '_buddydrive_sharing_option' );
+				if ( ! empty( $remove_group ) ) {
+					foreach ( $remove_group as $r_group_id ) {
+						delete_post_meta( $this->id, '_buddydrive_sharing_groups', $r_group_id );
+					}
+				}
 
-				if ( ! empty( $this->metas->groups ) )
-					update_post_meta( $this->id, '_buddydrive_sharing_groups', $this->metas->groups );
-				else
-					delete_post_meta( $this->id, '_buddydrive_sharing_groups' );
+				if ( ! empty( $add_group ) ) {
+					foreach ( $add_group as $a_group_id ) {
+						add_post_meta( $this->id, '_buddydrive_sharing_groups', $a_group_id );
+					}
+				}
 
 				if ( ! empty( $this->metas->buddydrive_meta ) && is_array( $this->metas->buddydrive_meta ) ) {
 					foreach( $this->metas->buddydrive_meta as $buddydrive_meta ) {
@@ -116,7 +147,6 @@ class BuddyDrive_Item {
 				}
 
 				do_action_ref_array( 'buddydrive_item_after_update', array( &$this ) );
-
 			}
 
 		} else {
@@ -129,11 +159,12 @@ class BuddyDrive_Item {
 				'post_parent'    => $this->parent_folder_id,
 				'post_mime_type' => $this->mime_type,
 				'guid'           => $this->guid,
-				'post_status'	 => 'publish'
+				'post_status'	 => $post_status,
 			);
 
-			if ( ! empty( $this->metas->password ) )
+			if ( ! empty( $this->metas->password ) ) {
 				$wp_insert_post_args['post_password'] = $this->metas->password;
+			}
 
 			$result = wp_insert_post( $wp_insert_post_args );
 
@@ -141,11 +172,11 @@ class BuddyDrive_Item {
 
 				$this->id = $result;
 
-				if ( ! empty( $this->metas->privacy ) )
-					update_post_meta( $this->id, '_buddydrive_sharing_option', $this->metas->privacy );
-
-				if ( ! empty( $this->metas->groups ) )
-					update_post_meta( $this->id, '_buddydrive_sharing_groups', $this->metas->groups );
+				if ( ! empty( $this->metas->groups ) ) {
+					foreach ( (array) $this->metas->groups as $group_id ) {
+						add_post_meta( $this->id, '_buddydrive_sharing_groups', $group_id );
+					}
+				}
 
 				if ( ! empty( $this->metas->buddydrive_meta ) && is_array( $this->metas->buddydrive_meta ) ) {
 
@@ -156,10 +187,7 @@ class BuddyDrive_Item {
 				}
 
 				do_action_ref_array( 'buddydrive_item_after_insert', array( &$this ) );
-
 			}
-
-
 		}
 
 		do_action_ref_array( 'buddydrive_item_after_save', array( &$this ) );
@@ -201,22 +229,23 @@ class BuddyDrive_Item {
 			);
 
 			$r = wp_parse_args( $args, $defaults );
-
 			$paged = ! empty( $_POST['page'] ) ? intval( $_POST['page'] ) : $r['paged'];
+
+			$all_stati = array_keys( buddydrive_get_stati() );
 
 			if ( ! empty( $r['id'] ) ){
 				$query_args = array(
-					'post_status'    => 'publish',
+					'post_status'    => $all_stati,
 					'post_type'      => $r['type'],
 					'p'              => $r['id'],
 					'posts_per_page' => $r['per_page'],
 					'paged'          => $paged,
 				);
 
-			} else if ( ! empty( $r['name'] ) && ! empty( $r['type'] ) ) {
+			} elseif ( ! empty( $r['name'] ) && ! empty( $r['type'] ) ) {
 
 				$query_args = array(
-					'post_status'    => 'publish',
+					'post_status'    => $all_stati,
 					'post_type'      => $r['type'],
 					'name'           => $r['name'],
 					'posts_per_page' => $r['per_page'],
@@ -224,9 +253,11 @@ class BuddyDrive_Item {
 				);
 
 			} else {
+				// Get all public status
+				$public_stati = array_keys( get_post_stati( array( 'public' => true ), 'objects' ) );
 
 				$query_args = array(
-					'post_status'    => 'publish',
+					'post_status'    => array_intersect( $all_stati, $public_stati ),
 					'post_type'      => $r['type'],
 					'post_parent'    => $r['buddydrive_parent'],
 					'posts_per_page' => $r['per_page'],
@@ -243,18 +274,51 @@ class BuddyDrive_Item {
 							$query_args['author'] = $r['user_id'];
 						}
 
-						if ( ! bp_is_my_profile() && ! bp_current_user_can( 'bp_moderate' ) ) {
-							$privacy = array( 'private' );
+						// Owners or Administrators can view all files
+						if ( bp_is_my_profile() || bp_current_user_can( 'bp_moderate' ) ) {
+							$query_args['post_status'] = $all_stati;
 
-							if ( bp_is_active( 'friends' ) && ! friends_check_friendship( $r['user_id'], bp_loggedin_user_id() ) ) {
-								$privacy[] = 'friends';
+						// Restrict stati
+						} else {
+							// Include Password protected for any user
+							$query_args['post_status'][] = 'buddydrive_password';
+
+							// A Logged in member can see restricted to members file
+							if ( is_user_logged_in() ) {
+								$query_args['post_status'][] = 'buddydrive_members';
 							}
 
-							$query_args['meta_query'][] = array(
-								'key'     => '_buddydrive_sharing_option',
-								'value'   => $privacy,
-								'compare' => 'NOT IN'
-							);
+							/**
+							 * Files attached to a public group can be viewed by anyone
+							 * Other group stati needs the user to be a member of it to
+							 * be able to view the file.
+							 */
+							if ( bp_is_active( 'groups' ) ) {
+								// Include groups..
+								$query_args['post_status'][] = 'buddydrive_groups';
+
+								$visible_groups = buddydrive_get_visible_groups();
+								if ( ! empty( $visible_groups ) ) {
+									$query_args['meta_query'] = array(
+										'relation' => 'OR',
+										array(
+											'key'     => '_buddydrive_sharing_groups',
+											'value'   => $visible_groups,
+											'compare' => 'IN' // Allows $group_id to be an array
+										),
+									);
+								}
+
+								$query_args['meta_query'][] = array(
+										'key'     => '_buddydrive_sharing_groups',
+										'compare' => 'NOT EXISTS'
+								);
+							}
+
+							// If the current member is friend with the displayed one.
+							if ( bp_is_active( 'friends' ) && friends_check_friendship( $r['user_id'], bp_loggedin_user_id() ) ) {
+								$query_args['post_status'][] = 'buddydrive_friends';
+							}
 						}
 
 						break;
@@ -264,71 +328,87 @@ class BuddyDrive_Item {
 							$ids = friends_get_friend_user_ids( bp_loggedin_user_id() );
 
 							if ( ! empty( $ids ) ) {
-								$query_args['author'] = implode( ',', $ids );
-
-								$query_args['meta_query'][] = array(
-									'key'     => '_buddydrive_sharing_option',
-									'value'   => 'friends',
-									'compare' => '='
-								);
+								$query_args['author']      = implode( ',', $ids );
+								$query_args['post_status'] = array( 'buddydrive_friends' );
 							} else {
-								// we need to use a dummy query to avoid listing all files !
-								$query_args['meta_query'][] = array(
-									'key'     => '_buddydrive_sharing_option',
-									'value'   => 'dummyvalue',
-									'compare' => '='
-								);
+								$query_args['p'] = 0;
 							}
 
+						} else {
+							$query_args['p'] = 0;
 						}
+
 						break;
 
 					case 'groups' :
-						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
-							$query_args['meta_query'][] = array(
-								'key'     => '_buddydrive_sharing_groups',
-								'value'   => $r['group_id'],
-								'compare' => 'IN' // Allows $r['group_id'] to be an array
-							);
+						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) ) {
+							if ( bp_is_group() ) {
+								$group = groups_get_current_group();
+							}
+
+							if ( empty( $group->id ) || (int) $group->id !== (int) $r['group_id'] ) {
+								$group = groups_get_group( array( 'group_id' => $r['group_id'] ) );
+							}
+
+							if ( 'public' !== $group->status && ! groups_is_user_member( bp_loggedin_user_id(), $group->id ) ) {
+								$query_args['p'] = 0;
+							} else {
+								$query_args['post_status'] = array( 'buddydrive_groups' );
+
+								if ( empty( $r['buddydrive_parent'] ) ) {
+									$query_args['meta_query'][] = array(
+										'key'     => '_buddydrive_sharing_groups',
+										'value'   => $group->id,
+										'compare' => 'IN' // Allows $r['group_id'] to be an array
+									);
+								}
+							}
+
+						} else {
+							$query_args['p'] = 0;
 						}
+
 						break;
 
 					case 'admin' :
-						if ( ! empty( $r['user_id'] ) ) {
-							$query_args['author'] = $r['user_id'];
+						if ( ! bp_current_user_can( 'bp_moderate' ) ) {
+							$query_args['p'] = 0;
+						} else {
+							// Include all status
+							$query_args['post_status'] = $all_stati;
+
+							if ( ! empty( $r['user_id'] ) ) {
+								$query_args['author'] = $r['user_id'];
+							}
+
+							if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
+								$query_args['meta_query'][] = array(
+									'key'     => '_buddydrive_sharing_groups',
+									'value'   => $r['group_id'],
+									'compare' => 'IN' // Allows $group_id to be an array
+								);
+							}
+
+							// Search is only possible for Super Admin, as searching makes it difficult to garanty privacy
+							if ( ! empty( $r['search'] ) ) {
+								$query_args['s'] = $r['search'];
+							}
 						}
 
-						if ( bp_is_active( 'groups' ) && ! empty( $r['group_id'] ) && empty( $r['buddydrive_parent'] ) ) {
-							$query_args['meta_query'][] = array(
-								'key'     => '_buddydrive_sharing_groups',
-								'value'   => $r['group_id'],
-								'compare' => 'IN' // Allows $group_id to be an array
-							);
-						}
-						// Search is only possible for Super Admin, as searching makes it difficult to garanty privacy
-						if ( ! empty( $r['search'] ) ) {
-							$query_args['s'] = $r['search'];
-						}
 						break;
 
 					default :
 						// non public meta values are restricted to admins
 						if ( 'public' !== $r['buddydrive_scope'] && ! bp_current_user_can( 'bp_moderate' ) ) {
-							$meta_value = 'dummyvalue';
-						} else {
-							$meta_value = $r['buddydrive_scope'];
+							$query_args['p'] = 0;
 						}
 
 						/**
-						 * Use the scope to build a meta query
-						 *
-						 * if the scope match a sharing option, files or folders will be fetched
+						 * @since 2.0.0
 						 */
-						$query_args['meta_query'][] = array(
-							'key'     => '_buddydrive_sharing_option',
-							'value'   => $meta_value,
-							'compare' => '='
-						);
+						$query_args = apply_filters( 'buddydrive_item_get_default', $query_args, $r );
+
+						break;
 				}
 
 			}
@@ -341,12 +421,11 @@ class BuddyDrive_Item {
 				$query_args['post__not_in'] = $r['exclude'];
 			}
 
-			
 			/**
 			 * Use the 'buddydrive_item_get' filter to customize the query args
-			 * 
+			 *
 			 * @since 1.3.2
-			 * 
+			 *
 			 * @param array $query_args the arguments for the BuddyDrive query
 			 * @param array $r          the requested arguments
 			 */
@@ -383,18 +462,30 @@ class BuddyDrive_Item {
 	 * list BuddyDrive Files attached to a folder if any
 	 *
 	 * @param  int $folder_id the BuddyDrive folder id
-	 * @global object $wpdb
 	 * @return array the list of file ids
 	 */
-	public function get_buddydrive_folder_children( $folder_id = false ) {
-		global $wpdb;
-
-		if ( empty( $folder_id ) )
+	public function get_buddydrive_folder_children( $folder_id = false, $only_ids = true ) {
+		if ( empty( $folder_id ) ) {
 			return false;
+		}
 
-		$folder_id = intval( $folder_id );
+		$buddydrive_children = get_children( array(
+			'post_type'   => buddydrive_get_file_post_type(),
+			'post_parent' => (int) $folder_id,
+		) );
 
-		$buddydrive_children = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->base_prefix}posts WHERE post_parent = %d", $folder_id ) );
+		if ( true === $only_ids ) {
+			return wp_list_pluck( $buddydrive_children, 'ID' );
+		} else {
+			foreach ( $buddydrive_children as $key => $child ) {
+				$child->user_id   = $child->post_author;
+				$child->title     = $child->post_title;
+				$child->content   = $child->post_content;
+
+				// Reset the children
+				$buddydrive_children[ $key ] = $child;
+			}
+		}
 		return $buddydrive_children;
 	}
 
@@ -407,19 +498,15 @@ class BuddyDrive_Item {
 	 * @uses update_post_meta() to add privacy options
 	 */
 	public function update_children( $folder_id = false, $metas = false ) {
-		if ( empty( $folder_id ) || empty( $metas ) )
+		if ( empty( $folder_id ) || empty( $metas->privacy ) ) {
 			return false;
+		}
 
-		$children = $this->get_buddydrive_folder_children( $folder_id );
+		$children = $this->get_buddydrive_folder_children( $folder_id, false );
 
 		if ( ! empty( $children ) ) {
-			foreach( $children as $child ){
-
-				if ( ! empty( $metas->privacy ) )
-					update_post_meta( $child, '_buddydrive_sharing_option', $metas->privacy );
-
-				if ( ! empty( $metas->groups ) )
-					update_post_meta( $child, '_buddydrive_sharing_groups', $metas->groups );
+			foreach ( $children as $child ) {
+				buddydrive_update_item( array(), $child );
 			}
 		}
 	}
@@ -541,28 +628,45 @@ class BuddyDrive_Item {
 	/**
 	 * Removes a BuddyDrive item from a group
 	 *
+	 * @since  2.0.0 Add the $group_id parameter
+	 *
 	 * @param  int $item_id the BuddyDrive item if
 	 * @param  string  $new_status the privacy option to fallback
-	 * @uses delete_post_meta() to delete group meta
-	 * @uses update_post_meta() to update the privacy option
-	 * @uses BuddyDrive_Item::get_buddydrive_folder_children() to get the file attached to a folder
 	 * @return int 1
 	 */
-	public function remove_from_group( $item_id = false, $new_status = 'private' ) {
-		if ( empty( $item_id ) )
+	public function remove_from_group( $item_id = false, $new_status = 'private', $group_id = 0 ) {
+		if ( empty( $item_id ) ) {
 			return false;
+		}
 
-		delete_post_meta( $item_id, '_buddydrive_sharing_groups' );
-		update_post_meta( $item_id, '_buddydrive_sharing_option', $new_status );
+		if ( empty( $group_id ) && bp_is_group() ) {
+			$group_id = bp_get_current_group_id();
+		}
 
-		// is it a folder ?
-		$children = $this->get_buddydrive_folder_children( $item_id );
+		$item = buddydrive_get_buddyfile( $item_id, get_post_type( $item_id ) );
 
-		if ( ! empty( $children ) && is_array( $children ) && count( $children ) >= 1 ) {
-			foreach( $children as $child ) {
-				delete_post_meta( $child, '_buddydrive_sharing_groups' );
-				update_post_meta( $child, '_buddydrive_sharing_option', $new_status );
-			}
+		if ( empty( $item->group ) || 'groups' !== $item->check_for ) {
+			return false;
+		}
+
+		$groups = array_diff( (array) $item->group, array( $group_id ) );
+
+		if ( ! $groups ) {
+			$args = array(
+				'privacy' => $new_status,
+			);
+		} else {
+			$args = array(
+				'group' => $groups,
+			);
+		}
+
+		if ( ! empty( $args ) ) {
+			$updated = buddydrive_update_item( $args, $item );
+		}
+
+		if ( $updated ) {
+			return false;
 		}
 
 		return 1;
@@ -573,24 +677,85 @@ class BuddyDrive_Item {
 	 * @param  integer $group_id
 	 * @param  string  $new_status
 	 * @global $wpdb
-	 * @uses delete_post_meta() to delete group meta
-	 * @uses update_post_meta() to update the privacy option
 	 * @return boolean success or not
 	 */
-	public function group_remove_items( $group_id = 0, $new_status = 'private' ) {
+	public function group_remove_items( $group_id = 0, $new_privacy = 'private' ) {
 		global $wpdb;
 
-		if ( empty( $group_id ) )
-			return false;
+		if ( empty( $group_id ) && bp_is_group() ) {
+			$group_id = bp_get_current_group_id();
+		}
 
 		$buddydrive_in_group = $wpdb->get_col( $wpdb->prepare( "SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key='_buddydrive_sharing_groups' AND meta_value = %d", $group_id ) );
 
+		if ( empty( $buddydrive_in_group ) ) {
+			return false;
+		}
+
 		foreach ( $buddydrive_in_group as $item ) {
-			delete_post_meta( $item, '_buddydrive_sharing_groups' );
-			update_post_meta( $item, '_buddydrive_sharing_option', $new_status );
+			$this->remove_from_group( $item, $new_privacy, $group_id );
 		}
 
 		return true;
+	}
+
+	/**
+	 * Count the number of BuddyDrive items for a user
+	 *
+	 * @since 2.0.0
+	 *
+	 * @param int          $user_id The User ID.
+	 * @param string|array $type    The Single post type or array of post types to count the number of items for.
+	 * @param string|array $status  The Single post status or array of post stati to count the number of items for.
+	 */
+	public static function count_user_items( $user_id = 0, $type = 'any', $status = 'any' ) {
+		global $wpdb;
+
+		if ( empty ($user_id ) ) {
+			return false;
+		}
+
+		$item_type = array(  buddydrive_get_file_post_type(), buddydrive_get_folder_post_type() );
+		if ( 'any' !== $type && ! empty( $type ) ) {
+			$item_type = (array) $type;
+		}
+
+		$buddydrive_status = buddydrive_get_stati();
+		$item_status = array_keys( $buddydrive_status );
+		if ( 'any' !== $status && ! empty( $status ) && isset( $buddydrive_status[ $status ] ) ) {
+			$item_type = (array) $status;
+		}
+
+		$sql = array(
+			'select' => "SELECT COUNT(*) FROM {$wpdb->posts}",
+			'where' => array(
+				'user'   => $wpdb->prepare( "post_author = %d", $user_id ),
+				'type'   => sprintf( "post_type IN ( '%s' )", join( "', '", esc_sql( $item_type ) ) ),
+			),
+		);
+
+		if ( ! is_user_logged_in() ) {
+			$item_status = array_intersect( $item_status, array( 'buddydrive_public', 'buddydrive_password' ) );
+		} else if ( (int) $user_id !== (int) bp_loggedin_user_id() ) {
+			$item_status = array_intersect( $item_status, array( 'buddydrive_public', 'buddydrive_password', 'buddydrive_members' ) );
+		}
+
+		$sql['where']['status'] = sprintf( "post_status IN ( '%s' )", join( "', '", esc_sql( $item_status ) ) );
+		$sql['where'] = 'WHERE ' . join( ' AND ', $sql['where'] );
+
+		$count = $wpdb->get_var( join( ' ', $sql ) );
+
+		/**
+		 * Filter the number of posts a user has written.
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param int          $count   The user's post count.
+		 * @param int          $user_id The User ID.
+		 * @param string|array $type    The Single post type or array of post types to count the number of items for.
+		 * @param string|array $status  The Single post status or array of post stati to count the number of items for.
+		 */
+		return apply_filters( 'buddydrive_count_user_items', $count, $user_id, $type, $status );
 	}
 }
 

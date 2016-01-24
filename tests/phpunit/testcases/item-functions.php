@@ -249,6 +249,83 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 	}
 
 	/**
+	 * @group update
+	 * @group save
+	 * @group groups
+	 */
+	public function test_buddydrive_update_item_for_groups() {
+		$c  = $this->factory->user->create();
+		$g1 = $this->factory->group->create( array( 'creator_id' => $c ) );
+		$g2 = $this->factory->group->create( array( 'status' => 'private', 'creator_id' => $c  ) );
+
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$meta           = new stdClass();
+		$meta->privacy  = 'groups';
+		$meta->groups   = array( $g1 );
+
+		$ing1 = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-1.png',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+			'metas'            => $meta,
+		) );
+
+		$file_g1 = buddydrive_get_buddyfile( $ing1 );
+
+		$this->assertEquals( array( $g1 ), $file_g1->group );
+
+		buddydrive_update_item( array(
+			'group' => array( $g1, $g2 ),
+		), $file_g1 );
+
+		$file_g1_g2 = buddydrive_get_buddyfile( $ing1 );
+
+		$this->assertEquals( array( $g1, $g2 ), $file_g1_g2->group );
+
+		buddydrive_update_item( array(
+			'group' => array( $g2 ),
+		), $file_g1_g2 );
+
+		$file_g2 = buddydrive_get_buddyfile( $ing1 );
+
+		$this->assertEquals( array( $g2 ), $file_g2->group );
+
+		buddydrive_update_item( array(
+			'group' => false,
+		), $file_g2 );
+
+		$file_none = buddydrive_get_buddyfile( $ing1 );
+
+		$this->assertTrue( 'private' === $file_none->check_for );
+
+		$folderg2 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_folder_post_type(),
+			'user_id'          => $c,
+			'title'            => 'folder',
+			'privacy'          => 'groups',
+			'groups'           => array( $g2 ),
+		) );
+
+		$childreng2 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-2.png',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-2.png',
+			'parent_folder_id' => $folderg2,
+		) );
+
+		$file_c = buddydrive_get_buddyfile( $childreng2 );
+
+		$this->assertTrue( 'groups' === $file_c->check_for );
+		$this->assertEquals( array( $g2 ), $file_c->group );
+	}
+
+	/**
 	 * @group delete
 	 * @group save
 	 */
@@ -344,5 +421,349 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 
 		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_id );
 		$this->assertTrue( ! empty( $not_deleted ) );
+	}
+
+	/**
+	 * @group buddydrive_get_buddyfile
+	 */
+	public function test_buddydrive_get_buddyfile() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$expected_id = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+		) );
+
+		$properties = array( 'ID', 'user_id', 'title', 'content', 'post_parent', 'post_type', 'guid', 'mime_type', 'file', 'path', 'link', 'check_for' );
+
+		$file = buddydrive_get_buddyfile( $expected_id );
+
+		$this->assertEquals( $properties, array_intersect( $properties, array_keys( (array) $file ) ) );
+	}
+
+	/**
+	 * @group buddydrive_get_sharing_options
+	 */
+	public function test_buddydrive_get_sharing_options() {
+		add_filter( 'bp_is_active', '__return_false' );
+
+		$options = buddydrive_get_sharing_options();
+
+		remove_filter( 'bp_is_active', '__return_false' );
+
+		$this->assertTrue( ! isset( $options['groups'] ) && ! isset( $options['friends'] ) && isset( $options['public'] ) );
+
+		$options = buddydrive_get_sharing_options();
+
+		$this->assertTrue( isset( $options['groups'] ) && isset( $options['friends'] ) && isset( $options['public'] ) );
+	}
+
+	/**
+	 * @group buddydrive_check_download
+	 * @group groups
+	 */
+	public function test_buddydrive_check_download() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$c = $this->factory->user->create();
+
+		$id = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+		) );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$cd = buddydrive_check_download( $file, 0 );
+		$this->assertTrue( is_wp_error( $cd ) );
+
+		$cd = buddydrive_check_download( $file, $c );
+		$this->assertTrue( is_wp_error( $cd ) );
+		$this->assertTrue( buddydrive_check_download( $file, $this->user_id ) );
+
+		buddydrive_update_item( array(
+			'privacy' => 'password',
+			'password' => 'bar',
+		), $file );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$cd = buddydrive_check_download( $file, 0 );
+		$this->assertTrue( is_wp_error( $cd ) );
+
+		$cd = buddydrive_check_download( $file, $c );
+		$this->assertTrue( is_wp_error( $cd ) );
+		$this->assertTrue( buddydrive_check_download( $file, $this->user_id ) );
+
+		$file->pass_submitted = 'bar';
+		$this->assertTrue( buddydrive_check_download( $file, 0 ) );
+		$this->assertTrue( buddydrive_check_download( $file, $c ) );
+
+		unset( $file->pass_submitted );
+
+		buddydrive_update_item( array(
+			'privacy' => 'public',
+		), $file );
+
+		$file = buddydrive_get_buddyfile( $id );
+		$this->assertTrue( buddydrive_check_download( $file, 0 ) );
+		$this->assertTrue( buddydrive_check_download( $file, $c ) );
+		$this->assertTrue( buddydrive_check_download( $file, $this->user_id ) );
+
+		$g1 = $this->factory->group->create( array( 'creator_id' => $c ) );
+		$g2 = $this->factory->group->create( array( 'status' => 'hidden', 'creator_id' => $this->user_id ) );
+		$g3 = $this->factory->group->create( array( 'status' => 'private', 'creator_id' => $c ) );
+		$g4 = $this->factory->group->create( array( 'creator_id' => $this->user_id ) );
+
+		buddydrive_update_item( array(
+			'privacy' => 'groups',
+			'group'  => array( $g2 )
+		), $file );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$cd = buddydrive_check_download( $file, 0 );
+		$this->assertTrue( is_wp_error( $cd ) );
+
+		$cd = buddydrive_check_download( $file, $c );
+		$this->assertTrue( is_wp_error( $cd ) );
+
+		$this->assertTrue( buddydrive_check_download( $file, $this->user_id ) );
+
+		buddydrive_update_item( array(
+			'privacy' => 'groups',
+			'group'  => array( $g2, $g3 )
+		), $file );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$cd = buddydrive_check_download( $file, 0 );
+		$this->assertTrue( is_wp_error( $cd ) );
+
+		$this->assertTrue( buddydrive_check_download( $file, $c ) );
+		$this->assertTrue( buddydrive_check_download( $file, $this->user_id ) );
+
+		buddydrive_update_item( array(
+			'privacy' => 'groups',
+			'group'  => array( $g2, $g3, $g4 )
+		), $file );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$this->assertTrue( buddydrive_check_download( $file, 0 ) );
+		$this->assertTrue( buddydrive_check_download( $file, $c ) );
+		$this->assertTrue( buddydrive_check_download( $file, $this->user_id ) );
+
+		buddydrive_update_item( array(
+			'privacy' => 'friends',
+		), $file );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$cd = buddydrive_check_download( $file, 0 );
+		$this->assertTrue( is_wp_error( $cd ) );
+
+		$cd = buddydrive_check_download( $file, $c );
+		$this->assertTrue( is_wp_error( $cd ) );
+
+		friends_add_friend( $this->user_id, $c, true );
+		$this->assertTrue( buddydrive_check_download( $file, $c ) );
+
+		$this->assertTrue( buddydrive_check_download( $file, $this->user_id ) );
+	}
+
+	/**
+	 * @group buddydrive_remove_item_from_group
+	 * @group groups
+	 */
+	public function test_buddydrive_remove_item_from_group() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$c = $this->factory->user->create();
+		$g1 = $this->factory->group->create( array( 'creator_id' => $c ) );
+		$g2 = $this->factory->group->create( array( 'status' => 'hidden', 'creator_id' => $this->user_id ) );
+
+		$id = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+			'privacy'          => 'groups',
+			'groups'           => array( $g1 ),
+		) );
+
+		buddydrive_remove_item_from_group( $id, $g1 );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$this->assertTrue( empty( $file->group ) );
+		$this->assertTrue( 'public' === $file->check_for );
+		$this->assertTrue( 'buddydrive_groups' !== get_post_status( $id ) );
+
+		buddydrive_update_item( array( 'privacy' => 'groups', 'group' => array( $g1, $g2 ) ), $file );
+
+		buddydrive_remove_item_from_group( $id, $g1 );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$this->assertEquals( array( $g2 ), $file->group );
+		$this->assertTrue( 'groups' === $file->check_for );
+		$this->assertTrue( 'buddydrive_groups' === get_post_status( $id ) );
+
+		buddydrive_remove_item_from_group( $id, $g2 );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$this->assertTrue( empty( $file->group ) );
+		$this->assertTrue( 'private' === $file->check_for );
+		$this->assertTrue( 'buddydrive_groups' !== get_post_status( $id ) );
+
+		$folder_id = buddydrive_add_item( array(
+			'type'             => buddydrive_get_folder_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-1.png',
+			'privacy'          => 'groups',
+			'groups'           => array( $g2 ),
+		) );
+
+		buddydrive_update_item( array( 'parent_folder_id' => $folder_id ), $file );
+
+		buddydrive_remove_item_from_group( $folder_id, $g2 );
+
+		$folder = buddydrive_get_buddyfile( $folder_id, buddydrive_get_folder_post_type() );
+		$file = buddydrive_get_buddyfile( $id );
+
+		$this->assertTrue( $folder->post_status === $file->post_status && $file->post_status === 'buddydrive_private' );
+		$this->assertTrue( empty( $folder->group ) && empty( $file->group ) );
+	}
+
+	/**
+	 * @group buddydrive_remove_items_from_group
+	 * @group groups
+	 */
+	public function test_buddydrive_remove_buddyfiles_from_group() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$c  = $this->factory->user->create();
+		$g1 = $this->factory->group->create( array( 'creator_id' => $c ) );
+		$g2 = $this->factory->group->create( array( 'status' => 'hidden', 'creator_id' => $this->user_id ) );
+
+		$f1 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+			'privacy'          => 'groups',
+			'groups'           => array( $g1 ),
+		) );
+
+		$f2 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-2.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-2.png',
+			'privacy'          => 'groups',
+			'groups'           => array( $g1, $g2 ),
+		) );
+
+		$folder_id = buddydrive_add_item( array(
+			'type'             => buddydrive_get_folder_post_type(),
+			'user_id'          => $c,
+			'title'            => 'directory',
+			'privacy'          => 'groups',
+			'groups'           => array( $g1 ),
+		) );
+
+		$f3 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+			'parent_folder_id' => $folder_id,
+		) );
+
+		buddydrive_remove_buddyfiles_from_group( $g1 );
+
+		$folder = buddydrive_get_buddyfile( $folder_id, buddydrive_get_folder_post_type() );
+		$file1 = buddydrive_get_buddyfile( $f1 );
+		$file2 = buddydrive_get_buddyfile( $f2 );
+		$file3 = buddydrive_get_buddyfile( $f3 );
+
+		$this->assertTrue( $file1->post_status === 'buddydrive_public' && $folder->post_status === $file3->post_status && $file3->post_status === 'buddydrive_public' );
+		$this->assertTrue( empty( $folder->group ) && empty( $file1->group ) && empty( $file3->group ) );
+
+		$this->assertEquals( array( $g2 ), $file2->group );
+		$this->assertTrue( 'groups' === $file2->check_for );
+		$this->assertTrue( 'buddydrive_groups' === get_post_status( $f2 ) );
+	}
+
+	/**
+	 * @group buddydrive_count_user_files
+	 */
+	public function test_buddydrive_count_user_files() {
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$meta = new stdClass();
+		$meta->privacy = 'public';
+		$expected_ids = array();
+
+		$expected_ids['folder_puid'] = buddydrive_save_item( array(
+			'type'  => buddydrive_get_folder_post_type(),
+			'title' => 'foo',
+			'content' => 'foo bar folder',
+			'metas' => $meta
+		) );
+
+		$expected_ids['file_puid'] = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'parent_folder_id' => $expected_ids['folder_puid'],
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo bar file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+			'metas'            => $meta,
+		) );
+
+		$meta->privacy = 'private';
+
+		$expected_ids['file_prid'] = buddydrive_save_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-1.png',
+			'content'          => 'foo bar file',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
+			'metas'            => $meta,
+		) );
+
+		$this->set_current_user( 0 );
+		$this->assertTrue( 1 === (int) buddydrive_count_user_files( $this->user_id ) );
+
+		buddydrive()->__set( 'users_file_count', null );
+
+		$this->set_current_user( $this->user_id );
+		$this->assertTrue( 2 === (int) buddydrive_count_user_files( $this->user_id ) );
 	}
 }

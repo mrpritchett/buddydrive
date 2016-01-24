@@ -390,7 +390,7 @@ function buddydrive_admin_edit_metabox_status( $item ) {
  */
 function buddydrive_admin_edit_metabox_privacy( $item ) {
 
-	$privacy_status = get_post_meta( $item->ID, '_buddydrive_sharing_option', true );
+	$privacy_status = buddydrive_get_privacy( $item->ID );
 	$owner = $item->user_id;
 	$avatar  = buddydrive_get_show_owner_avatar( $owner );
 	?>
@@ -980,7 +980,7 @@ class BuddyDrive_List_Table extends WP_List_Table {
 	 *
 	 */
 	function column_status( $item = array() ) {
-		$privacy = get_post_meta( $item['ID'], '_buddydrive_sharing_option', true );
+		$privacy = buddydrive_get_privacy( $item['ID'] );
 		$status_desc = '';
 
 		if( !empty( $privacy ) ) {

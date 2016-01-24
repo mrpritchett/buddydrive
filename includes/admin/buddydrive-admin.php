@@ -95,6 +95,7 @@ class BuddyDrive_Admin {
 		$this->settings_page       = bp_core_do_network_admin() ? 'settings.php' : 'options-general.php';
 		$this->notice_hook         = bp_core_do_network_admin() ? 'network_admin_notices' : 'admin_notices' ;
 		$this->user_columns_filter = bp_core_do_network_admin() ? 'wpmu_users_columns' : 'manage_users_columns';
+		$this->requires_db_upgrade = buddydrive_get_db_number_version() < buddydrive_get_number_version();
 	}
 
 	/**
@@ -125,10 +126,10 @@ class BuddyDrive_Admin {
 
 		/** General Actions ***************************************************/
 
-		add_action( bp_core_admin_hook(),                 array( $this, 'admin_menus'             ) ); // Add menu item to settings menu
-		add_action( 'buddydrive_admin_head',              array( $this, 'admin_head'              ) ); // Add some general styling to the admin area
-		add_action( $this->notice_hook,                   array( $this, 'activation_notice'       ) ); // Checks for BuddyDrive Upload directory once activated
-		add_action( 'buddydrive_admin_register_settings', array( $this, 'register_admin_settings' ) ); // Add settings
+		add_action( bp_core_admin_hook(),                 array( $this, 'admin_menus'             )        ); // Add menu item to settings menu
+		add_action( 'buddydrive_admin_head',              array( $this, 'admin_head'              )        ); // Add some general styling to the admin area
+		add_action( $this->notice_hook,                   array( $this, 'activation_notice'       ),     9 ); // Checks for BuddyDrive Upload directory once activated
+		add_action( 'buddydrive_admin_register_settings', array( $this, 'register_admin_settings' )        ); // Add settings
 		add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_scripts'         ), 10, 1 ); // Add enqueued JS and CSS
 
 		/** Filters ***********************************************************/
@@ -139,6 +140,8 @@ class BuddyDrive_Admin {
 
 		// Filters the user space left output to strip html tags
 		add_filter( 'buddydrive_get_user_space_left',    'buddydrive_filter_user_space_left'         , 10, 2 );
+
+		add_action( 'wp_ajax_buddydrive_upgrader', array( $this, 'do_upgrade' ) );
 
 		// Allow plugins to modify these actions
 		do_action_ref_array( 'buddydrive_admin_loaded', array( &$this ) );
@@ -188,6 +191,17 @@ class BuddyDrive_Admin {
 			array( $this, 'about_screen' )
 		);
 
+		// Upgrade DB Screen
+		if ( $this->requires_db_upgrade ) {
+			$this->hook_suffixes['upgrade'] = add_dashboard_page(
+				__( 'BuddyDrive Upgrades',  'buddydrive' ),
+				__( 'BuddyDrive Upgrades',  'buddydrive' ),
+				'manage_options',
+				'buddydrive-upgrade',
+				array( $this, 'upgrade_screen' )
+			);
+		}
+
 
 		// Hook into early actions to load custom CSS and our init handler.
 		add_action( "load-$hook", 'buddydrive_files_admin_load' );
@@ -216,6 +230,10 @@ class BuddyDrive_Admin {
 
 		// Hide About page
 		remove_submenu_page( 'index.php', 'buddydrive-about'   );
+
+		if ( $this->requires_db_upgrade ) {
+			remove_submenu_page( 'index.php', 'buddydrive-upgrade' );
+		}
 
 		$version = buddydrive_get_version();
 
@@ -303,6 +321,20 @@ class BuddyDrive_Admin {
 		if ( empty( $buddydrive_upload['dir'] ) || ! file_exists( $buddydrive_upload['dir'] ) ){
 			bp_core_add_admin_notice( __( 'The main BuddyDrive directory is missing', 'buddydrive' ) );
 		}
+
+		$display_upgrade_notice = true;
+		$current_screen = get_current_screen();
+
+		if ( isset( $current_screen->id ) && in_array( $current_screen->id, $this->hook_suffixes ) ) {
+			$display_upgrade_notice = false;
+		}
+
+		if ( $this->requires_db_upgrade && $display_upgrade_notice ) {
+			bp_core_add_admin_notice( sprintf(
+				__( 'BuddyDrive is almost ready. It needs to update some of the datas it is using. If you have not done a database backup yet, please do it <strong>before</strong> clicking on <a href="%s">this link</a>.', 'buddydrive' ),
+				esc_url( add_query_arg( array( 'page' => 'buddydrive-upgrade' ), bp_get_admin_url( 'index.php' ) ) )
+			), 'error' );
+		}
 	}
 
 	/**
@@ -358,15 +390,29 @@ class BuddyDrive_Admin {
 	 * @uses wp_enqueue_script() to enqueue the script
 	 */
 	public function enqueue_scripts( $hook = false ) {
+		if ( in_array( $hook, $this->hook_suffixes ) ) {
+			$min = '.min';
+			if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG )  {
+				$min = '';
+			}
 
-		if( in_array( $hook, $this->hook_suffixes ) )
 			wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url .'buddydrive-admin.css' );
+		}
 
-		if( !empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && !empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
+		if ( !empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && !empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
 			wp_enqueue_script ( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
 			wp_localize_script( 'buddydrive-admin-js', 'buddydrive_admin', buddydrive_get_js_l10n() );
 		}
 
+		if ( isset( $this->hook_suffixes['upgrade'] ) && $hook === $this->hook_suffixes['upgrade'] ) {
+			wp_register_script(
+				'buddydrive-upgrader-js',
+				$this->js_url . "buddydrive-upgrader{$min}.js",
+				array( 'jquery', 'json2', 'wp-backbone' ),
+				buddydrive_get_version(),
+				true
+			);
+		}
 	}
 
 	/**
@@ -445,7 +491,7 @@ class BuddyDrive_Admin {
 					<div class="last-feature">
 						<h4><?php esc_html_e( 'BuddyPress single group&#39;s latest activity', 'buddydrive' ); ?></h4>
 						<p><?php esc_html_e( 'When a file is shared with the members of a group, the latest activity of the group will be updated.', 'buddydrive' ); ?></p>
-						
+
 						<h4><?php esc_html_e( 'Reassign deleted files', 'buddydrive' ); ?></h4>
 						<p><?php esc_html_e( 'If you need to keep files when a user leaves your community (sad), you can use the following filter making sure to return the ID of a user having the bp_moderate capability.', 'buddydrive' ); ?></p>
 						<p><code>buddydrive_set_owner_on_user_deleted</code></p>
@@ -704,6 +750,105 @@ class BuddyDrive_Admin {
 		return $retval;
 	}
 
+	public function upgrade_screen() {
+		global $wpdb;
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'BuddyDrive Upgrade', 'buddydrive' ); ?></h1>
+			<div id="message" class="fade updated buddydrive-hide">
+				<p><?php esc_html_e( 'Thank you for your patience, you can now fully enjoy BuddyDrive!', 'buddydrive' ); ?></p>
+			</div>
+			<p>
+		<?php
+		$tasks = buddydrive_get_upgrade_tasks();
+
+		if ( ! isset( $tasks ) || empty( $tasks ) ) {
+			esc_html_e( 'No tasks to run. BuddyDrive is ready.', 'buddydrive' );
+		} else {
+			foreach ( $tasks as $key => $task ) {
+				if ( ! empty( $task['count'] ) && 'upgrade_db_version' !== $task['action_id'] ) {
+					$tasks[ $key ]['count'] = $wpdb->get_var( $task['count'] );
+
+					// If nothing needs to be ugraded, remove the task.
+					if ( empty( $tasks[ $key ]['count'] ) ) {
+						unset( $tasks[ $key ] );
+					} else {
+						$tasks[ $key ]['message'] = sprintf( $task['message'], $tasks[ $key ]['count'] );
+					}
+				}
+			}
+			
+			printf( _n( 'BuddyDrive is almost ready, please wait for the %s following task to proceed.', 'BuddyDrive is almost ready, please wait for the %s following tasks to proceed.', count( $tasks ), 'buddydrive' ), number_format_i18n( count( $tasks ) ) );
+		}
+		?>
+			</p>
+			<div id="buddydrive-upgrader"></div>
+		</div>
+		<?php
+		// Add The Upgrader UI
+		wp_enqueue_script ( 'buddydrive-upgrader-js' );
+		wp_localize_script( 'buddydrive-upgrader-js', 'BuddyDrive_Upgrader', array(
+			'tasks' => array_values( $tasks ),
+			'nonce' => wp_create_nonce( 'buddydrive-upgrader' ),
+		) );
+		?>
+		<script type="text/html" id="tmpl-progress-window">
+			<div id="{{data.id}}">
+				<div class="task-description">{{data.message}}</div>
+				<div class="buddydrive-progress">
+					<div class="buddydrive-bar"></div>
+				</div>
+			</div>
+		</script>
+		<?php
+	}
+
+	public function do_upgrade() {
+		$error = array(
+			'message'   => __( 'The task could not process due to an error', 'buddydrive' ),
+			'type'      => 'error'
+		);
+
+		if ( empty( $_POST['id'] ) || 'buddydrive_upgrader' !== $_POST['action'] ) {
+			wp_send_json_error( $error );
+		}
+
+		// Add the action to the error
+		$error['action_id'] = $_POST['id'];
+
+		// Check nonce
+		if ( empty( $_POST['_buddydrive_nonce'] ) || ! wp_verify_nonce( $_POST['_buddydrive_nonce'], 'buddydrive-upgrader' ) ) {
+			wp_send_json_error( $error );
+		}
+
+		// Check capability
+		if ( ! bp_current_user_can( 'bp_moderate' ) ) {
+			wp_send_json_error( $error );
+		}
+
+		$tasks = wp_list_pluck( buddydrive_get_upgrade_tasks(), 'callback', 'action_id' );
+
+		$did = 0;
+
+		// Upgrading the DB version
+		if ( 'upgrade_db_version' === $_POST['id'] ) {
+			$did = 1;
+			update_option( '_buddydrive_db_version', buddydrive_get_number_version() );
+
+		// Processing any other tasks
+		} elseif ( isset( $tasks[ $_POST['id'] ] ) && function_exists( $tasks[ $_POST['id'] ] ) ) {
+			$did = call_user_func_array( $tasks[ $_POST['id'] ], array( 20 ) );
+
+			// This shouldn't happen..
+			if ( 0 === $did ) {
+				wp_send_json_error( array( 'message' => __( '%d item(s) could not be updated', 'buddydrive' ), 'type' => 'warning', 'action_id' => $_POST['id'] ) );
+			}
+		} else {
+			wp_send_json_error( $error );
+		}
+
+		wp_send_json_success( array( 'done' => $did, 'action_id' => $_POST['id'] ) );
+	}
 }
 
 endif;

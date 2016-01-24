@@ -18,8 +18,8 @@
 }
 
 
-#buddydrive-admin-item .button, 
-#buddydrive-admin-item .button-primary, 
+#buddydrive-admin-item .button,
+#buddydrive-admin-item .button-primary,
 #buddydrive-admin-item .button-secondary {
 	height:inherit;
 	line-height:inherit;
@@ -97,4 +97,73 @@ i.icon.bd-icon-unlocked:before{
 
 i.icon.bd-icon-file:before{
 	content: "\f498";
+}
+
+#buddydrive-tasks {
+	background: #fff;
+	border: 1px solid #e5e5e5;
+	-webkit-box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+	box-shadow: 0 1px 1px rgba(0,0,0,0.04);
+}
+
+#buddydrive-tasks li.buddydrive-task {
+	list-style: none;
+	margin: 0;
+	padding: 1em 0.4em;
+}
+#buddydrive-tasks li:not(:first-child) {
+ 	border-top: dotted 1px #f1f1f1;
+}
+
+#message.buddydrive-hide {
+	display:none;
+}
+
+#buddydrive-tasks li.buddydrive-task .task-description {
+ 	text-align: left;
+    line-height: 1.3em;
+    font-size: 14px;
+    padding: 0.4em;
+    color: #aaa;
+}
+
+#buddydrive-tasks li.buddydrive-task.active .task-description {
+	color: #555;
+}
+
+#buddydrive-tasks li.buddydrive-task .buddydrive-progress {
+	background: none;
+	border: 1px solid #d1d1d1;
+	height: 5px;
+	margin: 0 auto;
+	margin-bottom: 2px;
+	padding: 0;
+	overflow: hidden;
+	width: 98%;
+}
+
+#buddydrive-tasks li.buddydrive-task .buddydrive-progress.warning,
+#buddydrive-tasks li.buddydrive-task .buddydrive-progress.error {
+	height: auto;
+	padding: 10px;
+	font-weight: bold;
+}
+
+#buddydrive-tasks li.buddydrive-task .buddydrive-progress.error {
+	background-color: #fdc;
+	border-color: #a00;
+	color: #800;
+}
+
+#buddydrive-tasks li.buddydrive-task .buddydrive-progress.warning {
+	background-color: #ffd;
+	border-color: #cb2;
+	color: #440;
+}
+
+#buddydrive-tasks li.buddydrive-task .buddydrive-bar {
+	background-color: #0073aa;
+	width: 0;
+	height: 100%;
+	z-index: 9;
 }
