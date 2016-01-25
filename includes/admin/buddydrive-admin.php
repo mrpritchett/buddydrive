@@ -809,7 +809,7 @@ class BuddyDrive_Admin {
 			'type'      => 'error'
 		);
 
-		if ( empty( $_POST['id'] ) || 'buddydrive_upgrader' !== $_POST['action'] ) {
+		if ( empty( $_POST['id'] ) || ! isset( $_POST['count'] ) || ! isset( $_POST['done'] ) ) {
 			wp_send_json_error( $error );
 		}
 
@@ -840,7 +840,7 @@ class BuddyDrive_Admin {
 			$did = call_user_func_array( $tasks[ $_POST['id'] ], array( 20 ) );
 
 			// This shouldn't happen..
-			if ( 0 === $did ) {
+			if ( 0 === $did && ( (int) $_POST['count'] > ( (int) $_POST['done'] + (int) $did ) ) ) {
 				wp_send_json_error( array( 'message' => __( '%d item(s) could not be updated', 'buddydrive' ), 'type' => 'warning', 'action_id' => $_POST['id'] ) );
 			}
 		} else {

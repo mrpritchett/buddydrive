@@ -115,9 +115,9 @@ window.buddydrive = window.buddydrive || {};
 			if ( response.done && response.action_id ) {
 				task = this.get( response.action_id );
 
-				if ( Number( task.get( 'count' ) ) > Number( task.get( 'done' ) ) ) {
-					task.set( 'done', Number( response.done ) + Number( task.get( 'done' ) ) );
-				} else {
+				task.set( 'done', Number( response.done ) + Number( task.get( 'done' ) ) );
+
+				if ( Number( task.get( 'count' ) ) === Number( task.get( 'done' ) ) ) {
 					task.set( 'active', false );
 
 					next     = Number( task.get( 'order' ) ) + 1;
@@ -152,7 +152,7 @@ window.buddydrive = window.buddydrive || {};
 		manageQueue: function( task ) {
 			if ( true === task.get( 'active' ) ) {
 				this.collection.proceed( {
-					data    : _.pick( task.attributes, ['id', 'done'] ),
+					data    : _.pick( task.attributes, ['id', 'count', 'done'] ),
 					success : this.taskSuccess,
 					error   : this.taskError
 				} );
