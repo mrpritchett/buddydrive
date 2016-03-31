@@ -218,7 +218,12 @@ function buddydrive_file_downloader() {
 		}
 
 		// in case of the folder, we open it on the user's BuddyDrive or the group one
-		$buddydrive_root_link = ( $buddyfolder->check_for == 'groups' ) ? buddydrive_get_group_buddydrive_url( $buddyfolder->group ) : buddydrive_get_user_buddydrive_url( $buddyfolder->user_id ) ;
+		if ( 'groups' === $buddyfolder->check_for )  {
+			$buddydrive_root_link = buddydrive_get_group_buddydrive_url( $buddyfolder->group, $buddyfolder->user_id );
+		} else {
+			$buddydrive_root_link = buddydrive_get_user_buddydrive_url( $buddyfolder->user_id );
+		}
+
 		$link = $buddydrive_root_link .'?folder-'. $buddyfolder->ID;
 		bp_core_redirect( $link );
 	}

@@ -75,20 +75,36 @@ function buddydrive_get_user_buddydrive_url( $user_id = 0 ) {
 /**
  * Builds the BuddyDrive Group url
  *
+ * @since 2.0.0 Add the User ID Parameter
+ *
  * @param integer $group_id the group id
- * @uses groups_get_group to get group datas
- * @uses groups_get_current_group() if no id was given to get current group datas
- * @uses bp_get_group_permalink() to build the group permalink
- * @uses buddydrive_get_slug() to get the BuddyDrive slug to end to the group url
+ * @param integer $user_id the User ID
+ *
  * @return string $buddydrive_link the link to user's BuddyDrive
  */
-function buddydrive_get_group_buddydrive_url( $group_id = 0 ) {
+function buddydrive_get_group_buddydrive_url( $group_id = 0, $user_id = 0 ) {
 	$buddydrive_link = false;
 
-	if ( ! empty( $group_id ) )
-		$group = groups_get_group( array( 'group_id' => $group_id ) );
-	else
+	if ( bp_is_group() ) {
 		$group = groups_get_current_group();
+
+	} elseif ( ! empty( $group_id ) ) {
+		if ( is_array( $group_id ) ) {
+			/**
+			 * Link to the user's BuddyDrive in case there is more than
+			 * one group.
+			 */
+			if ( count( $group_id ) > 1 && ! empty( $user_id ) ) {
+				return buddydrive_get_user_buddydrive_url( $user_id );
+
+			// Take the first !
+			} else {
+				$group_id = reset( $group_id );
+			}
+		}
+
+		$group = groups_get_group( array( 'group_id' => $group_id ) );
+	}
 
 	if ( ! empty( $group ) ) {
 		$group_link = bp_get_group_permalink( $group );
