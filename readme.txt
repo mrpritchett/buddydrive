@@ -3,8 +3,8 @@ Contributors: imath
 Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
 Requires at least: 4.2.2
-Tested up to: 4.4.1
-Stable tag: 1.3.3
+Tested up to: 4.5
+Stable tag: 1.3.4
 License: GPLv2
 
 Share files the BuddyPress way!
@@ -45,6 +45,10 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 5. BuddyDrive settings page
 
 == Changelog ==
+
+= 1.3.4 =
+* Prevents an error when the downloaded file size is bigger than the WP memory limit (props bentasm1).
+* Improve the way the Groups selectbox is populated and include a new filter to eventually restrict the groups the user can share an item into.
 
 = 1.3.3 =
 * Add new hooks to allow custom privacy settings.
@@ -122,6 +126,9 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 1.3.4 =
+As usual, backup your database before upgrading
 
 = 1.3.3 =
 As usual, backup your database before upgrading
