@@ -141,31 +141,50 @@ function buddydrive_select_user_group( $user_id = false, $selected = false, $nam
 
 		$output = __( 'No group available for BuddyDrive', 'buddydrive' );
 
-		if ( ! bp_is_active( 'groups' ) )
+		if ( ! bp_is_active( 'groups' ) ) {
 			return $output;
-
-		$user_groups = groups_get_groups( array( 'user_id' => $user_id, 'show_hidden' => true, 'per_page' => false ) );
-
-		$buddydrive_groups = false;
-
-		// checking for available buddydrive groups
-		if ( ! empty( $user_groups['groups'] ) ) {
-			foreach( $user_groups['groups'] as $group ) {
-				if ( 1 == groups_get_groupmeta( $group->id, '_buddydrive_enabled' ) )
-					$buddydrive_groups[]= array( 'group_id' => $group->id, 'group_name' => $group->name );
-			}
 		}
+
+		$user_groups = groups_get_groups( array(
+			'user_id'     => $user_id,
+			'show_hidden' => true,
+			'per_page'    => false,
+			'meta_query'  => array(
+				array(
+					'key'     => '_buddydrive_enabled',
+					'value'   => 1,
+					'compare' => '='
+			) )
+		) );
+
+		if ( empty( $user_groups['groups'] ) ) {
+			return $output;
+		}
+
+		/**
+		 * Filter here to restrict the groups the user can publish a file into
+		 *
+		 * @since 1.3.4
+		 *
+		 * @param array $value   A list of group objects the user can publish a BuddyDrive item into
+		 * @param int   $user_id The user ID
+		 */
+		$buddydrive_groups = apply_filters( 'buddydrive_filter_select_user_group', $user_groups['groups'], $user_id );
 
 		// building the select box
 		if ( ! empty( $buddydrive_groups ) && is_array( $buddydrive_groups ) ) {
 			$output = '<select id="buddygroup"'.$name.'>' ;
 			foreach ( $buddydrive_groups as $buddydrive_group ) {
-				$output .= '<option value="'.$buddydrive_group['group_id'].'" '. selected( $selected, $buddydrive_group['group_id'], false ) .'>'.$buddydrive_group['group_name'].'</option>';
+				$output .= sprintf( '<option value="%1$s" %2$s>%3$s</option>',
+					esc_attr( $buddydrive_group->id ),
+					selected( $selected, $buddydrive_group->id, false ),
+					esc_html( $buddydrive_group->name )
+				);
 			}
 			$output .= '</select>';
 		}
 
-		return apply_filters( 'buddydrive_get_select_user_group', $output );
+		return apply_filters( 'buddydrive_get_select_user_group', $output, $buddydrive_groups );
 	}
 
 
@@ -799,11 +818,11 @@ function buddydrive_item_privacy() {
 		default:
 			/**
 			 * Hook here to output the content for your custom privacy options
-			 * 
+			 *
 			 * @since 1.3.3
-			 * 
+			 *
 			 * @param array $status The privacy status.
-			 */ 
+			 */
 			do_action( 'buddydrive_default_item_privacy', $status );
 		break;
 	}
