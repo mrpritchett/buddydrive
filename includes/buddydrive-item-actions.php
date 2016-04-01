@@ -201,6 +201,15 @@ function buddydrive_file_downloader() {
 				header( 'Content-Length: ' . filesize( $buddydrive_file_path ) );
 				header( 'Content-Disposition: attachment; filename='.$buddydrive_file_name );
 				header( 'Content-Type: ' .$buddydrive_file_mime );
+				/**
+				 * Files larger than the WordPress memory limit will cause out of memory errors
+				 * if output buffering is on.  Check to see if the ob level is > 0 and if it is
+				 * we send the buffer and then end ob.  We do not restart ob, since we die() after.
+				 */
+				while ( ob_get_level() > 0 ) {
+					ob_end_flush();
+				}
+
 				readfile( $buddydrive_file_path );
 				die();
 			}
