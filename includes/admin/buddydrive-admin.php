@@ -446,7 +446,6 @@ class BuddyDrive_Admin {
 	 * @uses add_query_arg() to add args to the url
 	 */
 	public function about_screen() {
-		global $wp_version;
 		$display_version = buddydrive_get_version();
 		$settings_url = add_query_arg( array( 'page' => 'buddydrive'), bp_get_admin_url( $this->settings_page ) );
 		?>
@@ -461,26 +460,26 @@ class BuddyDrive_Admin {
 				</a>
 			</h2>
 
-			<div class="headline-feature">
-				<h3><?php esc_html_e( 'Meet the BuddyDrive Editor', 'buddydrive' ); ?></h3>
+			<div class="headline-feature feature-section one-col">
+				<h2><?php esc_html_e( 'Meet the BuddyDrive Editor', 'buddydrive' ); ?></h2>
 
-				<div class="featured-image">
+				<div class="media-container" style="text-align:center">
 					<img src="<?php echo esc_url( buddydrive_get_images_url() . '/buddydrive-editor.png' );?>" alt="<?php esc_attr_e( 'The BuddyDrive Editor', 'buddydrive' ); ?>">
 				</div>
 
-				<div class="feature-section">
-					<h3><?php esc_html_e( 'BuddyDrive is now using the BuddyPress Attachments API!', 'buddydrive' ); ?></h3>
+				<div class="col" style="margin-right: auto;margin-left: auto; float: none">
+					<h4><?php esc_html_e( 'BuddyDrive is now using the BuddyPress Attachments API!', 'buddydrive' ); ?></h4>
 					<p><?php esc_html_e( 'Introduced in BuddyPress 2.3, BuddyDrive uses this API to manage user uploads the BuddyPress way. It gave birth to a new BuddyDrive Editor. Now, you and plugins can use it to easily share public files with your community members.', 'buddydrive' ); ?> <a href="https://github.com/imath/buddydrive/wiki/The-BuddyDrive-Editor"><?php esc_html_e( 'Learn more &rarr;', 'buddydrive' ); ?></a></p>
 				</div>
 
 				<div class="clear"></div>
 			</div>
 
-			<div class="feature-list">
-				<h2><?php printf( __( 'The other improvements in %s', 'buddydrive' ), $display_version ); ?></h2>
+			<div class="changelog">
+				<h3><?php printf( __( 'The other improvements in %s', 'buddydrive' ), $display_version ); ?></h3>
 
-				<div class="feature-section col two-col">
-					<div>
+				<div class="feature-section under-the-hood two-col">
+					<div class="col">
 						<h4><?php esc_html_e( 'Bulk-deleting files in the Administration screen', 'buddydrive' ); ?></h4>
 						<p><?php _e( 'When the community administrator bulk-deletes files having different owners, each owner&#39;s quota will now be updated.', 'buddydrive' ); ?></p>
 
@@ -488,7 +487,7 @@ class BuddyDrive_Admin {
 						<p><?php esc_html_e( 'When you share a link to a file into the activity stream, a private message, a post, a page, ..., BuddyDrive is catching this link to build some specific output.', 'buddydrive' ); ?></p>
 						<p><?php esc_html_e( 'Now, if this link is about a public image, a thumbnail will be displayed next to the file title (and description if provided).', 'buddydrive' ); ?></p>
 					</div>
-					<div class="last-feature">
+					<div class="col">
 						<h4><?php esc_html_e( 'BuddyPress single group&#39;s latest activity', 'buddydrive' ); ?></h4>
 						<p><?php esc_html_e( 'When a file is shared with the members of a group, the latest activity of the group will be updated.', 'buddydrive' ); ?></p>
 
@@ -502,43 +501,50 @@ class BuddyDrive_Admin {
 			<?php if ( ! empty( $_REQUEST['is_new_install' ] ) ) : ?>
 
 			<div class="changelog">
-				<h2 class="about-headline-callout"><?php esc_html_e( 'and always..', 'buddydrive' ); ?></h2>
-				<div class="feature-section col two-col">
-					<div>
+				<h3><?php esc_html_e( 'and always..', 'buddydrive' ); ?></h3>
+				<div class="feature-section under-the-hood two-col">
+					<div class="col">
+						<div class="media-container">
+							<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-1.png" style="width:90%">
+						</div>
 						<h4><?php _e( 'User&#39;s BuddyDrive', 'buddydrive' ); ?></h4>
 						<p>
 							<?php _e( 'It lives in the member&#39;s page just under the BuddyDrive tab.', 'buddydrive' ); ?>
 							<?php _e( 'The BuddyDrive edit bar allows the user to manage from one unique place his content.', 'buddydrive' ); ?>
 							<?php _e( 'He can add new files, new folders, set their privacy settings, edit them and of course delete them at any time.', 'buddydrive' ); ?>
 						</p>
-						<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-1.png" style="width:90%">
 					</div>
 
-					<div class="last-feature">
+					<div class="col">
 						<h4><?php _e( 'BuddyDrive Uploader', 'buddydrive' ); ?></h4>
 						<p>
 							<?php _e( 'BuddyDrive uses WordPress HTML5 uploader and do not add any third party script to handle uploads.', 'buddydrive' ); ?>
 							<?php _e( 'WordPress is a fabulous tool and already knows how to deal with attachments for its content.', 'buddydrive' ); ?>
 							<?php _e( 'So BuddyDrive is managing uploads, the WordPress way!', 'buddydrive' ); ?>
 						</p>
-						<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-2.png" style="width:90%">
+
+						<div class="media-container">
+							<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-2.png" style="width:90%">
+						</div>
 					</div>
 				</div>
 			</div>
 
 			<div class="changelog">
-				<div class="feature-section col two-col">
-					<div>
+				<div class="feature-section under-the-hood two-col">
+					<div class="col">
 						<h4><?php _e( 'BuddyDrive Folders', 'buddydrive' ); ?></h4>
 						<p>
 							<?php _e( 'Using folders is a convenient way to share a list of files at once.', 'buddydrive' ); ?>
 							<?php _e( 'Users just need to create a folder, open it an add the files of their choice to it.', 'buddydrive' ); ?>
 							<?php _e( 'When sharing a folder, a member actually shares the list of files that is attached to it.', 'buddydrive' ); ?>
 						</p>
-						<img src="<?php echo buddydrive_get_images_url();?>/folder-demo.png" style="width:90%">
+						<div class="media-container">
+							<img src="<?php echo buddydrive_get_images_url();?>/folder-demo.png" style="width:90%">
+						</div>
 					</div>
 
-					<div class="last-feature">
+					<div class="col">
 						<h4><?php _e( 'BuddyDrive privacy options', 'buddydrive' ); ?></h4>
 						<p>
 							<?php _e( 'There are five levels of privacy for the files or folders.', 'buddydrive' ); ?>&nbsp;
@@ -556,8 +562,8 @@ class BuddyDrive_Admin {
 			</div>
 
 			<div class="changelog">
-				<div class="feature-section col two-col">
-					<div>
+				<div class="feature-section under-the-hood two-col">
+					<div class="col">
 						<h4><?php _e( 'Sharing BuddyDrive items', 'buddydrive' ); ?></h4>
 						<p>
 							<?php _e( 'Depending on the privacy option of an item and the activated BuddyPress components, a user can :', 'buddydrive' ); ?>
@@ -571,22 +577,22 @@ class BuddyDrive_Admin {
 						</ul>
 					</div>
 
-					<div class="last-feature">
+					<div class="col">
 						<h4><?php _e( 'Supervising BuddyDrive', 'buddydrive' ); ?></h4>
 						<p>
 							<?php _e( 'The administrator of the community can manage all BuddyDrive items from the backend of WordPress.', 'buddydrive' ); ?>
 						</p>
-						<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-4.png" style="width:90%">
+						<div class="media-container">
+							<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-4.png" style="width:90%">
+						</div>
 					</div>
 				</div>
 			</div>
 
 			<?php endif; ?>
 
-			<div class="changelog">
-				<div class="return-to-dashboard">
-					<a href="<?php echo esc_url( $settings_url );?>" title="<?php esc_attr_e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php esc_html_e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
-				</div>
+			<div class="return-to-dashboard">
+				<a href="<?php echo esc_url( $settings_url );?>" title="<?php esc_attr_e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php esc_html_e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
 			</div>
 
 		</div>
@@ -777,7 +783,7 @@ class BuddyDrive_Admin {
 					}
 				}
 			}
-			
+
 			printf( _n( 'BuddyDrive is almost ready, please wait for the %s following task to proceed.', 'BuddyDrive is almost ready, please wait for the %s following tasks to proceed.', count( $tasks ), 'buddydrive' ), number_format_i18n( count( $tasks ) ) );
 		}
 		?>
