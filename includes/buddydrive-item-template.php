@@ -35,6 +35,9 @@ function buddydrive_component_home_url() {
  * @return the select box
  */
 function buddydrive_select_sharing_options( $id = 'buddydrive-sharing-options', $selected = false, $name = false ) {
+	if ( empty( $selected ) ) {
+		$selected = buddydrive_get_default_privacy();
+	}
 	?>
 	<select id="<?php echo esc_attr( $id );?>" <?php if ( ! empty( $name ) ) echo 'name="' . $name . '"';?>>
 

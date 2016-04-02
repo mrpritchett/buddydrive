@@ -684,6 +684,10 @@ function buddydrive_get_privacy( $status = false ) {
 	}
 }
 
+function buddydrive_get_default_privacy( $default = 'buddydrive_private' ) {
+	return apply_filters( 'buddydrive_get_default_privacy', buddydrive_get_privacy( $default ) );
+}
+
 function buddydrive_get_visible_groups() {
 	global $wpdb;
 	$bp = buddypress();
