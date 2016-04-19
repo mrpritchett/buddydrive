@@ -1,3 +1,4 @@
+/* globals wp, buddydrive, BuddyDrive_Upgrader, _, Backbone */
 window.wp = window.wp || {};
 window.buddydrive = window.buddydrive || {};
 
@@ -56,7 +57,7 @@ window.buddydrive = window.buddydrive || {};
 				} );
 			} );
 		}
-	}
+	};
 
 	/**
 	 * The Tasks collection
@@ -73,7 +74,7 @@ window.buddydrive = window.buddydrive || {};
 			} );
 
 			return buddydrive.ajax.send( options );
-		},
+		}
 	} );
 
 	/**

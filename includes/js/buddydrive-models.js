@@ -1,8 +1,9 @@
+/* globals wp, bp, buddydrive, BuddyDrive_App, BP_Uploader, _, Backbone */
 window.wp         = window.wp || {};
 window.bp         = window.bp || {};
 window.buddydrive = window.buddydrive || {};
 
-( function( exports, $ ) {
+( function() {
 
 	if ( typeof BuddyDrive_App === 'undefined' ) {
 		return false;
@@ -39,7 +40,7 @@ window.buddydrive = window.buddydrive || {};
 			link         : '',
 			type         : '',
 			date_created : 0,
-			date_edited  : 0,
+			date_edited  : 0
 		},
 
 		update: function( data, options ) {
@@ -151,7 +152,7 @@ window.buddydrive = window.buddydrive || {};
 		},
 
 		parse: function( resp ) {
-			items = resp.items;
+			var items    = resp.items;
 			this.options = resp.metas || this.options;
 
 			if ( ! _.isArray( items ) ) {
@@ -205,4 +206,4 @@ window.buddydrive = window.buddydrive || {};
 		}
 	} );
 
-} )( buddydrive, jQuery );
+} )( buddydrive );

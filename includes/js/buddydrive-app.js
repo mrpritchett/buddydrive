@@ -1,16 +1,14 @@
+/* globals buddydrive, _, Backbone */
 window.buddydrive = window.buddydrive || {};
 
 ( function( exports, $ ) {
 
 	/**
-	 * [Next description]
+	 * Main App
 	 * @type {Object}
 	 */
 	buddydrive.App = {
-		/**
-		 * [start description]
-		 * @return {[type]} [description]
-		 */
+
 		start: function() {
 			this.views      = new Backbone.Collection();
 			this.items      = new buddydrive.Collections.Items();
@@ -25,7 +23,7 @@ window.buddydrive = window.buddydrive || {};
 			Backbone.history.start();
 		},
 
-		listFiles: function( filters ) {
+		listFiles: function() {
 			this.cleanScreen();
 
 			// Create the loop view
@@ -55,7 +53,7 @@ window.buddydrive = window.buddydrive || {};
 				this.views.reset();
 			}
 		}
-	}
+	};
 
 	buddydrive.App.Router = Backbone.Router.extend( {
 		routes: {

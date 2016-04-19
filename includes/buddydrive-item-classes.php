@@ -889,13 +889,11 @@ class BuddyDrive_Item {
 			return false;
 		}
 
-		$item_type = array(  buddydrive_get_file_post_type(), buddydrive_get_folder_post_type() );
-
 		$sql = array(
 			'select' => "SELECT post_status, COUNT(ID) as num FROM {$wpdb->posts}",
 			'where' => array(
 				'user'   => $wpdb->prepare( "post_author = %d", $user_id ),
-				'type'   => sprintf( "post_type IN ( '%s' )", join( "', '", esc_sql( $item_type ) ) ),
+				'type'   => $wpdb->prepare( "post_type = %s", buddydrive_get_file_post_type() ),
 			),
 			'groupby' => 'GROUP BY post_status',
 		);

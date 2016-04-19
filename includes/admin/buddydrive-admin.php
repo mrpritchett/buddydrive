@@ -429,7 +429,7 @@ class BuddyDrive_Admin {
 			$min = '';
 		}
 
-		wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url .'buddydrive-admin.css', array(), buddydrive_get_version() );
+		wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url . "buddydrive-admin{$min}.css", array(), buddydrive_get_version() );
 
 		if ( ! empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && ! empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
 			/**
@@ -667,7 +667,7 @@ class BuddyDrive_Admin {
 		$user_quota = buddydrive_get_quota_by_user_id( $profileuser->ID );
 		?>
 
-		<h3><?php esc_html_e( 'User&#39;s BuddyDrive quota', 'bbpress' ); ?></h3>
+		<h3><?php esc_html_e( 'User&#39;s BuddyDrive quota', 'buddydrive' ); ?></h3>
 
 		<table class="form-table">
 			<tbody>

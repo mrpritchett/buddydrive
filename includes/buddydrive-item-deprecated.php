@@ -198,7 +198,7 @@ class BuddyDrive_Uploader {
 				'silverlight_xap_url' => includes_url( 'js/plupload/plupload.silverlight.xap' ),
 				'filters'             => array(
 					array(
-						'title'         => __( 'Allowed Files' ),
+						'title'         => __( 'Allowed Files', 'buddydrive' ),
 						'extensions'    => '*',
 						'max_file_size' => $max_upload_size . 'b',
 					)

@@ -1,4 +1,4 @@
-/* globals bp, BP_Uploader, _, Backbone */
+/* globals bp, BP_Uploader, _, Backbone, tinymce, QTags */
 
 window.bp = window.bp || {};
 
@@ -52,8 +52,8 @@ window.bp = window.bp || {};
 
 			// Display it
 	 		buddyfileStatus.inject( '.buddydrive-uploader-status' );
-		},
-	}
+		}
+	};
 
 	// Custom Uploader Files view
 	bp.Views.uploadBuddyfileStatus = bp.Views.uploaderStatus.extend( {
@@ -92,16 +92,16 @@ window.bp = window.bp || {};
 				editor = BP_Uploader.strings.buddydrive_editor_id;
 
 				if ( 0 === $( '#' + editor ).val().length ) {
-					$( '#' + editor ).val( insert + "\n" ).focus();
+					$( '#' + editor ).val( insert + '\n' ).focus();
 				} else {
-					$( '#' + editor ).val( $( '#' + editor ).val() + "\n" + insert ).focus();
+					$( '#' + editor ).val( $( '#' + editor ).val() + '\n' + insert ).focus();
 				}
 
 			} else {
 				if ( _.isUndefined( window.wpActiveEditor ) ) {
 					if ( hasTinymce && tinymce.activeEditor ) {
 						editor = tinymce.activeEditor;
-						wpActiveEditor = editor.id;
+						window.wpActiveEditor = editor.id;
 					} else if ( ! hasQuicktags ) {
 						return false;
 					}

@@ -1,3 +1,4 @@
+/* globals buddydrive, _, Backbone, BP_Uploader */
 window.buddydrive = window.buddydrive || {};
 
 ( function( exports, $ ) {
@@ -54,10 +55,10 @@ window.buddydrive = window.buddydrive || {};
 			this._views = {};
 
 			// Init the Breadcrumb
-			this.breadCrumbs = new Backbone.Collection;
+			this.breadCrumbs = new Backbone.Collection();
 
 			// Init the actions
-			this.actions = new Backbone.Collection;
+			this.actions = new Backbone.Collection();
 
 			// Init the warnings
 			this.warnings = new Backbone.Model();
@@ -163,7 +164,7 @@ window.buddydrive = window.buddydrive || {};
 			    first =  _.first( response.items ) || {};
 
 			if ( buddydrive.App.Query.get( 'buddydrive_parent' ) || buddydrive.App.Query.get( 'user_id' ) ) {
-				_.first( crumbs )['current'] = false;
+				_.first( crumbs ).current = false;
 			}
 
 			if ( buddydrive.App.Query.get( 'user_id' ) ) {
@@ -290,7 +291,7 @@ window.buddydrive = window.buddydrive || {};
 					if ( 'new_file' === action.get( 'id' ) ) {
 						$( '#buddydrive-uploader' ).removeClass( 'buddydrive-hide' );
 						$( '#buddydrive-actions-form' ).addClass( 'buddydrive-hide' );
-						$( '#buddydrive-browser').removeClass( 'bulk-select' )
+						$( '#buddydrive-browser').removeClass( 'bulk-select' );
 
 						if ( buddydrive.App.Query.get( 'buddydrive_parent' ) && ! _.isUndefined( this.collection.options.post_parent_infos ) ) {
 							this.views.set( '#buddydrive-status', new buddydrive.Views.Feedback( {
@@ -731,7 +732,7 @@ window.buddydrive = window.buddydrive || {};
 		attributes: {
 			name         : 'buddydrive_filter',
 			'aria-label' : buddydrive.Strings.loopFilterLabel
-		},
+		}
 	} );
 
 	buddydrive.Views.Item = buddydrive.View.extend( {
@@ -799,7 +800,7 @@ window.buddydrive = window.buddydrive || {};
 		},
 
 		cleanView: function() {
-			_.each( this.views._views[""], function( view ) {
+			_.each( this.views._views[''], function( view ) {
 				view.remove();
 			} );
 		},
@@ -878,8 +879,7 @@ window.buddydrive = window.buddydrive || {};
 		},
 
 		updateSelection: function( model ) {
-			var isSelected = this.options.selection.get( model.get( 'id' ) ),
-				allow_multiple = this.options.allow_multiple || false;
+			var allow_multiple = this.options.allow_multiple || false;
 
 			/**
 			 * As it is possible for any members of a group to add file to a group's folder,
@@ -1061,7 +1061,7 @@ window.buddydrive = window.buddydrive || {};
 				allow_multiple  : allow_multiple,
 				placeholder     : placeholder,
 				selection       : this.selection,
-				is_folder       : 'folder' === this.model.get( 'type' ),
+				is_folder       : 'folder' === this.model.get( 'type' )
 			} ) );
 
 			this.views.add( '#buddydrive-privacy-edit', new buddydrive.Views.ObjectSelection( { collection: this.selection } ) );
@@ -1073,7 +1073,7 @@ window.buddydrive = window.buddydrive || {};
 					'include'         : this.model.get( 'group' ),
 					'buddydrive_type' : 'groups',
 					'existing'        : true
-				}
+				};
 			}
 
 			if ( 'members' === privacy && this.model.get( 'members' ) ) {
@@ -1081,7 +1081,7 @@ window.buddydrive = window.buddydrive || {};
 					'include'         : this.model.get( 'members' ),
 					'buddydrive_type' : 'members',
 					'existing'        : true
-				}
+				};
 			}
 
 			if ( true === prefetch.existing ) {
@@ -1111,7 +1111,7 @@ window.buddydrive = window.buddydrive || {};
 				return;
 			}
 
-			var self = this, postArray = _.pick( this.model.attributes, ['id', 'user_id', 'title', 'content', 'privacy'] ),
+			var postArray = _.pick( this.model.attributes, ['id', 'user_id', 'title', 'content', 'privacy'] ),
 			    meta = {}, submitError = [];
 
 			// Set the content and meta
@@ -1142,7 +1142,7 @@ window.buddydrive = window.buddydrive || {};
 			} );
 
 			// Validate file or folder
-			if ( ! postArray['title'] ) {
+			if ( ! postArray.title ) {
 				submitError.push( 'title' );
 			}
 
@@ -1320,9 +1320,9 @@ window.buddydrive = window.buddydrive || {};
 					} ),
 					new buddydrive.Views.Button( {
 						id          : 'create-folder',
-						class       : 'button-primary button-large',
+						'class'     : 'button-primary button-large',
 						text        : buddydrive.Strings.new_folder_button
-					} ),
+					} )
 				] );
 			},
 
