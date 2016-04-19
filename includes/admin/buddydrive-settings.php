@@ -1,12 +1,15 @@
 <?php
+/**
+ * BuddyDrive Settings
+ */
 
-// Exit if accessed directly
-if ( !defined( 'ABSPATH' ) ) exit;
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 
 /**
  * The main settings arguments
- * 
+ *
  * @return array
  */
 function buddydrive_admin_get_settings_sections() {
@@ -26,7 +29,7 @@ function buddydrive_admin_get_settings_sections() {
 
 /**
  * The different fields for the main settings
- * 
+ *
  * @return array
  */
 function buddydrive_admin_get_settings_fields() {
@@ -35,6 +38,14 @@ function buddydrive_admin_get_settings_fields() {
 		/** Main Section ******************************************************/
 
 		'buddydrive_settings_main' => array(
+
+			// Default Privacy
+			'_buddydrive_default_privacy' => array(
+				'title'             => __( 'Default privacy for new items', 'buddydrive' ),
+				'callback'          => 'buddydrive_admin_setting_callback_default_privacy',
+				'sanitize_callback' => 'buddydrive_sanitize_default_privacy',
+				'args'              => array()
+			),
 
 			// User's quota
 			'_buddydrive_user_quota' => array(
@@ -104,8 +115,8 @@ function buddydrive_admin_get_settings_fields() {
 
 /**
  * Gives the setting fields for section
- * 
- * @param  string $section_id 
+ *
+ * @param  string $section_id
  * @return array  the fields
  */
 function buddydrive_admin_get_settings_fields_for_section( $section_id = '' ) {
@@ -122,7 +133,7 @@ function buddydrive_admin_get_settings_fields_for_section( $section_id = '' ) {
 
 /**
  * Some text to introduce the settings section
- * 
+ *
  * @return string html
  */
 function buddydrive_admin_setting_callback_main_section() {
@@ -135,7 +146,7 @@ function buddydrive_admin_setting_callback_main_section() {
 
 /**
  * Some text to introduce the custom settings section
- * 
+ *
  * @return string html
  */
 function buddydrive_admin_setting_callback_custom_section() {
@@ -151,6 +162,23 @@ function buddydrive_admin_setting_callback_custom_section() {
 }
 
 /**
+ * Let Admins define default privacy
+ *
+ * @since 2.0.0
+ */
+function buddydrive_admin_setting_callback_default_privacy() {
+	$buddydrive_default_privacy = bp_get_option( '_buddydrive_default_privacy', 'buddydrive_public' );
+	$stati = get_post_stati( array( 'buddydrive_settings' => true ), 'objects' );
+	?>
+	<select name="_buddydrive_default_privacy" id="_buddydrive_default_privacy">
+		<?php foreach ( $stati as $status )  : ?>
+			<option value="<?php echo esc_attr( $status->name ) ;?>" <?php selected( $buddydrive_default_privacy, $status->name );?>><?php echo esc_html( $status->label );?></option>
+		<?php endforeach ;?>
+	</select>
+	<?php
+}
+
+/**
  * Let the admin customize users quota
  *
  * @uses bp_get_option() to get the user's quota
@@ -159,7 +187,7 @@ function buddydrive_admin_setting_callback_custom_section() {
  */
 function buddydrive_admin_setting_callback_user_quota() {
 	$roles = get_editable_roles();
-	
+
 	$user_quota = bp_get_option( '_buddydrive_user_quota', 1000 );
 
 	if( is_array( $user_quota ) )
@@ -171,11 +199,11 @@ function buddydrive_admin_setting_callback_user_quota() {
 	}
 	?>
 	<table>
-	
+
 		<?php foreach ( $roles as $role => $details ) :
 			$name = translate_user_role( $details['name'] );
 			?>
-		
+
 			<tr>
 				<td><strong><?php echo $name;?></strong></td>
 				<td>
@@ -194,7 +222,7 @@ function buddydrive_admin_setting_callback_user_quota() {
  * Adds a default value in case of new roles or retrieve the known role value.
  *
  * @since  version 1.1
- * 
+ *
  * @param  string  $role      role to check
  * @param  array  $user_quota list of customized quota by roles
  * @param  integer $default   1000 as it was previous version default value
@@ -245,14 +273,14 @@ function buddydrive_admin_setting_callback_allowed_extensions() {
 	<script type="text/javascript">
 		jQuery('#buddydrive-toggle-all').on('change', function(){
 			var status = jQuery(this).attr('checked');
-			
+
 			if( !status )
 				status = false;
-			
+
 			jQuery('.buddydrive-admin-cb').each( function() {
 				jQuery(this).attr('checked', status );
 			});
-			
+
 			return false;
 		})
 	</script>
@@ -298,7 +326,7 @@ function buddydrive_admin_setting_callback_user_subnav_name() {
  * Let the admin customize the slug of the friends subnav
  *
  * @since  version 1.1
- * 
+ *
  * @uses bp_get_option() to get the user's subnav
  * @uses sanitize_title() to sanitize user's subnav name
  * @return string html
@@ -323,7 +351,7 @@ function buddydrive_admin_setting_callback_friends_subnav_slug() {
  * @return string html
  */
 function buddydrive_admin_setting_callback_friends_subnav_name() {
-	$friends_subnav = bp_get_option( '_buddydrive_friends_subnav_name', __( 'Shared by Friends', 'buddydrive' ) );
+	$friends_subnav = bp_get_option( '_buddydrive_friends_subnav_name', __( 'Between Friends', 'buddydrive' ) );
 	$friends_subnav = sanitize_text_field( $friends_subnav );
 	?>
 
@@ -333,9 +361,23 @@ function buddydrive_admin_setting_callback_friends_subnav_name() {
 }
 
 /**
+ * Sanitize the default privacy
+ *
+ * @param string $option
+ * @return string $option
+ */
+ function buddydrive_sanitize_default_privacy( $option ) {
+ 	if ( ! buddydrive_get_privacy( $option ) ) {
+ 		return '';
+ 	}
+
+ 	return $option;
+ }
+
+/**
  * Sanitize the user's quota
  *
- * @param int $option 
+ * @param int $option
  * @return int the user's quota
  */
 function buddydrive_sanitize_user_quota( $option ) {
@@ -343,13 +385,13 @@ function buddydrive_sanitize_user_quota( $option ) {
 		$option =  array_map( 'intval', $option );
 	else
 		$option = intval( $option );
-	
+
 	return $option;
 }
 
 /**
  * Make sure the max upload remains under the config limit
- * 
+ *
  * @param  int $option
  * @uses wp_max_upload_size() to get the max value of the config
  * @return int the max upload sanitized
@@ -364,13 +406,13 @@ function buddydrive_sanitize_max_upload( $option ) {
 		if( $max < $input )
 			$input = $max / 1024 / 1024;
 	}
-		
+
 	return $input;
 }
 
 /**
  * Sanitize the extensions choosed
- * 
+ *
  * @param  array $option
  * @return array the sanitized allowed mime types
  */
@@ -386,13 +428,13 @@ function buddydrive_sanitize_allowed_extension( $option ) {
  *
  * @since  version 1.1
  *
- * @param string $option 
+ * @param string $option
  * @uses sanitize_title() to sanitize the slug
  * @return string the slug
  */
 function buddydrive_sanitize_custom_slug( $option ) {
 	$option = sanitize_title( $option );
-	
+
 	return $option;
 }
 
@@ -401,19 +443,19 @@ function buddydrive_sanitize_custom_slug( $option ) {
  *
  * @since  version 1.1
  *
- * @param string $option 
+ * @param string $option
  * @uses sanitize_text_field() to sanitize the name
  * @return string the slug
  */
 function buddydrive_sanitize_custom_name( $option ) {
 	$option = sanitize_text_field( $option );
-	
+
 	return $option;
 }
 
 /**
  * Displays the settings page
- * 
+ *
  * @uses is_multisite() to check for multisite
  * @uses add_query_arg() to add arguments to query in case of multisite
  * @uses bp_get_admin_url to build the settings url in case of multisite
@@ -424,10 +466,10 @@ function buddydrive_sanitize_custom_name( $option ) {
  */
 function buddydrive_admin_settings() {
 	$form_action = 'options.php';
-	
+
 	if( bp_core_do_network_admin() ) {
 		do_action( 'buddydrive_multisite_options' );
-		
+
 		$form_action = add_query_arg( 'page', 'buddydrive', bp_get_admin_url( 'settings.php' ) );
 	}
 ?>
@@ -469,49 +511,49 @@ function buddydrive_admin_settings() {
  * @uses buddydrive_sanitize_custom_slug() to sanitize the custom slugs of subnavs
  */
 function buddydrive_handle_settings_in_multisite() {
-	
+
 	if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) )
 		return;
-	
+
 	check_admin_referer( 'buddydrive_settings', '_wpnonce_buddydrive_setting' );
-	
+
 	$user_quota  = buddydrive_sanitize_user_quota( $_POST['_buddydrive_user_quota'] );
-	
+
 	if( ! empty( $user_quota ) )
 		bp_update_option( '_buddydrive_user_quota', $user_quota );
-		
+
 	$max_upload  = buddydrive_sanitize_max_upload( $_POST['_buddydrive_max_upload'] );
-	
+
 	if( ! empty( $max_upload ) )
 		bp_update_option( '_buddydrive_max_upload', $max_upload );
-	
+
 	$allowed_ext = buddydrive_sanitize_allowed_extension( $_POST['_buddydrive_allowed_extensions'] );
-	
+
 	if( ! empty( $allowed_ext ) && is_array( $allowed_ext ) )
 		bp_update_option( '_buddydrive_allowed_extensions', $allowed_ext );
 
 	$main_subnav = buddydrive_sanitize_custom_name( $_POST['_buddydrive_user_subnav_name'] );
-	
+
 	if( ! empty( $main_subnav ) )
 		bp_update_option( '_buddydrive_user_subnav_name', $main_subnav );
 
 	$friends_slug = buddydrive_sanitize_custom_slug( $_POST['_buddydrive_friends_subnav_slug'] );
-	
+
 	if( ! empty( $friends_slug ) )
 		bp_update_option( '_buddydrive_friends_subnav_slug', $friends_slug );
 
 	$friends_subnav = buddydrive_sanitize_custom_name( $_POST['_buddydrive_friends_subnav_name'] );
-	
+
 	if( ! empty( $friends_subnav ) )
 		bp_update_option( '_buddydrive_friends_subnav_name', $friends_subnav );
 
 	$group_enable = isset( $_POST['_buddydrive_auto_group'] ) ? intval( $_POST['_buddydrive_auto_group'] ) : 0;
 	bp_update_option( '_buddydrive_auto_group', $group_enable );
-	
+
 	?>
 	<div id="message" class="updated"><p><?php _e( 'Settings saved', 'buddydrive' );?></p></div>
 	<?php
-	
+
 }
 
 add_action( 'buddydrive_multisite_options', 'buddydrive_handle_settings_in_multisite', 0 );

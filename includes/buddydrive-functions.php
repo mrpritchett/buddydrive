@@ -1,6 +1,10 @@
 <?php
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * BuddyDrive functions
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
  * What is the version in db ?
@@ -153,7 +157,7 @@ function buddydrive_friends_subnav_name() {
 	 * @return string the subnav name
 	 */
 	function buddydrive_get_friends_subnav_name() {
-		$friends_subnav = bp_get_option( '_buddydrive_friends_subnav_name', __( 'Shared by Friends', 'buddydrive' ) );
+		$friends_subnav = bp_get_option( '_buddydrive_friends_subnav_name', __( 'Between Friends', 'buddydrive' ) );
 
 		return apply_filters( 'buddydrive_get_friends_subnav_name', $friends_subnav );
 	}
@@ -462,7 +466,10 @@ function buddydrive_check_version() {
 		update_option( '_buddydrive_db_version', buddydrive_get_number_version() );
 
 	} else if ( buddydrive_is_update() ) {
-		// Do simple upgrade things here
+		// Older versions had private as default privacy
+		if ( 200 === buddydrive_get_number_version() ) {
+			bp_add_option( '_buddydrive_default_privacy', 'buddydrive_private' );
+		}
 	}
 
 	// Finally upgrade plugin version
@@ -612,6 +619,15 @@ function buddydrive_get_upload_error_strings() {
 	return $upload_errors;
 }
 
+/**
+ * Get BuddyDrive Items available post stati
+ *
+ * @since 2.0.0
+ *
+ * @param bool $no_filter True to get an unfiltered version of available stati.
+ *                        False otherwise. Defaults False.
+ * @return array
+ */
 function buddydrive_get_stati( $no_filter = false ) {
 	$stati = array(
 		'buddydrive_public' => array(
@@ -619,6 +635,7 @@ function buddydrive_get_stati( $no_filter = false ) {
 			'public'                    => true,
 			'show_in_admin_status_list' => false,
 			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => true,
 			'buddydrive_privacy'        => 'public',
 		),
 		'buddydrive_private' => array(
@@ -626,6 +643,7 @@ function buddydrive_get_stati( $no_filter = false ) {
 			'private'                   => true,
 			'show_in_admin_status_list' => false,
 			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => true,
 			'buddydrive_privacy'        => 'private',
 		),
 		'buddydrive_password' => array(
@@ -633,6 +651,7 @@ function buddydrive_get_stati( $no_filter = false ) {
 			'protected'                 => true,
 			'show_in_admin_status_list' => false,
 			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
 			'buddydrive_privacy'        => 'password',
 		),
 		'buddydrive_friends' => array(
@@ -640,6 +659,7 @@ function buddydrive_get_stati( $no_filter = false ) {
 			'protected'                 => true,
 			'show_in_admin_status_list' => false,
 			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
 			'buddydrive_privacy'        => 'friends',
 		),
 		'buddydrive_groups' => array(
@@ -647,13 +667,15 @@ function buddydrive_get_stati( $no_filter = false ) {
 			'protected'                 => true,
 			'show_in_admin_status_list' => false,
 			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
 			'buddydrive_privacy'        => 'groups',
 		),
 		'buddydrive_members' => array(
-			'label'                     => _x( 'Restricted to Members', 'file or folder status', 'buddydrive' ),
+			'label'                     => _x( 'Restricted to members', 'file or folder status', 'buddydrive' ),
 			'protected'                 => true,
 			'show_in_admin_status_list' => false,
 			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
 			'buddydrive_privacy'        => 'members',
 		),
 	);
@@ -665,6 +687,14 @@ function buddydrive_get_stati( $no_filter = false ) {
 	}
 }
 
+/**
+ * Get BuddyDrive privacy out of a status or for a BuddyDrive item ID
+ *
+ * @since 2.0.0
+ *
+ * @param  int|string  $status A BuddyDrive Item ID or the name of the status
+ * @return string The validated privacy
+ */
 function buddydrive_get_privacy( $status = false ) {
 	if ( is_numeric( $status ) ) {
 		$status = get_post_status( $status );
@@ -684,10 +714,25 @@ function buddydrive_get_privacy( $status = false ) {
 	}
 }
 
-function buddydrive_get_default_privacy( $default = 'buddydrive_private' ) {
-	return apply_filters( 'buddydrive_get_default_privacy', buddydrive_get_privacy( $default ) );
+/**
+ * Get BuddyDrive default privacy
+ *
+ * @since 2.0.0
+ *
+ * @param  string $default The default post status.
+ * @return string The default privacy
+ */
+function buddydrive_get_default_privacy( $default = 'buddydrive_public' ) {
+	return apply_filters( 'buddydrive_get_default_privacy', buddydrive_get_privacy( bp_get_option( '_buddydrive_default_privacy', $default ) ) );
 }
 
+/**
+ * Get visible groups for the current user
+ *
+ * @since 2.0.0
+ *
+ * @return array A list of visible group IDs
+ */
 function buddydrive_get_visible_groups() {
 	global $wpdb;
 	$bp = buddypress();
@@ -706,6 +751,15 @@ function buddydrive_get_visible_groups() {
 	return $visible_groups;
 }
 
+/**
+ * Update BuddyDrive Items stati
+ * Migration tool specific to 2.0.0. Transform the 'publish' status to the new one.
+ *
+ * @since 2.0.0
+ *
+ * @param  int $per_page the number of BuddyDrive items to upgrade
+ * @return int The number of upgraded BuddyDrive items
+ */
 function buddydrive_update_items_status( $per_page = false ) {
 	global $wpdb;
 
@@ -759,6 +813,13 @@ function buddydrive_update_items_status( $per_page = false ) {
 	return $updated;
 }
 
+/**
+ * List upgrade routines according to a DB version
+ *
+ * @since 2.0.0
+ *
+ * @return array The list of upgrade routines to perform.
+ */
 function buddydrive_get_upgrade_tasks() {
 	global $wpdb;
 
