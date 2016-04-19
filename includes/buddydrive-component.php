@@ -1,6 +1,10 @@
 <?php
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * BuddyDrive Component
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Main BuddyDrive Component Class
@@ -74,9 +78,13 @@ class BuddyDrive_Component extends BP_Component {
 			'buddydrive-item-ajax.php',
 		);
 
-		if ( bp_is_active( 'groups' ) )
+		if ( bp_is_active( 'groups' ) ) {
 			$includes[] = 'buddydrive-group-class.php';
+		}
 
+		if ( buddydrive_use_deprecated_ui() ) {
+			$includes[] = 'buddydrive-item-deprecated.php';
+		}
 
 		parent::includes( $includes );
 	}
@@ -126,7 +134,9 @@ class BuddyDrive_Component extends BP_Component {
 		$bp =  buddypress();
 
 		$nav = buddydrive_get_name();
-		if ( bp_is_my_profile() ) {
+
+		// Only show count on older UI
+		if ( bp_is_my_profile() && buddydrive_use_deprecated_ui() ) {
 			$nav = sprintf( __( '%s <span class="count">%d</span>', 'buddydrive' ), buddydrive_get_name(), buddydrive_count_user_files() );
 		}
 
@@ -161,6 +171,17 @@ class BuddyDrive_Component extends BP_Component {
 				'parent_slug'     => $this->slug,
 				'screen_function' => array( 'BuddyDrive_Screens', 'friends_files' ),
 				'position'        => 20,
+			);
+		}
+
+		if ( ! buddydrive_use_deprecated_ui() && bp_is_my_profile() ) {
+			$sub_nav[] = array(
+				'name'            => __( 'Between Members', 'buddydrive' ),
+				'slug'            => 'members',
+				'parent_url'      => $buddydrive_link,
+				'parent_slug'     => $this->slug,
+				'screen_function' => array( 'BuddyDrive_Screens', 'user_files' ),
+				'position'        => 30,
 			);
 		}
 
@@ -217,6 +238,14 @@ class BuddyDrive_Component extends BP_Component {
 				);
 			}
 
+			if ( ! buddydrive_use_deprecated_ui() ) {
+				$wp_admin_nav[] = array(
+					'parent' => 'my-account-' . $buddydrive_slug,
+					'id'     => 'my-account-' . $buddydrive_slug .'-members',
+					'title'  => __( 'Between Members', 'buddydrive' ),
+					'href'   => trailingslashit( $buddydrive_link . 'members' )
+				);
+			}
 		}
 
 		parent::setup_admin_bar( $wp_admin_nav );
@@ -260,7 +289,6 @@ class BuddyDrive_Component extends BP_Component {
 
 		// Register the post type for files.
 		register_post_type( buddydrive_get_file_post_type(), $args_file );
-
 
 		$labels_folder = array(
 			'name'	             => __( 'BuddyFolders', 'buddydrive' ),

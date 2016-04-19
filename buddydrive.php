@@ -11,8 +11,8 @@ Text Domain: buddydrive
 Domain Path: /languages/
 */
 
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 
 if ( ! class_exists( 'BuddyDrive' ) ) :
@@ -35,7 +35,7 @@ class BuddyDrive {
 	 *
 	 * @var      string
 	 */
-	public static $required_bp_version = '2.4.0';
+	public static $required_bp_version = '2.5.0';
 
 	/**
 	 * BuddyPress config.
@@ -139,7 +139,6 @@ class BuddyDrive {
 		$this->domain           = 'buddydrive';
 		$this->errors           = new WP_Error(); // Feedback
 		$this->users_file_count = array();
-
 	}
 
 	/**

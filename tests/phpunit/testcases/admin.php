@@ -86,9 +86,9 @@ class BuddyDrive_Admin_Tests extends BuddyDrive_TestCase {
 
 		unset( $expected_ids[ 'screenshot-1.png' ] );
 
-		$count = buddydrive_delete_item( array( 'ids' => $expected_ids ) );
+		$deleted = buddydrive_delete_item( array( 'ids' => $expected_ids ) );
 
-		$this->assertTrue( $count === count( $expected_ids ) );
+		$this->assertTrue( count( $deleted ) === count( $expected_ids ) );
 
 		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_ids );
 		$this->assertTrue( empty( $not_deleted ) );

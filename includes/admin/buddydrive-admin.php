@@ -88,14 +88,33 @@ class BuddyDrive_Admin {
 	 */
 	private function setup_globals() {
 		$buddydrive = buddydrive();
-		$this->admin_dir           = trailingslashit( $buddydrive->includes_dir . 'admin'  ); // Admin path
-		$this->admin_url           = trailingslashit( $buddydrive->includes_url . 'admin'  ); // Admin url
-		$this->styles_url          = trailingslashit( $this->admin_url   . 'css' ); // Admin styles URL*/
-		$this->js_url              = trailingslashit( $this->admin_url   . 'js' );
-		$this->settings_page       = bp_core_do_network_admin() ? 'settings.php' : 'options-general.php';
-		$this->notice_hook         = bp_core_do_network_admin() ? 'network_admin_notices' : 'admin_notices' ;
-		$this->user_columns_filter = bp_core_do_network_admin() ? 'wpmu_users_columns' : 'manage_users_columns';
-		$this->requires_db_upgrade = buddydrive_get_db_number_version() < buddydrive_get_number_version();
+		$this->admin_dir            = trailingslashit( $buddydrive->includes_dir . 'admin'  ); // Admin path
+		$this->admin_url            = trailingslashit( $buddydrive->includes_url . 'admin'  ); // Admin url
+		$this->styles_url           = trailingslashit( $this->admin_url   . 'css' ); // Admin styles URL*/
+		$this->js_url               = trailingslashit( $this->admin_url   . 'js' );
+		$this->settings_page        = 'options-general.php';
+		$this->notice_hook          = 'admin_notices' ;
+		$this->user_columns_filter  = 'manage_users_columns';
+		$this->requires_db_upgrade  = buddydrive_get_db_number_version() < buddydrive_get_number_version();
+
+		if ( bp_core_do_network_admin() ) {
+			$this->settings_page       = 'settings.php';
+			$this->notice_hook         = 'network_admin_notices';
+			$this->user_columns_filter = 'wpmu_users_columns';
+			$this->buddydrive_page     = esc_url( add_query_arg( 'page','buddydrive-files', network_admin_url( 'admin.php' ) ) );
+		} else {
+			$this->buddydrive_page     = esc_url( add_query_arg( 'page','buddydrive-files', admin_url( 'admin.php' ) ) );
+		}
+
+		// We are now using a BackBone UI
+		$this->items_admin_callback = array( $this, 'items_admin_screen' );
+
+		/**
+		 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+		 */
+		if ( true === buddydrive_use_deprecated_ui() ) {
+			$this->items_admin_callback = 'buddydrive_files_admin';
+		}
 	}
 
 	/**
@@ -106,7 +125,13 @@ class BuddyDrive_Admin {
 	 */
 	private function includes() {
 		require( $this->admin_dir . 'buddydrive-settings.php'  );
-		require( $this->admin_dir . 'buddydrive-items.php'  );
+
+		/**
+		 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+		 */
+		if ( true === buddydrive_use_deprecated_ui() ) {
+			require( $this->admin_dir . 'buddydrive-items.php'  );
+		}
 	}
 
 	/**
@@ -131,6 +156,7 @@ class BuddyDrive_Admin {
 		add_action( $this->notice_hook,                   array( $this, 'activation_notice'       ),     9 ); // Checks for BuddyDrive Upload directory once activated
 		add_action( 'buddydrive_admin_register_settings', array( $this, 'register_admin_settings' )        ); // Add settings
 		add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_scripts'         ), 10, 1 ); // Add enqueued JS and CSS
+		add_action( 'wp_ajax_buddydrive_upgrader',        array( $this, 'do_upgrade'              )        );
 
 		/** Filters ***********************************************************/
 
@@ -138,10 +164,9 @@ class BuddyDrive_Admin {
 		add_filter( 'plugin_action_links',               array( $this, 'modify_plugin_action_links' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
 
-		// Filters the user space left output to strip html tags
-		add_filter( 'buddydrive_get_user_space_left',    'buddydrive_filter_user_space_left'         , 10, 2 );
-
-		add_action( 'wp_ajax_buddydrive_upgrader', array( $this, 'do_upgrade' ) );
+		if ( ! buddydrive_use_deprecated_ui() ) {
+			add_filter( 'bp_admin_menu_order', array( $this, 'items_admin_menu_order' ), 10, 1 );
+		}
 
 		// Allow plugins to modify these actions
 		do_action_ref_array( 'buddydrive_admin_loaded', array( &$this ) );
@@ -176,7 +201,7 @@ class BuddyDrive_Admin {
 			_x( 'BuddyDrive', 'BuddyDrive User Files Admin menu title',  'buddydrive' ),
 			'manage_options',
 			'buddydrive-files',
-			'buddydrive_files_admin',
+			$this->items_admin_callback,
 			'div'
 		);
 
@@ -203,8 +228,13 @@ class BuddyDrive_Admin {
 		}
 
 
-		// Hook into early actions to load custom CSS and our init handler.
-		add_action( "load-$hook", 'buddydrive_files_admin_load' );
+		/**
+		 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+		 */
+		if ( true === buddydrive_use_deprecated_ui() ) {
+			// Hook into early actions to load custom CSS and our init handler.
+			add_action( "load-$hook", 'buddydrive_files_admin_load' );
+		}
 
 		// Putting user edit hooks there, this way we're sure they will load at the right place
 		add_action( 'edit_user_profile',          array( $this, 'edit_user_quota'           ), 10, 1 );
@@ -390,18 +420,25 @@ class BuddyDrive_Admin {
 	 * @uses wp_enqueue_script() to enqueue the script
 	 */
 	public function enqueue_scripts( $hook = false ) {
-		if ( in_array( $hook, $this->hook_suffixes ) ) {
-			$min = '.min';
-			if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG )  {
-				$min = '';
-			}
-
-			wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url .'buddydrive-admin.css' );
+		if ( ! in_array( $hook, $this->hook_suffixes ) ) {
+			return;
 		}
 
-		if ( !empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && !empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
-			wp_enqueue_script ( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
-			wp_localize_script( 'buddydrive-admin-js', 'buddydrive_admin', buddydrive_get_js_l10n() );
+		$min = '.min';
+		if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG )  {
+			$min = '';
+		}
+
+		wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url .'buddydrive-admin.css', array(), buddydrive_get_version() );
+
+		if ( ! empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && ! empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
+			/**
+			 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+			 */
+			if ( true === buddydrive_use_deprecated_ui() ) {
+				wp_enqueue_script ( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
+				wp_localize_script( 'buddydrive-admin-js', 'buddydrive_admin', buddydrive_get_js_l10n() );
+			}
 		}
 
 		if ( isset( $this->hook_suffixes['upgrade'] ) && $hook === $this->hook_suffixes['upgrade'] ) {
@@ -749,11 +786,23 @@ class BuddyDrive_Admin {
 	 */
 	public static function user_quota_row( $retval = '', $column_name = '', $user_id = 0 ) {
 
-		if ( 'user_quota' === $column_name && ! empty( $user_id ) )
-			$retval = buddydrive_get_user_space_left( false, $user_id ) .'%';
+		if ( 'user_quota' === $column_name && ! empty( $user_id ) ) {
+			$quota = buddydrive_get_user_space_data( $user_id );
+
+			if ( ! empty( $quota['percent'] ) && 0 < (float) $quota['percent'] ) {
+				$output = sprintf(
+					'<a href="%1$s" title="%2$s">%3$s<a>',
+					buddydrive()->admin->buddydrive_page . '#user/' . $user_id,
+					esc_attr__( 'View all items for this user', 'buddydrive' ),
+					$quota['percent'] . '%'
+				);
+			} else {
+				$output = $quota['percent'] . '%';
+			}
+		}
 
 		// Pass retval through
-		return $retval;
+		return $output;
 	}
 
 	public function upgrade_screen() {
@@ -854,6 +903,25 @@ class BuddyDrive_Admin {
 		}
 
 		wp_send_json_success( array( 'done' => $did, 'action_id' => $_POST['id'] ) );
+	}
+
+	public function items_admin_menu_order( $custom_menus = array() ) {
+		array_push( $custom_menus, 'buddydrive-files' );
+		return $custom_menus;
+	}
+
+	public function items_admin_screen() {
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'BuddyDrive Items', 'buddydrive' ); ?></h1>
+
+			<?php
+			/**
+			 * Load The BuddyDrive UI
+			 */
+			buddydrive_ui(); ?>
+		</div>
+		<?php
 	}
 }
 

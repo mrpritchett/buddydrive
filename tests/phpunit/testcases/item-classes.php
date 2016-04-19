@@ -40,6 +40,18 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 		return $this->displayed_user_id;
 	}
 
+	public function set_current_group( $group ) {
+		return $this->current_group;
+	}
+
+	public function is_group_component( $retval, $component ) {
+		if ( 'groups' === $component && ! empty( $this->current_group ) ) {
+			$retval = true;
+		}
+
+		return $retval;
+	}
+
 	public function tearDown() {
 		parent::tearDown();
 
@@ -275,7 +287,7 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 
 		$buddydrive_items = new BuddyDrive_Item();
 
-		$user_id_viewables = array( $files[0], $files[1], $files[4], $files[6], $files[7], $files[8] );
+		$user_id_viewables = array( $files[0], $files[1], $files[4], $files[8] );
 
 		$this->displayed_user_id = $c;
 
@@ -399,6 +411,14 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 
 		$buddydrive_items = new BuddyDrive_Item();
 
+		$this->current_group = groups_get_group( array(
+			'group_id'        => $g,
+			'populate_extras' => true,
+		) );
+
+		add_filter( 'groups_get_current_group', array( $this, 'set_current_group' ), 10, 1 );
+		add_filter( 'bp_is_current_component',  array( $this, 'is_group_component' ), 10, 2 );
+
 		$buddydrive_items->get( array(
 			'buddydrive_scope' => 'groups',
 			'type'             => array( buddydrive_get_file_post_type(), buddydrive_get_folder_post_type() ),
@@ -419,6 +439,9 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 
 		$this->assertEquals( wp_list_pluck( $buddydrive_items->query->posts, 'ID' ), array( $file ) );
 
+		remove_filter( 'groups_get_current_group', array( $this, 'set_current_group' ), 10, 1 );
+		remove_filter( 'bp_is_current_component',  array( $this, 'is_group_component' ), 10, 2 );
+
 		// Open folder in user
 		$buddydrive_items = new BuddyDrive_Item();
 
@@ -437,6 +460,9 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 
 		groups_leave_group( $g, $this->user_id );
 
+		add_filter( 'groups_get_current_group', array( $this, 'set_current_group' ), 10, 1 );
+		add_filter( 'bp_is_current_component',  array( $this, 'is_group_component' ), 10, 2 );
+
 		// Open folder in group
 		$buddydrive_items = new BuddyDrive_Item();
 
@@ -448,6 +474,9 @@ class BuddyDrive_Item_Classes_Tests extends BuddyDrive_TestCase {
 		) );
 
 		$this->assertEmpty( $buddydrive_items->query->posts );
+
+		remove_filter( 'groups_get_current_group', array( $this, 'set_current_group' ), 10, 1 );
+		remove_filter( 'bp_is_current_component',  array( $this, 'is_group_component' ), 10, 2 );
 
 		// Open folder in user
 		$buddydrive_items = new BuddyDrive_Item();

@@ -295,7 +295,7 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 		$this->assertEquals( array( $g2 ), $file_g2->group );
 
 		buddydrive_update_item( array(
-			'group' => false,
+			'group' => 0,
 		), $file_g2 );
 
 		$file_none = buddydrive_get_buddyfile( $ing1 );
@@ -355,9 +355,9 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 
 		$expected_ids[] = buddydrive_save_item( $args );
 
-		$count = buddydrive_delete_item( array( 'ids' => $expected_ids, 'user_id' => false ) );
+		$deleted = buddydrive_delete_item( array( 'ids' => $expected_ids, 'user_id' => false ) );
 
-		$this->assertTrue( $count === count( $expected_ids ) );
+		$this->assertTrue( count( $deleted ) === count( $expected_ids ) );
 
 		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_ids );
 		$this->assertTrue( empty( $not_deleted ) );
@@ -415,12 +415,72 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-1.png',
 		) );
 
-		$count = buddydrive_delete_item( array( 'ids' => 0, 'user_id' => false ) );
+		$deleted = buddydrive_delete_item( array( 'ids' => 0, 'user_id' => false ) );
 
-		$this->assertEmpty( $count );
+		$this->assertEmpty( $deleted );
 
 		$not_deleted = buddydrive_get_buddyfiles_by_ids( $expected_id );
 		$this->assertTrue( ! empty( $not_deleted ) );
+	}
+
+	/**
+	 * @group delete
+	 */
+	public function test_buddydrive_delete_item_parent_folder() {
+		$c = $this->factory->user->create();
+
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$folder = buddydrive_add_item( array(
+			'type'             => buddydrive_get_folder_post_type(),
+			'user_id'          => $c,
+			'title'            => 'folder',
+			'privacy'          => 'public',
+		) );
+
+		$children1 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $c,
+			'title'            => 'screenshot-2.png',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-2.png',
+			'parent_folder_id' => $folder,
+		) );
+
+		$children2 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-3.png',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-3.png',
+			'parent_folder_id' => $folder,
+		) );
+
+		$this->set_current_user( 1 );
+
+		$buddydrive_items = new BuddyDrive_Item;
+		$buddydrive_items->get( array(
+			'type'              => buddydrive_get_file_post_type(),
+			'buddydrive_parent' => $folder,
+			'buddydrive_scope'  => 'admin'
+		) );
+
+		$folder_files = wp_list_pluck( $buddydrive_items->query->posts, 'post_status', 'ID' );
+		$this->assertEquals( array( $children1, $children2 ), array_keys( $folder_files ) );
+		$this->assertTrue( 'buddydrive_public' === $folder_files[ $children1 ] && 'buddydrive_public' === $folder_files[ $children2 ] );
+
+		// The user is the group admin
+		$this->set_current_user( $c );
+
+		$deleted = buddydrive_delete_item( array( 'ids' => array( $folder ), 'user_id' => false ) );
+
+		$this->assertNotEmpty( $deleted );
+
+		$not_deleted = buddydrive_get_buddyfiles_by_ids( array( $folder, $children1, $children2 ) );
+
+		$this->assertTrue( count( $not_deleted ) === 1 );
+		$this->assertTrue( 'buddydrive_private' === get_post_status( $not_deleted[0]->ID ) );
 	}
 
 	/**
@@ -605,25 +665,47 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'groups'           => array( $g1 ),
 		) );
 
+		// $this->user_id is not the owner and not a group admin
 		buddydrive_remove_item_from_group( $id, $g1 );
 
 		$file = buddydrive_get_buddyfile( $id );
 
+		// The item should still be in the group
+		$this->assertEquals( array( $g1 ), $file->group );
+
+		// The user is the owner
+		$this->set_current_user( $c );
+
+		buddydrive_remove_item_from_group( $id, $g1 );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		// The item should be removed from the group
 		$this->assertTrue( empty( $file->group ) );
 		$this->assertTrue( 'public' === $file->check_for );
 		$this->assertTrue( 'buddydrive_groups' !== get_post_status( $id ) );
 
 		buddydrive_update_item( array( 'privacy' => 'groups', 'group' => array( $g1, $g2 ) ), $file );
 
-		buddydrive_remove_item_from_group( $id, $g1 );
+		// $this->user_id is an admin of $g2
+		$this->set_current_user( $this->user_id );
+
+		buddydrive_remove_item_from_group( $id, $g2 );
 
 		$file = buddydrive_get_buddyfile( $id );
 
-		$this->assertEquals( array( $g2 ), $file->group );
+		// The item should only be in $g1 and removed from $g2
+		$this->assertEquals( array( $g1 ), $file->group );
 		$this->assertTrue( 'groups' === $file->check_for );
 		$this->assertTrue( 'buddydrive_groups' === get_post_status( $id ) );
 
-		buddydrive_remove_item_from_group( $id, $g2 );
+		// The user is the owner
+		$this->set_current_user( $c );
+
+		// Set $g1 as private
+		groups_edit_group_settings( $g1, false, 'private' );
+
+		buddydrive_remove_item_from_group( $id, $g1 );
 
 		$file = buddydrive_get_buddyfile( $id );
 
@@ -640,6 +722,15 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 		) );
 
 		buddydrive_update_item( array( 'parent_folder_id' => $folder_id ), $file );
+
+		$file = buddydrive_get_buddyfile( $id );
+
+		$this->assertEquals( array( $g2 ), $file->group );
+		$this->assertTrue( 'groups' === $file->check_for );
+		$this->assertTrue( 'buddydrive_groups' === get_post_status( $id ) );
+
+		// $this->user_id is an admin of $g2
+		$this->set_current_user( $this->user_id );
 
 		buddydrive_remove_item_from_group( $folder_id, $g2 );
 
@@ -702,6 +793,9 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 			'parent_folder_id' => $folder_id,
 		) );
 
+		// The user is the owner
+		$this->set_current_user( $c );
+
 		buddydrive_remove_buddyfiles_from_group( $g1 );
 
 		$folder = buddydrive_get_buddyfile( $folder_id, buddydrive_get_folder_post_type() );
@@ -715,6 +809,62 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 		$this->assertEquals( array( $g2 ), $file2->group );
 		$this->assertTrue( 'groups' === $file2->check_for );
 		$this->assertTrue( 'buddydrive_groups' === get_post_status( $f2 ) );
+
+		// Set $g2 as public
+		groups_edit_group_settings( $g2, false, 'public' );
+
+		// Testing removing a folder containing a file owned by another user
+		$folder_id_g2 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_folder_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'directory-g2',
+			'privacy'          => 'groups',
+			'groups'           => array( $g2 ),
+		) );
+
+		$f4 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-4.png',
+			'content'          => 'foo file 4',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-4.png',
+			'parent_folder_id' => $folder_id_g2,
+		) );
+
+		// Edit File1 owned by $c to be attached to folder owned by $this->user in $g2
+		buddydrive_update_item( array( 'parent_folder_id' => $folder_id_g2 ), $file1 );
+
+		$this->set_current_user( 1 );
+
+		$buddydrive_items = new BuddyDrive_Item;
+		$buddydrive_items->get( array(
+			'type'              => buddydrive_get_file_post_type(),
+			'buddydrive_parent' => $folder_id_g2,
+			'buddydrive_scope'  => 'admin'
+		) );
+
+		// Check both files are in folder and are posted inside a group
+		$folder_files = wp_list_pluck( $buddydrive_items->query->posts, 'post_status', 'ID' );
+		$this->assertEquals( array( $f1, $f4 ), array_keys( $folder_files ) );
+		$this->assertTrue( 'buddydrive_groups' === $folder_files[ $f1 ] && 'buddydrive_groups' === $folder_files[ $f4 ] );
+
+		// The user is the group admin
+		$this->set_current_user( $this->user_id );
+
+		buddydrive_remove_buddyfiles_from_group( $g2 );
+
+		$file1 = buddydrive_get_buddyfile( $f1 );
+		$file4 = buddydrive_get_buddyfile( $f4 );
+		$folder2 = buddydrive_get_buddyfile( $folder_id_g2, buddydrive_get_folder_post_type() );
+
+		$this->assertTrue( 'buddydrive_public' === $folder2->post_status );
+		$this->assertTrue( (int) $folder2->ID === (int) $file4->post_parent );
+
+		// In case the owner of parent is different than the one of the child
+		// The child must be a private orphan
+		$this->assertTrue( 'buddydrive_private' === $file1->post_status );
+		$this->assertFalse( (int) $folder2->ID === (int) $file1->post_parent );
 	}
 
 	/**
@@ -761,9 +911,127 @@ class BuddyDrive_Item_Functions_Tests extends BuddyDrive_TestCase {
 		$this->set_current_user( 0 );
 		$this->assertTrue( 1 === (int) buddydrive_count_user_files( $this->user_id ) );
 
-		buddydrive()->__set( 'users_file_count', null );
+		buddydrive()->__set( 'users_file_count_any', null );
 
 		$this->set_current_user( $this->user_id );
 		$this->assertTrue( 2 === (int) buddydrive_count_user_files( $this->user_id ) );
+	}
+
+	/**
+	 * @group buddydrive_items_remove_parent
+	 */
+	public function test_buddydrive_items_remove_parent() {
+		$u = $this->factory->user->create();
+
+		// create the upload dir
+		$upload_dir = buddydrive_get_upload_data();
+
+		$f = buddydrive_add_item( array(
+			'type'             => buddydrive_get_folder_post_type(),
+			'user_id'          => $u,
+			'title'            => 'folder',
+			'privacy'          => 'public',
+		) );
+
+		$c1 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $u,
+			'title'            => 'screenshot-2.png',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-2.png',
+			'parent_folder_id' => $f,
+		) );
+
+		$c2 = buddydrive_add_item( array(
+			'type'             => buddydrive_get_file_post_type(),
+			'user_id'          => $this->user_id,
+			'title'            => 'screenshot-3.png',
+			'mime_type'        => 'image/png',
+			'guid'             => trailingslashit( $upload_dir['url'] ) . 'screenshot-3.png',
+			'parent_folder_id' => $f,
+		) );
+
+		// The user is not the folder owner
+		$this->set_current_user( $this->user_id );
+
+		// He tries to remove a file he doesn't own
+		$removed = buddydrive_items_remove_parent( array( $c1 ) );
+		$this->assertEmpty( $removed );
+
+		// He tries to remove a file he owns
+		$removed = buddydrive_items_remove_parent( array( $c2 ) );
+		$this->assertTrue( count( $removed ) === 1 );
+		$this->assertEquals( array( $c2 ), $removed );
+
+		$file2 = buddydrive_get_buddyfile( $c2 );
+		$this->assertTrue( 'buddydrive_private' === $file2->post_status );
+		$this->assertTrue( empty( $file2->post_parent ) );
+
+		// Attach it back to the folder
+		buddydrive_update_item( array( 'parent_folder_id' => $f ), $file2 );
+
+		// The user *is* the folder owner
+		$this->set_current_user( $u );
+		$removed = buddydrive_items_remove_parent( array( $c1, $c2 ) );
+		$this->assertEquals( array( $c1, $c2 ), $removed );
+
+		$file2 = buddydrive_get_buddyfile( $c2 );
+		$this->assertTrue( 'buddydrive_private' === $file2->post_status );
+		$this->assertTrue( empty( $file2->post_parent ) );
+		$this->assertTrue( (int) $file2->user_id === $this->user_id );
+	}
+
+	public function restrict_groups( $groups, $user_id ) {
+		foreach ( $groups as $g => $group ) {
+			if ( ! groups_is_user_admin( $user_id, $group->id ) ) {
+				unset( $groups[ $g ] );
+			}
+		}
+		return $groups;
+	}
+
+	/**
+	 * @group buddydrive_list_objects
+	 */
+	public function test_buddydrive_list_objects_for_groups() {
+		if ( buddydrive_use_deprecated_ui() ) {
+			$this->markTestSkipped( 'buddydrive_get_select_user_group() is used for the deprecated UI' );
+		}
+
+		$c  = $this->factory->user->create();
+		$g1 = $this->factory->group->create( array( 'creator_id' => $c ) );
+		groups_join_group( $g1, bp_loggedin_user_id() );
+		groups_update_groupmeta( $g1, '_buddydrive_enabled', 1 );
+
+		$g2 = $this->factory->group->create( array( 'status' => 'hidden', 'creator_id' => $c  ) );
+		groups_join_group( $g2, bp_loggedin_user_id() );
+		groups_update_groupmeta( $g2, '_buddydrive_enabled', 1 );
+
+		$g3 = $this->factory->group->create( array( 'creator_id' => $c ) );
+		groups_update_groupmeta( $g3, '_buddydrive_enabled', 1 );
+
+		$g4 = $this->factory->group->create( array( 'creator_id' => bp_loggedin_user_id() ) );
+
+
+		$groups = buddydrive_list_objects( array(
+			'buddydrive_type' => 'groups',
+			'user_id'         => bp_loggedin_user_id(),
+		) );
+
+		$this->assertSame( array( $g1, $g2 ), array_map( 'intval', wp_list_pluck( $groups, 'id' ) ) );
+
+		// Loggedin user id is only a mod of $g4
+		groups_update_groupmeta( $g4, '_buddydrive_enabled', 1 );
+
+		add_filter( 'buddydrive_filter_select_user_group', array( $this, 'restrict_groups' ), 10, 2 );
+
+		$groups = buddydrive_list_objects( array(
+			'buddydrive_type' => 'groups',
+			'user_id'         => bp_loggedin_user_id(),
+		) );
+
+		$this->assertSame( array( $g4 ), array_map( 'intval', array_values( wp_list_pluck( $groups, 'id' ) ) ) );
+
+		remove_filter( 'buddydrive_filter_select_user_group', array( $this, 'restrict_groups' ), 10, 2 );
 	}
 }

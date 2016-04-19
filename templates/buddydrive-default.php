@@ -1,6 +1,8 @@
-<?php 
+<?php
 /**
- * Template for BP-Default 
+ * Template for BP-Default
+ *
+ * @deprecated 2.0.0
  */
 get_header( 'buddypress' ); ?>
 
@@ -18,7 +20,7 @@ get_header( 'buddypress' ); ?>
 
 
 		<div class="buddydrive" role="main">
-			
+
 			<?php do_action( 'buddydrive_directory_content' ); ?>
 
 		</div><!-- .buddydrive -->

@@ -37,6 +37,10 @@ class BuddyDrive_Item_Template_Tests extends BuddyDrive_TestCase {
 	 * @group groups
 	 */
 	public function test_buddydrive_get_select_user_group() {
+		if ( ! buddydrive_use_deprecated_ui() ) {
+			$this->markTestSkipped( 'buddydrive_get_select_user_group() is no more used since 2.0.0.' );
+		}
+
 		$c  = $this->factory->user->create();
 		$g1 = $this->factory->group->create( array( 'creator_id' => $c ) );
 		groups_join_group( $g1, bp_loggedin_user_id() );
@@ -67,6 +71,10 @@ class BuddyDrive_Item_Template_Tests extends BuddyDrive_TestCase {
 	 * @group filter
 	 */
 	public function test_buddydrive_filter_select_user_group() {
+		if ( ! buddydrive_use_deprecated_ui() ) {
+			$this->markTestSkipped( 'buddydrive_get_select_user_group() is no more used since 2.0.0.' );
+		}
+
 		$c  = $this->factory->user->create();
 		$g1 = $this->factory->group->create( array( 'creator_id' => $c ) );
 		groups_join_group( $g1, bp_loggedin_user_id() );

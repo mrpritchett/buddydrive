@@ -854,6 +854,124 @@ function buddydrive_get_upgrade_tasks() {
 }
 
 /**
+ * Whether to use the deprecated UI or not. Defaults to not!
+ *
+ * @since 2.0.0
+ *
+ * @return bool True to use the deprecated UI. False otherwise.
+ */
+function buddydrive_use_deprecated_ui() {
+	return apply_filters( 'buddydrive_use_deprecated_ui', false );
+}
+
+/**
+ * Register the scripts and styles for the new BuddyDrive UI
+ *
+ * @since 2.0.0
+ */
+function buddydrive_register_ui_cssjs() {
+	$min          = '.min';
+	$bd_version   = buddydrive_get_version();
+	$includes_url = buddydrive_get_includes_url();
+
+	if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG )  {
+		$min = '';
+	}
+
+	// Register the App style
+	wp_register_style(
+		'buddydrive-app-style',
+		$includes_url . "css/buddydrive-app{$min}.css",
+		array( 'dashicons' ),
+		$bd_version
+	);
+
+	if ( bp_is_current_component( 'buddydrive' ) || buddydrive_is_group() ) {
+		$front_end_style_path = bp_locate_template( 'css/buddydrive.css', false );
+
+		if ( $front_end_style_path ) {
+			$front_end_style_uri = str_replace( array( get_theme_root(), buddydrive_get_plugin_dir() ), array( get_theme_root_uri(), buddydrive_get_plugin_url() ), $front_end_style_path );
+
+			// Validate the uri
+			if ( parse_url( $front_end_style_uri, PHP_URL_HOST ) ) {
+				wp_register_style(
+					'buddydrive-front-end-style',
+					$front_end_style_uri,
+					array( 'buddydrive-app-style' ),
+					$bd_version
+				);
+			}
+		}
+	}
+
+	// Define UI Scrips
+	$ui_scripts = apply_filters( 'buddydrive_register_ui_get_scripts', array(
+		'buddydrive-models-js' => array(
+			'url'     => $includes_url . "js/buddydrive-models{$min}.js",
+			'deps'    => array( 'jquery', 'json2', 'wp-backbone' ),
+			'version' => $bd_version,
+			'footer'  => true,
+		),
+		'buddydrive-views-js' => array(
+			'url'     => $includes_url . "js/buddydrive-views{$min}.js",
+			'deps'    => array( 'buddydrive-models-js' ),
+			'version' => $bd_version,
+			'footer'  => true,
+		),
+		'buddydrive-app-js' => array(
+			'url'     => $includes_url . "js/buddydrive-app{$min}.js",
+			'deps'    => array( 'buddydrive-views-js' ),
+			'version' => $bd_version,
+			'footer'  => true,
+		),
+	) );
+
+	// Register scripts
+	foreach( $ui_scripts as $handle => $script ) {
+		wp_register_script(
+			$handle,
+			$script['url'],
+			$script['deps'],
+			$script['version'],
+			$script['footer']
+		);
+	}
+}
+
+/**
+ * Temporarly add the BuddyDrive templates location to BuddyPress template stack
+ *
+ * @since 2.0.0
+ *
+ * @param array $stack the BuddyPress templates stack
+ * @return array the BuddyPress templates stack
+ */
+function buddydrive_set_template_stack( $stack = array() ) {
+	if ( empty( $stack ) ) {
+		$stack = array( buddydrive_get_plugin_dir() . 'templates' );
+	} else {
+		$stack[] = buddydrive_get_plugin_dir() . 'templates';
+	}
+
+	return $stack;
+}
+
+/**
+ * Get the BuddyDrive asset template part
+ *
+ * @since 2.0.0
+ */
+function buddydrive_get_asset_template_part( $slug ) {
+	add_filter( 'bp_locate_template_and_load', '__return_true'                        );
+	add_filter( 'bp_get_template_stack',       'buddydrive_set_template_stack', 10, 1 );
+
+	bp_get_template_part( 'assets/buddydrive/' . $slug );
+
+	remove_filter( 'bp_locate_template_and_load', '__return_true'                        );
+	remove_filter( 'bp_get_template_stack',       'buddydrive_set_template_stack', 10, 1 );
+}
+
+/**
  * This is a temporary capability checking function
  *
  * It's not used everywhere and will be replaced with a better one in a future release.

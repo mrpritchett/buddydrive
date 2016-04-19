@@ -1,4 +1,10 @@
 <?php
+/**
+ * Functions & classes to manage BuddyDrive items
+ *
+ * @since  1.0
+ * @deprecated 2.0.0
+ */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
@@ -67,9 +73,9 @@ function buddydrive_files_admin_load() {
 
 		$item_ids = wp_parse_id_list( $_GET['bid'] );
 
-		$count = buddydrive_delete_item( array( 'ids' => $item_ids, 'user_id' => false ) );
+		$deleted = buddydrive_delete_item( array( 'ids' => $item_ids, 'user_id' => false ) );
 
-		$redirect_to = add_query_arg( 'deleted', $count, $redirect_to );
+		$redirect_to = add_query_arg( 'deleted', count( $deleted ), $redirect_to );
 
 		bp_core_redirect( $redirect_to );
 
