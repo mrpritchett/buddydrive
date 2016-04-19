@@ -852,3 +852,102 @@ function buddydrive_get_upgrade_tasks() {
 
 	return $tasks;
 }
+
+/**
+ * This is a temporary capability checking function
+ *
+ * It's not used everywhere and will be replaced with a better one in a future release.
+ *
+ * @since 2.0.0
+ *
+ * @param string $capability The capability to check
+ * @param array  $args       Additionnal args to help us decide whether current user can
+ * @return bool True if the current user can, false otherwise.
+ */
+function buddydrive_current_user_can( $capability = 'buddydrive_upload', $args = array() ) {
+	$can     = false;
+	$user_id = bp_loggedin_user_id();
+
+	// Upload/Creare folder
+	if ( 'buddydrive_upload' === $capability ) {
+		if ( bp_is_user() ) {
+			$can = (int) bp_displayed_user_id() === (int) $user_id;
+		} elseif ( bp_is_group() ) {
+			$can = (bool) groups_is_user_member( $user_id, bp_get_current_group_id() );
+		} else {
+			$can = bp_current_user_can( 'bp_moderate' );
+		}
+
+	// Delete files/folders or remove files from folders
+	} elseif ( 'buddydrive_delete' === $capability || 'buddydrive_remove_parent' === $capability ) {
+		// Admins can always delete
+		$can = bp_current_user_can( 'bp_moderate' );
+
+		if ( ! empty( $args['owner_id'] ) && (int) $args['owner_id'] === (int) $user_id ) {
+			$can = true;
+		}
+
+		if ( 'buddydrive_remove_parent' === $capability && ! empty( $args['parent_owner_id'] ) && (int) $args['parent_owner_id'] === (int) $user_id ) {
+			$can = true;
+		}
+	} elseif ( 'buddydrive_share' === $capability ) {
+		// We need the BuddyDrive item
+		if ( ! empty( $args['item'] ) && is_a( $args['item'], 'WP_Post' ) ) {
+			switch ( $args['item']->post_status ) {
+
+				// anybody can share
+				case 'buddydrive_public' :
+					$can = true;
+					break;
+
+				case 'buddydrive_friends'  :
+				case 'buddydrive_password' :
+				case 'buddydrive_members'  :
+					$can = (int) $args['item']->user_id === (int) $user_id || bp_current_user_can( 'bp_moderate' );
+					break;
+
+				case 'buddydrive_groups'   :
+					if ( bp_is_group() ) {
+						$group_id = bp_get_current_group_id();
+
+						$can = in_array( $group_id, (array) $args['item']->group ) && groups_is_user_member( $user_id, $group_id );
+					} else {
+						$can = (int) $args['item']->user_id === (int) $user_id || bp_current_user_can( 'bp_moderate' );
+					}
+					break;
+
+				default:
+					$can = false;
+					break;
+			}
+		} else {
+			$can = bp_current_user_can( 'bp_moderate' );
+		}
+	} elseif ( 'buddydrive_edit' === $capability || 'buddydrive_bulk_edit' === $capability ) {
+		$can = bp_current_user_can( 'bp_moderate' );
+
+		if ( ! $can && ! empty( $args['item'] ) && is_a( $args['item'], 'WP_Post' ) ) {
+			$can = (int) $args['item']->user_id === (int) $user_id;
+
+			if ( 'buddydrive_bulk_edit' === $capability && ! $can && bp_is_my_profile() && ! empty( $args['item']->post_parent ) ) {
+				$can = (int) $user_id === (int) get_post_field( 'post_author', $args['item']->post_parent );
+			}
+		}
+
+		if ( 'buddydrive_bulk_edit' === $capability && ! $can && bp_is_group() ) {
+			$can = (bool) groups_is_user_admin( $user_id, bp_get_current_group_id() );
+		}
+	} elseif ( 'buddydrive_remove_group' === $capability ) {
+		$can = bp_current_user_can( 'bp_moderate' );
+
+		if ( ! $can && ! empty( $args['item'] ) && is_a( $args['item'], 'WP_Post' ) ) {
+			$can = (int) $args['item']->user_id === (int) $user_id;
+		}
+
+		if ( ! $can && ! empty( $args['group_id'] ) ) {
+			$can = (bool) groups_is_user_admin( $user_id, $args['group_id'] );
+		}
+	}
+
+	return apply_filters( 'buddydrive_current_user_can', $can, $capability, $user_id, $args );
+}
