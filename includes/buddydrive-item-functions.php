@@ -619,7 +619,7 @@ function buddydrive_add_item( $args = array() ) {
 	}
 
 	if ( is_numeric( $params['title'] ) ) {
-		$params['title'] = 'f-' . $name;
+		$params['title'] = 'f-' . $params['title'];
 	}
 
 	// Sanitize meta
