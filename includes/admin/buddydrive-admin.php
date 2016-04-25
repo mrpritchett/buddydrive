@@ -692,7 +692,6 @@ class BuddyDrive_Admin {
 	 *
 	 * @param  integer $user_id (the on being edited)
 	 * @global $wpdb the WordPress db class
-	 * @global $blog_id the id of the current blog
 	 * @uses bp_get_root_blog_id() to make sure we're on the blog BuddyPress is activated on
 	 * @uses current_user_can() to check for edit user capability
 	 * @uses get_user_meta() to get user's preference
@@ -701,24 +700,29 @@ class BuddyDrive_Admin {
 	 * @uses update_user_meta() to save user's quota
 	 */
 	public static function save_user_quota( $user_id ) {
-		global $wpdb, $blog_id;
+		global $wpdb;
 
-		if( $blog_id != bp_get_root_blog_id() )
+		if ( ! bp_is_root_blog() ) {
 			return;
+		}
 
-		if ( ! current_user_can( 'edit_user', $user_id ) )
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
 			return;
+		}
 
-		if( empty( $_POST['_buddydrive_user_quota'] ) )
+		if ( empty( $_POST['_buddydrive_user_quota'] ) ) {
 			return;
+		}
 
 		$user_roles = get_user_meta( $user_id, $wpdb->get_blog_prefix( bp_get_root_blog_id() ) . 'capabilities', true );
-		$user_roles = array_keys( $user_roles );
-		$user_role = is_array( $user_roles ) ? $user_roles[0] : bp_get_option('default_role');
+		$user_role  = bp_get_option( 'default_role' );
+
+		if ( ! empty( $user_roles ) && is_array( $user_roles ) ) {
+			$user_role = reset( $user_roles );
+		}
 
 		// temporarly setting old role
 		buddydrive()->old_role = $user_role;
-
 
 		update_user_meta( $user_id, '_buddydrive_user_quota', intval( $_POST['_buddydrive_user_quota'] ) );
 	}
@@ -730,31 +734,34 @@ class BuddyDrive_Admin {
 	 *
 	 * @param  integer $user_id the id of the user being edited
 	 * @param  string $role the new role of the user
-	 * @global $blog_id the id of the current blog
 	 * @uses bp_get_root_blog_id() to make sure we're on the blog BuddyPress is activated on
 	 * @uses buddydrive() to get the old role global
 	 * @uses bp_get_option() to get main blog option
 	 * @uses update_user_meta() to save user's preference
 	 */
 	public static function update_user_quota_to_role( $user_id, $role ) {
-		global $blog_id;
-
-		if( $blog_id != bp_get_root_blog_id() )
+		if ( ! bp_is_root_blog() ) {
 			return;
+		}
 
 		$buddydrive = buddydrive();
+		$old_role   = false;
 
-		$old_role = !empty( $buddydrive->old_role ) ? $buddydrive->old_role : false;
+		if ( ! empty( $buddydrive->old_role ) ) {
+			$old_role = $buddydrive->old_role;
+		}
 
-		if( isset( $_POST['_buddydrive_user_quota'] ) && $old_role == $role )
+		if ( isset( $_POST['_buddydrive_user_quota'] ) && $old_role === $role ) {
 			return;
+		}
 
 		$option_user_quota = bp_get_option( '_buddydrive_user_quota', 1000 );
 
-		if( is_array( $option_user_quota ) )
-			$user_quota = !empty( $option_user_quota[$role] ) ? $option_user_quota[$role] : 1000;
-		else
+		if ( is_array( $option_user_quota ) && ! empty( $option_user_quota[ $role ] ) ) {
+			$user_quota = $option_user_quota[ $role ];
+		} else {
 			$user_quota = $option_user_quota;
+		}
 
 		update_user_meta( $user_id, '_buddydrive_user_quota', $user_quota );
 	}
