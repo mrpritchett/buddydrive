@@ -797,19 +797,19 @@ class BuddyDrive_Admin {
 			$quota = buddydrive_get_user_space_data( $user_id );
 
 			if ( ! empty( $quota['percent'] ) && 0 < (float) $quota['percent'] ) {
-				$output = sprintf(
+				$retval = sprintf(
 					'<a href="%1$s" title="%2$s">%3$s<a>',
 					buddydrive()->admin->buddydrive_page . '#user/' . $user_id,
 					esc_attr__( 'View all items for this user', 'buddydrive' ),
 					$quota['percent'] . '%'
 				);
 			} else {
-				$output = $quota['percent'] . '%';
+				$retval = $quota['percent'] . '%';
 			}
 		}
 
 		// Pass retval through
-		return $output;
+		return $retval;
 	}
 
 	public function upgrade_screen() {
