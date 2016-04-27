@@ -26,7 +26,7 @@ class BuddyDrive_Group extends BP_Group_Extension {
 		$args = array(
 			'slug'              => buddydrive_get_slug(),
 			'name'              => buddydrive_get_name(),
-			'visibility'        => 'private',
+			'visibility'        => apply_filters( 'buddydrive_group_nav_visibility', 'private' ),
 			'nav_item_position' => 31,
 			'enable_nav_item'   => $this->enable_nav_item(),
 			'screens'           => array(
