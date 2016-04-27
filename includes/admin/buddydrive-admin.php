@@ -498,135 +498,70 @@ class BuddyDrive_Admin {
 			</h2>
 
 			<div class="headline-feature feature-section one-col">
-				<h2><?php esc_html_e( 'Meet the BuddyDrive Editor', 'buddydrive' ); ?></h2>
+				<h2><?php _e( 'This is the new BuddyDrive User Interface', 'buddydrive' ); ?></h2>
 
 				<div class="media-container" style="text-align:center">
-					<img src="<?php echo esc_url( buddydrive_get_images_url() . '/buddydrive-editor.png' );?>" alt="<?php esc_attr_e( 'The BuddyDrive Editor', 'buddydrive' ); ?>">
+					<img src="<?php echo esc_url( buddydrive_get_images_url() . '/buddydrive-ui.gif' );?>" alt="<?php esc_attr_e( 'The BuddyDrive Editor', 'buddydrive' ); ?>">
 				</div>
 
 				<div class="col" style="margin-right: auto;margin-left: auto; float: none">
-					<h4><?php esc_html_e( 'BuddyDrive is now using the BuddyPress Attachments API!', 'buddydrive' ); ?></h4>
-					<p><?php esc_html_e( 'Introduced in BuddyPress 2.3, BuddyDrive uses this API to manage user uploads the BuddyPress way. It gave birth to a new BuddyDrive Editor. Now, you and plugins can use it to easily share public files with your community members.', 'buddydrive' ); ?> <a href="https://github.com/imath/buddydrive/wiki/The-BuddyDrive-Editor"><?php esc_html_e( 'Learn more &rarr;', 'buddydrive' ); ?></a></p>
+					<h4><?php _e( 'The UI has been completely revamped and is bringing multiple file uploads!', 'buddydrive' ); ?></h4>
+					<p><?php _e( 'Uploading files has never been so easy! Drag, drop it&#8217;s uploaded. The default privacy does not match your need? No worries, you can edit it at any time!', 'buddydrive' ); ?></p>
 				</div>
 
 				<div class="clear"></div>
 			</div>
 
-			<div class="changelog">
-				<h3><?php printf( __( 'The other improvements in %s', 'buddydrive' ), $display_version ); ?></h3>
-
-				<div class="feature-section under-the-hood two-col">
-					<div class="col">
-						<h4><?php esc_html_e( 'Bulk-deleting files in the Administration screen', 'buddydrive' ); ?></h4>
-						<p><?php _e( 'When the community administrator bulk-deletes files having different owners, each owner&#39;s quota will now be updated.', 'buddydrive' ); ?></p>
-
-						<h4><?php esc_html_e( 'Representation of embed public image files.', 'buddydrive' ); ?></h4>
-						<p><?php esc_html_e( 'When you share a link to a file into the activity stream, a private message, a post, a page, ..., BuddyDrive is catching this link to build some specific output.', 'buddydrive' ); ?></p>
-						<p><?php esc_html_e( 'Now, if this link is about a public image, a thumbnail will be displayed next to the file title (and description if provided).', 'buddydrive' ); ?></p>
-					</div>
-					<div class="col">
-						<h4><?php esc_html_e( 'BuddyPress single group&#39;s latest activity', 'buddydrive' ); ?></h4>
-						<p><?php esc_html_e( 'When a file is shared with the members of a group, the latest activity of the group will be updated.', 'buddydrive' ); ?></p>
-
-						<h4><?php esc_html_e( 'Reassign deleted files', 'buddydrive' ); ?></h4>
-						<p><?php esc_html_e( 'If you need to keep files when a user leaves your community (sad), you can use the following filter making sure to return the ID of a user having the bp_moderate capability.', 'buddydrive' ); ?></p>
-						<p><code>buddydrive_set_owner_on_user_deleted</code></p>
-					</div>
+			<div class="feature-section two-col">
+				<h2><?php _e( 'BuddyPress Groups integration Improvements', 'buddydrive' ); ?></h2>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-1.png">
+					<h3><?php _e( 'Share with multiple Groups', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'Have you ever uploaded the same file several times to share it with different groups? That was before! Now, you can attach a file to as many Group as you need.', 'buddydrive' ); ?></p>
+				</div>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-2.png">
+					<h3><?php _e( 'Create new items directly from the Group.', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'Tired of going back to your profile to share items within a Group? That&#8217;s history! Now you can create folders and upload new files directly from the Group.', 'buddydrive' ); ?></p>
 				</div>
 			</div>
 
-			<?php if ( ! empty( $_REQUEST['is_new_install' ] ) ) : ?>
+			<hr />
 
-			<div class="changelog">
-				<h3><?php esc_html_e( 'and always..', 'buddydrive' ); ?></h3>
-				<div class="feature-section under-the-hood two-col">
-					<div class="col">
-						<div class="media-container">
-							<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-1.png" style="width:90%">
-						</div>
-						<h4><?php _e( 'User&#39;s BuddyDrive', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'It lives in the member&#39;s page just under the BuddyDrive tab.', 'buddydrive' ); ?>
-							<?php _e( 'The BuddyDrive edit bar allows the user to manage from one unique place his content.', 'buddydrive' ); ?>
-							<?php _e( 'He can add new files, new folders, set their privacy settings, edit them and of course delete them at any time.', 'buddydrive' ); ?>
-						</p>
-					</div>
-
-					<div class="col">
-						<h4><?php _e( 'BuddyDrive Uploader', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'BuddyDrive uses WordPress HTML5 uploader and do not add any third party script to handle uploads.', 'buddydrive' ); ?>
-							<?php _e( 'WordPress is a fabulous tool and already knows how to deal with attachments for its content.', 'buddydrive' ); ?>
-							<?php _e( 'So BuddyDrive is managing uploads, the WordPress way!', 'buddydrive' ); ?>
-						</p>
-
-						<div class="media-container">
-							<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-2.png" style="width:90%">
-						</div>
-					</div>
+			<div class="feature-section two-col">
+				<h2><?php _e( 'Sharing Improvements', 'buddydrive' ); ?></h2>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-3.png">
+					<h3><?php _e( 'The members of your choice!', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'Now you can restrict the access to your folders and files to the happy fiew you chose! Find all the files and folders the other shared with you into the new &quot;Between Members&quot; tab of your BuddyDrive.', 'buddydrive' ); ?></p>
+				</div>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-4.png">
+					<h3><?php _e( 'Real shared folders', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'The user can access to your folder? Now he can also add new files in it. The folder owner still has the last word and will be able to remove all added files.', 'buddydrive' ); ?></p>
 				</div>
 			</div>
 
-			<div class="changelog">
-				<div class="feature-section under-the-hood two-col">
-					<div class="col">
-						<h4><?php _e( 'BuddyDrive Folders', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'Using folders is a convenient way to share a list of files at once.', 'buddydrive' ); ?>
-							<?php _e( 'Users just need to create a folder, open it an add the files of their choice to it.', 'buddydrive' ); ?>
-							<?php _e( 'When sharing a folder, a member actually shares the list of files that is attached to it.', 'buddydrive' ); ?>
-						</p>
-						<div class="media-container">
-							<img src="<?php echo buddydrive_get_images_url();?>/folder-demo.png" style="width:90%">
-						</div>
-					</div>
+			<hr />
 
+			<div class="changelog">
+				<h2><?php printf( __( 'The other improvements in %s', 'buddydrive' ), $display_version ); ?></h2>
+
+				<div class="under-the-hood three-col">
 					<div class="col">
-						<h4><?php _e( 'BuddyDrive privacy options', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'There are five levels of privacy for the files or folders.', 'buddydrive' ); ?>&nbsp;
-							<?php _e( 'Depending on your BuddyPress settings, a user can set the privacy of a BuddyDrive item to:', 'buddydrive' ); ?>
-						</p>
-						<ul>
-							<li><?php _e( 'Private: the owner of the item will be the only one to be able to download the file.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Password protected: a password will be required before being able to download the file.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Public: everyone can download the file.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Friends only: if the BuddyPress friendship component is active, a user can restrict a download to his friends only.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'One of the user&#39;s group: if the BuddyPress user groups component is active, and if the administrator of the group enabled BuddyDrive, a user can restrict the download to members of the group only.', 'buddydrive' ); ?></li>
-						</ul>
+						<h3><?php _e( 'Administrators privileges', 'buddydrive' ); ?></h3>
+						<p><?php _e( 'Administrators can now browse a specific user&#8217;s files and folders from the BuddyDrive Administration screen and add/edit or remove any file or folder.', 'buddydrive' ); ?></p>
+					</div>
+					<div class="col">
+						<h3><?php _e( 'Search', 'buddydrive' ); ?></h3>
+						<p><?php _e( 'A new search field has been added to the UI so that you can easily find your old items!', 'buddydrive' ); ?></p>
+					</div>
+					<div class="col">
+						<h3><?php _e( 'Detailed user statistics', 'buddydrive' ); ?></h3>
+						<p><?php _e( 'In addition to disk usage, detailed statistics will be displayed to specify the distribution of the number of files by visibility.' ); ?></p>
 					</div>
 				</div>
 			</div>
-
-			<div class="changelog">
-				<div class="feature-section under-the-hood two-col">
-					<div class="col">
-						<h4><?php _e( 'Sharing BuddyDrive items', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'Depending on the privacy option of an item and the activated BuddyPress components, a user can :', 'buddydrive' ); ?>
-						</p>
-						<ul>
-							<li><?php _e( 'Share a public BuddyDrive item in his personal activity.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Share a password protected item using the private messaging BuddyPress component.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Alert his friends he shared a new item using the private messaging BuddyPress component.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Share his file in a group activity to inform the other members of the group.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Copy the link to his item and paste it anywhere in the blog or in a child blog (in case of a multisite configuration). This link will automatically be converted into a nice piece of html.', 'buddydrive' ); ?></li>
-						</ul>
-					</div>
-
-					<div class="col">
-						<h4><?php _e( 'Supervising BuddyDrive', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'The administrator of the community can manage all BuddyDrive items from the backend of WordPress.', 'buddydrive' ); ?>
-						</p>
-						<div class="media-container">
-							<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-4.png" style="width:90%">
-						</div>
-					</div>
-				</div>
-			</div>
-
-			<?php endif; ?>
 
 			<div class="return-to-dashboard">
 				<a href="<?php echo esc_url( $settings_url );?>" title="<?php esc_attr_e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php esc_html_e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
