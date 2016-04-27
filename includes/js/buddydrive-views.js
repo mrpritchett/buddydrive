@@ -594,6 +594,7 @@ window.buddydrive = window.buddydrive || {};
 		},
 
 		events: {
+			'keyup':  'maybeSearch',
 			'search': 'search'
 		},
 
@@ -607,6 +608,19 @@ window.buddydrive = window.buddydrive || {};
 				this.model.set( 'search', event.target.value );
 			} else {
 				this.model.unset('search');
+			}
+		},
+
+		maybeSearch: function( event ) {
+			// Webkit browsers are supporting the search event
+			if ( true === /WebKit/.test( navigator.userAgent ) ) {
+				event.preventDefault();
+				return;
+			}
+
+			// Launch search when the return key is hit for all other browsers
+			if ( 13 === event.keyCode ) {
+				this.search( event );
 			}
 		}
 	} );
