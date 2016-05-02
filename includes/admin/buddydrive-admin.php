@@ -558,7 +558,7 @@ class BuddyDrive_Admin {
 					</div>
 					<div class="col">
 						<h3><?php _e( 'Detailed user statistics', 'buddydrive' ); ?></h3>
-						<p><?php _e( 'In addition to disk usage, detailed statistics will be displayed to specify the distribution of the number of files by visibility.' ); ?></p>
+						<p><?php _e( 'In addition to disk usage, detailed statistics will be displayed to specify the distribution of the number of files by visibility.', 'buddydrive' ); ?></p>
 					</div>
 				</div>
 			</div>
