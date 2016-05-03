@@ -139,3 +139,7 @@ div#buddydrive-main img.avatar {
 div#buddydrive-main ul#buddydrive-browser li .buddydrive-content .buddydrive-actions {
 	background-color: #FFF;
 }
+
+div#buddydrive-main #buddydrive-user-stats ul li {
+	list-style: none;
+}

@@ -16,7 +16,7 @@ window.buddydrive = window.buddydrive || {};
 			this.Query      = new buddydrive.Models.Query( _.pick( buddydrive.Settings, 'buddydrive_scope' ) );
 
 			// Check available width
-			if ( 800 > $( '#buddydrive-main' ).width() ) {
+			if ( 1000 > $( '#buddydrive-main' ).width() ) {
 				$( '#buddydrive-main' ).addClass( 'mini' );
 			}
 

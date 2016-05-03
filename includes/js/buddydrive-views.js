@@ -160,7 +160,7 @@ window.buddydrive = window.buddydrive || {};
 			this.breadCrumbs.reset();
 
 			// Use buddydrive.Settings to get "All" in Admin / The Group or the User Avatar
-			var crumbs = [ { id: 'all', 'text': 'All', 'current': true } ],
+			var crumbs = [ { id: 'all', 'text': buddydrive.Strings.allCrumb, 'current': true } ],
 			    first =  _.first( response.items ) || {};
 
 			if ( buddydrive.App.Query.get( 'buddydrive_parent' ) || buddydrive.App.Query.get( 'user_id' ) ) {
