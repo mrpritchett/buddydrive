@@ -39,6 +39,15 @@ div#buddydrive-main #buddydrive-uploader .drag-drop .drag-drop-inside {
 	vertical-align: middle;
 }
 
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui:not(.drag-drop) #bp-browse-button {
+	width: 99%;
+}
+
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui:not(.drag-drop) .moxie-shim {
+	width: 100%!important;
+	height: 100%!important;
+}
+
 div#buddydrive-main ul#buddydrive-browser li {
 	position:relative;
 	box-sizing: border-box;

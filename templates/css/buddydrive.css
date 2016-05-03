@@ -78,7 +78,8 @@ div#buddydrive-main #buddydrive-uploader .drag-drop.drag-over #drag-drop-area {
 	border-color: #83b4d8;
 }
 
-div#buddydrive-main .button-primary {
+div#buddydrive-main .button-primary,
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui:not(.drag-drop) #bp-browse-button {
 	background-color: #1a1a1a;
 	color: #FFF;
 }
@@ -88,8 +89,12 @@ div#buddydrive-main .button-primary:hover {
 	color: #FFF;
 }
 
-div#buddydrive-main .button-large:not(.buddydrive-hide) {
+div#buddydrive-main .button-large:not(.buddydrive-hide),
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui:not(.drag-drop) #bp-browse-button {
 	padding: 0.84375em 0.875em 0.78125em;
+}
+
+div#buddydrive-main .button-large:not(.buddydrive-hide) {
 	display: inline-block;
 	margin: auto 0.625em;
 }
