@@ -298,6 +298,14 @@ window.buddydrive = window.buddydrive || {};
 								value: this.collection.options.post_parent_infos
 							} ) );
 						}
+
+						// Make sure clicking on the browse button will open the browse dialog
+						$( '#bp-upload-ui.drag-drop' ).find( '.moxie-shim-html5' ).css( {
+							'height' : $( '#bp-browse-button' ).outerHeight() + 5 + 'px',
+							'width'  : $( '#bp-browse-button' ).outerWidth() + 5 + 'px',
+							'top'    : $( '#bp-browse-button' ).position().top + 'px',
+							'left'   : $( '#bp-browse-button' ).position().left + 'px'
+						} );
 					} else {
 						$( '#buddydrive-uploader' ).addClass( 'buddydrive-hide' );
 						$( '#buddydrive-actions-form' ).removeClass( 'buddydrive-hide' );
