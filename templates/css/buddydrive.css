@@ -40,6 +40,10 @@ div#buddydrive-main #buddydrive-status div.buddydrive-feedback {
 	width: 99%;
 }
 
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui {
+	margin-right: 8px;
+}
+
 div#buddydrive-main #buddydrive-uploader .drag-drop #drag-drop-area {
 	width: 100%;
 }
