@@ -163,7 +163,7 @@ function buddydrive_fetch_items() {
 	$buddydrive_items = new BuddyDrive_Item;
 	$buddydrive_items->get( $query_args );
 
-	$items = array_map( 'buddydrive_prepare_for_js', array_filter( $buddydrive_items->query->posts ) );
+	$items = array_map( 'buddydrive_prepare_for_js', array_filter( (array) $buddydrive_items->query->posts ) );
 
 	// Pagination
 	$metas       = array( 'paged' => (int) $query_args['paged'], 'has_more_items' => false );
