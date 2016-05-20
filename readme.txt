@@ -2,27 +2,27 @@
 Contributors: imath
 Donate link: http://imathi.eu/donations/
 Tags: BuddyPress, files, folders
-Requires at least: 4.2.2
-Tested up to: 4.4.1
-Stable tag: 1.3.3
+Requires at least: 4.5
+Tested up to: 4.5.2
+Stable tag: 2.0.0
 License: GPLv2
 
 Share files the BuddyPress way!
 
 == Description ==
 
-BuddyDrive is a BuddyPress plugin (it requires at least version 2.3) that uses WordPress built in features for the management of its post attachments to allow the members of a community to share a file or a list of files thanks to the BuddyDrive folders.
-Depending on the BuddyPress settings, the access to the BuddyDrive user's content can be restricted to :
+BuddyDrive is a BuddyPress (2.5+) plugin that uses the BP Attachment API to allow the members of a community to share files or folders. Depending on the BuddyPress settings, the access to the BuddyDrive user's content can be restricted to:
 
-* the owner of the item only,
-* people that know the password the owner set for his item,
-* the friends of the owner of the file,
-* the members of the group the content is attached to,
-* or everybody !
+* the owner of the item only (private),
+* people that know the password the owner set for his item (protected),
+* the friends of the owner of the file (Restricted to friends),
+* the members of the group the content is attached to (Restricted to groups),
+* specific members the owner selects (Restricted to members),
+* or everybody (public) !
 
 This plugin is available in english and french.
 
-http://vimeo.com/64323101
+https://vimeo.com/167316544
 
 == Installation ==
 
@@ -38,13 +38,29 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 
 == Screenshots ==
 
-1. User's BuddyDrive.
-2. BuddyDrive Uploader
-3. BuddyDrive embed file.
-4. BuddyDrive Supervising area.
-5. BuddyDrive settings page
+1. File shared into multiple groups.
+2. BuddyDrive Uploader.
+3. File shared with specific members.
+4. Content of a shared folder.
+5. BuddyDrive items administration.
 
 == Changelog ==
+
+= 2.0.0 =
+* !important Requires WordPress 4.5 and BuddyPress 2.5.
+* Use custom post status to set a file or folder privacy.
+* Completely revamped UI (Backbone/Underscore).
+* Multiple file uploads.
+* Share a file into multiple groups.
+* Directly upload new files or create new folders from the current group.
+* Share files or folders with specific members you select.
+* Real shared folders.
+* Search.
+* Detailed user statistics.
+
+= 1.3.4 =
+* Prevents an error when the downloaded file size is bigger than the WP memory limit (props bentasm1).
+* Improve the way the Groups selectbox is populated and include a new filter to eventually restrict the groups the user can share an item into.
 
 = 1.3.3 =
 * Add new hooks to allow custom privacy settings.
@@ -122,6 +138,12 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 * language supported : french, english
 
 == Upgrade Notice ==
+
+= 2.0.0 =
+Very important: backup your database before upgrading. Requires WP 4.5 & BP 2.5.
+
+= 1.3.4 =
+As usual, backup your database before upgrading
 
 = 1.3.3 =
 As usual, backup your database before upgrading

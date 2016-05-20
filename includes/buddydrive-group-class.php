@@ -1,6 +1,10 @@
 <?php
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * BuddyDrive Groups
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 if ( class_exists( 'BP_Group_Extension' ) ) :
 /**
@@ -11,7 +15,6 @@ if ( class_exists( 'BP_Group_Extension' ) ) :
  *
  */
 class BuddyDrive_Group extends BP_Group_Extension {
-
 	/**
 	 * construct method to add some settings and hooks
 	 *
@@ -23,7 +26,7 @@ class BuddyDrive_Group extends BP_Group_Extension {
 		$args = array(
 			'slug'              => buddydrive_get_slug(),
 			'name'              => buddydrive_get_name(),
-			'visibility'        => 'private',
+			'visibility'        => apply_filters( 'buddydrive_group_nav_visibility', 'private' ),
 			'nav_item_position' => 31,
 			'enable_nav_item'   => $this->enable_nav_item(),
 			'screens'           => array(
@@ -105,7 +108,6 @@ class BuddyDrive_Group extends BP_Group_Extension {
 		wp_nonce_field( 'groups_edit_save_' . $this->slug, 'buddydrive_group_admin' );
 	}
 
-
 	/**
 	 * Save the settings of the group
 	 *
@@ -180,31 +182,22 @@ class BuddyDrive_Group extends BP_Group_Extension {
 	/**
 	 * Displays the BuddyDrive of the group
 	 *
-	 * @uses bp_get_current_group_id() to get the group id
-	 * @uses buddydrive_component_home_url() to print the BuddyDrive link in the group
-	 * @uses buddydrive_get_template() to get the template if bp-default or any theme
 	 * @return string html output
 	 */
 	public function display( $group_id = null ) {
-		$group_id = bp_get_current_group_id();
-		buddydrive_item_nav();
-		?>
+		$current_group = groups_get_current_group();
 
-		<div class="buddydrive-crumbs in-group">
-			<a href="<?php esc_url( buddydrive_component_home_url() );?>" name="home" id="buddydrive-home" data-group="<?php echo esc_attr( $group_id );?>"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php _e( 'Root folder', 'buddydrive');?></span></a>
+		if ( ( 'public' !== $this->visibility || 'public' !== $current_group->status ) && ! groups_is_user_member( bp_loggedin_user_id(), $current_group->id ) && ! bp_current_user_can( 'bp_moderate' ) ) {
+			printf( '<div id="message" class="info"><p>%s</p></div>', esc_html__( 'You must be a member of this group to view the files.', 'buddydrive' ) );
+			return;
+		}
 
-			<?php if ( groups_is_user_member( bp_loggedin_user_id(), $group_id) ) : ?>
-				<?php buddydrive_user_buddydrive_url();?>
-			<?php endif ; ?>
-		</div>
-
-		<div class="buddydrive single-group" role="main">
-			<?php bp_get_template_part( 'buddydrive-loop' );?>
-		</div><!-- .buddydrive.single-group -->
-
-		<?php
+		if ( buddydrive_use_deprecated_ui() ) {
+			buddydrive_group_deprecated_display( bp_get_current_group_id() );
+		} else {
+			buddydrive_ui();
+		}
 	}
-
 
 	/**
 	 * We do not use widgets
@@ -214,7 +207,6 @@ class BuddyDrive_Group extends BP_Group_Extension {
 	public function widget_display() {
 		return false;
 	}
-
 
 	/**
 	 * Loads the BuddyDrive navigation if group admin activated BuddyDrive

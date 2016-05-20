@@ -7,6 +7,7 @@
  *
  * @package BuddyDrive
  * @since  version (1.0)
+ * @deprecated 2.0.0
  */
 
 ?>
@@ -66,7 +67,7 @@
 			</tbody>
 		</table>
 	<?php endif;?>
-	
+
 
 <?php endif; ?>
 

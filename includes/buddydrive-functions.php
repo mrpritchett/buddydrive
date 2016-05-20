@@ -1,6 +1,10 @@
 <?php
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * BuddyDrive functions
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
  * What is the version in db ?
@@ -12,6 +16,10 @@ function buddydrive_get_db_version(){
 	return get_option( '_buddydrive_version' );
 }
 
+function buddydrive_get_db_number_version() {
+	return get_option( '_buddydrive_db_version', 0 );
+}
+
 /**
  * What is the version of the plugin.
  *
@@ -20,6 +28,10 @@ function buddydrive_get_db_version(){
  */
 function buddydrive_get_version() {
 	return buddydrive()->version;
+}
+
+function buddydrive_get_number_version() {
+	return buddydrive()->db_version;
 }
 
 /**
@@ -145,7 +157,7 @@ function buddydrive_friends_subnav_name() {
 	 * @return string the subnav name
 	 */
 	function buddydrive_get_friends_subnav_name() {
-		$friends_subnav = bp_get_option( '_buddydrive_friends_subnav_name', __( 'Shared by Friends', 'buddydrive' ) );
+		$friends_subnav = bp_get_option( '_buddydrive_friends_subnav_name', __( 'Between Friends', 'buddydrive' ) );
 
 		return apply_filters( 'buddydrive_get_friends_subnav_name', $friends_subnav );
 	}
@@ -416,8 +428,9 @@ function buddydrive_do_activation_redirect() {
 	delete_transient( '_buddydrive_activation_redirect' );
 
 	// Bail if activating from network, or bulk
-	if ( isset( $_GET['activate-multi'] ) )
+	if ( isset( $_GET['activate-multi'] ) ) {
 		return;
+	}
 
 	$query_args = array( 'page' => 'buddydrive-about' );
 
@@ -440,17 +453,23 @@ function buddydrive_do_activation_redirect() {
  */
 function buddydrive_check_version() {
 	// Bail if config does not match what we need
-	if ( buddydrive::bail() )
+	if ( buddydrive::bail() ) {
 		return;
+	}
 
 	if ( version_compare( buddydrive_get_db_version(), buddydrive_get_version(), '=' ) ) {
 		return;
 	}
 
 	if ( buddydrive_is_install() ) {
-		// Do installation routine
+		// Set the DB Version
+		update_option( '_buddydrive_db_version', buddydrive_get_number_version() );
+
 	} else if ( buddydrive_is_update() ) {
-		// Do upgrade routine
+		// Older versions had private as default privacy
+		if ( 200 === buddydrive_get_number_version() ) {
+			bp_add_option( '_buddydrive_default_privacy', 'buddydrive_private' );
+		}
 	}
 
 	// Finally upgrade plugin version
@@ -598,4 +617,455 @@ function buddydrive_get_upload_error_strings() {
 	}
 
 	return $upload_errors;
+}
+
+/**
+ * Get BuddyDrive Items available post stati
+ *
+ * @since 2.0.0
+ *
+ * @param bool $no_filter True to get an unfiltered version of available stati.
+ *                        False otherwise. Defaults False.
+ * @return array
+ */
+function buddydrive_get_stati( $no_filter = false ) {
+	$stati = array(
+		'buddydrive_public' => array(
+			'label'                     => _x( 'Public', 'file or folder status', 'buddydrive' ),
+			'public'                    => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => true,
+			'buddydrive_privacy'        => 'public',
+		),
+		'buddydrive_private' => array(
+			'label'                     => _x( 'Private', 'file or folder status', 'buddydrive' ),
+			'private'                   => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => true,
+			'buddydrive_privacy'        => 'private',
+		),
+		'buddydrive_password' => array(
+			'label'                     => _x( 'Password protected', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
+			'buddydrive_privacy'        => 'password',
+		),
+		'buddydrive_friends' => array(
+			'label'                     => _x( 'Restricted to friends', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
+			'buddydrive_privacy'        => 'friends',
+		),
+		'buddydrive_groups' => array(
+			'label'                     => _x( 'Restricted to a group', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
+			'buddydrive_privacy'        => 'groups',
+		),
+		'buddydrive_members' => array(
+			'label'                     => _x( 'Restricted to members', 'file or folder status', 'buddydrive' ),
+			'protected'                 => true,
+			'show_in_admin_status_list' => false,
+			'show_in_admin_all_list'    => false,
+			'buddydrive_settings'       => false,
+			'buddydrive_privacy'        => 'members',
+		),
+	);
+
+	if ( true === $no_filter ) {
+		return $stati;
+	} else {
+		return apply_filters( 'buddydrive_get_stati', $stati );
+	}
+}
+
+/**
+ * Get BuddyDrive privacy out of a status or for a BuddyDrive item ID
+ *
+ * @since 2.0.0
+ *
+ * @param  int|string  $status A BuddyDrive Item ID or the name of the status
+ * @return string The validated privacy
+ */
+function buddydrive_get_privacy( $status = false ) {
+	if ( is_numeric( $status ) ) {
+		$status = get_post_status( $status );
+	}
+
+	if ( ! $status ) {
+		return false;
+	}
+
+	$status_object = get_post_stati( array( 'name' => $status ), 'objects' );
+	$status_object = reset( $status_object );
+
+	if ( ! empty( $status_object->buddydrive_privacy ) ) {
+		return $status_object->buddydrive_privacy;
+	} else {
+		return false;
+	}
+}
+
+/**
+ * Get BuddyDrive default privacy
+ *
+ * @since 2.0.0
+ *
+ * @param  string $default The default post status.
+ * @return string The default privacy
+ */
+function buddydrive_get_default_privacy( $default = 'buddydrive_public' ) {
+	return apply_filters( 'buddydrive_get_default_privacy', buddydrive_get_privacy( bp_get_option( '_buddydrive_default_privacy', $default ) ) );
+}
+
+/**
+ * Get visible groups for the current user
+ *
+ * @since 2.0.0
+ *
+ * @return array A list of visible group IDs
+ */
+function buddydrive_get_visible_groups() {
+	global $wpdb;
+	$bp = buddypress();
+
+	// Get all public groups
+	$visible_groups = $wpdb->get_col( "SELECT id FROM {$bp->groups->table_name} WHERE status = 'public'" );
+
+	if ( is_user_logged_in() ) {
+		$current_user_groups = groups_get_user_groups( bp_loggedin_user_id() );
+
+		if ( ! empty( $current_user_groups['groups'] ) ) {
+			$visible_groups = array_unique( array_merge( $visible_groups, $current_user_groups['groups'] ) );
+		}
+	}
+
+	return $visible_groups;
+}
+
+/**
+ * Update BuddyDrive Items stati
+ * Migration tool specific to 2.0.0. Transform the 'publish' status to the new one.
+ *
+ * @since 2.0.0
+ *
+ * @param  int $per_page the number of BuddyDrive items to upgrade
+ * @return int The number of upgraded BuddyDrive items
+ */
+function buddydrive_update_items_status( $per_page = false ) {
+	global $wpdb;
+
+	$buddydrive_stati = buddydrive_get_stati( true );
+	$privacy          = array();
+	foreach ( $buddydrive_stati as $key_status => $status ) {
+		$privacy[ $status['buddydrive_privacy'] ] = $key_status;
+	}
+
+	$sql = array(
+		'select' => "SELECT p.ID as post_id, m.meta_value FROM {$wpdb->posts} p LEFT JOIN {$wpdb->postmeta} m on( p.ID = m.post_id )",
+		'where'  => array(
+			'status'   => "p.post_status = 'publish'",
+			'meta_key' => $wpdb->prepare( 'meta_key = %s', '_buddydrive_sharing_option' ),
+		),
+	);
+
+	if ( ! empty( $per_page ) ) {
+		$sql['limit'] = $wpdb->prepare( 'LIMIT %d', $per_page );
+	}
+
+	$sql['where'] = 'WHERE ' . join( ' AND ', $sql['where'] );
+
+	$items = $wpdb->get_results( join( ' ', $sql ) );
+
+	$updated = 0;
+
+	if ( empty( $items ) ) {
+		return $updated;
+	}
+
+	foreach ( $items as $item ) {
+		if ( ! isset( $privacy[ $item->meta_value ] ) ) {
+			$status = 'buddydrive_private';
+		} else {
+			$status = $privacy[ $item->meta_value ];
+		}
+
+		$update_r = (int) $wpdb->update( $wpdb->posts, array( 'post_status' => $status ), array( 'ID' => $item->post_id ), array( '%s' ), array( '%d' ) );
+
+		// Log an error if the update failed
+		if ( empty( $update_r ) ) {
+			error_log( sprintf( 'The item ID %s could not be updated to the status %s.', $item->post_id, $status ) );
+
+		// Increment the count if it succeeded
+		} else {
+			$updated += $update_r;
+		}
+	}
+
+	return $updated;
+}
+
+/**
+ * List upgrade routines according to a DB version
+ *
+ * @since 2.0.0
+ *
+ * @return array The list of upgrade routines to perform.
+ */
+function buddydrive_get_upgrade_tasks() {
+	global $wpdb;
+
+	$routines = array(
+		'200' => array(
+			array(
+				'action_id' => 'upgrade_item_stati',
+				'count'     => $wpdb->prepare( "SELECT COUNT(*) FROM {$wpdb->posts} p LEFT JOIN {$wpdb->postmeta} m on( p.ID = m.post_id ) WHERE p.post_status = 'publish' AND m.meta_key = %s", '_buddydrive_sharing_option' ),
+				'message'   => _x( 'Status of files and folders - %d item(s) to upgrade', 'Upgrader feedback message', 'buddydrive' ),
+				'callback'  => 'buddydrive_update_items_status'
+			),
+			array(
+				'action_id' => 'upgrade_db_version',
+				'count'     => 1,
+				'message'   => _x( 'Database version - 1 item to update', 'Upgrader feedback message', 'buddydrive' ),
+				'callback'  => ''
+			),
+		),
+	);
+
+	$tasks = array();
+
+	// Only keep the upgrade routine we need to perform according
+	// to the current db version
+	foreach ( $routines as $db_version => $list ) {
+		if ( (int) $db_version > (int) buddydrive_get_db_number_version() ) {
+			$tasks = array_merge( $tasks, $list );
+		}
+	}
+
+	return $tasks;
+}
+
+/**
+ * Whether to use the deprecated UI or not. Defaults to not!
+ *
+ * @since 2.0.0
+ *
+ * @return bool True to use the deprecated UI. False otherwise.
+ */
+function buddydrive_use_deprecated_ui() {
+	return apply_filters( 'buddydrive_use_deprecated_ui', false );
+}
+
+/**
+ * Register the scripts and styles for the new BuddyDrive UI
+ *
+ * @since 2.0.0
+ */
+function buddydrive_register_ui_cssjs() {
+	$min          = '.min';
+	$bd_version   = buddydrive_get_version();
+	$includes_url = buddydrive_get_includes_url();
+
+	if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG )  {
+		$min = '';
+	}
+
+	// Register the App style
+	wp_register_style(
+		'buddydrive-app-style',
+		$includes_url . "css/buddydrive-app{$min}.css",
+		array( 'dashicons' ),
+		$bd_version
+	);
+
+	if ( bp_is_current_component( 'buddydrive' ) || buddydrive_is_group() ) {
+		$front_end_style_path = bp_locate_template( 'css/buddydrive.css', false );
+
+		if ( $front_end_style_path ) {
+			$front_end_style_uri = str_replace( array( get_theme_root(), buddydrive_get_plugin_dir() ), array( get_theme_root_uri(), buddydrive_get_plugin_url() ), $front_end_style_path );
+
+			// Validate the uri
+			if ( parse_url( $front_end_style_uri, PHP_URL_HOST ) ) {
+				wp_register_style(
+					'buddydrive-front-end-style',
+					$front_end_style_uri,
+					array( 'buddydrive-app-style' ),
+					$bd_version
+				);
+			}
+		}
+	}
+
+	// Define UI Scrips
+	$ui_scripts = apply_filters( 'buddydrive_register_ui_get_scripts', array(
+		'buddydrive-models-js' => array(
+			'url'     => $includes_url . "js/buddydrive-models{$min}.js",
+			'deps'    => array( 'jquery', 'json2', 'wp-backbone' ),
+			'version' => $bd_version,
+			'footer'  => true,
+		),
+		'buddydrive-views-js' => array(
+			'url'     => $includes_url . "js/buddydrive-views{$min}.js",
+			'deps'    => array( 'buddydrive-models-js' ),
+			'version' => $bd_version,
+			'footer'  => true,
+		),
+		'buddydrive-app-js' => array(
+			'url'     => $includes_url . "js/buddydrive-app{$min}.js",
+			'deps'    => array( 'buddydrive-views-js' ),
+			'version' => $bd_version,
+			'footer'  => true,
+		),
+	) );
+
+	// Register scripts
+	foreach( $ui_scripts as $handle => $script ) {
+		wp_register_script(
+			$handle,
+			$script['url'],
+			$script['deps'],
+			$script['version'],
+			$script['footer']
+		);
+	}
+}
+
+/**
+ * Temporarly add the BuddyDrive templates location to BuddyPress template stack
+ *
+ * @since 2.0.0
+ *
+ * @param array $stack the BuddyPress templates stack
+ * @return array the BuddyPress templates stack
+ */
+function buddydrive_set_template_stack( $stack = array() ) {
+	if ( empty( $stack ) ) {
+		$stack = array( buddydrive_get_plugin_dir() . 'templates' );
+	} else {
+		$stack[] = buddydrive_get_plugin_dir() . 'templates';
+	}
+
+	return $stack;
+}
+
+/**
+ * Get the BuddyDrive asset template part
+ *
+ * @since 2.0.0
+ */
+function buddydrive_get_asset_template_part( $slug ) {
+	add_filter( 'bp_locate_template_and_load', '__return_true'                        );
+	add_filter( 'bp_get_template_stack',       'buddydrive_set_template_stack', 10, 1 );
+
+	bp_get_template_part( 'assets/buddydrive/' . $slug );
+
+	remove_filter( 'bp_locate_template_and_load', '__return_true'                        );
+	remove_filter( 'bp_get_template_stack',       'buddydrive_set_template_stack', 10, 1 );
+}
+
+/**
+ * This is a temporary capability checking function
+ *
+ * It's not used everywhere and will be replaced with a better one in a future release.
+ *
+ * @since 2.0.0
+ *
+ * @param string $capability The capability to check
+ * @param array  $args       Additionnal args to help us decide whether current user can
+ * @return bool True if the current user can, false otherwise.
+ */
+function buddydrive_current_user_can( $capability = 'buddydrive_upload', $args = array() ) {
+	$can     = false;
+	$user_id = bp_loggedin_user_id();
+
+	// Upload/Creare folder
+	if ( 'buddydrive_upload' === $capability ) {
+		if ( bp_is_user() ) {
+			$can = (int) bp_displayed_user_id() === (int) $user_id;
+		} elseif ( bp_is_group() ) {
+			$can = (bool) groups_is_user_member( $user_id, bp_get_current_group_id() );
+		} else {
+			$can = bp_current_user_can( 'bp_moderate' );
+		}
+
+	// Delete files/folders or remove files from folders
+	} elseif ( 'buddydrive_delete' === $capability || 'buddydrive_remove_parent' === $capability ) {
+		// Admins can always delete
+		$can = bp_current_user_can( 'bp_moderate' );
+
+		if ( ! empty( $args['owner_id'] ) && (int) $args['owner_id'] === (int) $user_id ) {
+			$can = true;
+		}
+
+		if ( 'buddydrive_remove_parent' === $capability && ! empty( $args['parent_owner_id'] ) && (int) $args['parent_owner_id'] === (int) $user_id ) {
+			$can = true;
+		}
+	} elseif ( 'buddydrive_share' === $capability ) {
+		// We need the BuddyDrive item
+		if ( ! empty( $args['item'] ) && is_a( $args['item'], 'WP_Post' ) ) {
+			switch ( $args['item']->post_status ) {
+
+				// anybody can share
+				case 'buddydrive_public' :
+					$can = true;
+					break;
+
+				case 'buddydrive_friends'  :
+				case 'buddydrive_password' :
+				case 'buddydrive_members'  :
+					$can = (int) $args['item']->user_id === (int) $user_id || bp_current_user_can( 'bp_moderate' );
+					break;
+
+				case 'buddydrive_groups'   :
+					if ( bp_is_group() ) {
+						$group_id = bp_get_current_group_id();
+
+						$can = in_array( $group_id, (array) $args['item']->group ) && groups_is_user_member( $user_id, $group_id );
+					} else {
+						$can = (int) $args['item']->user_id === (int) $user_id || bp_current_user_can( 'bp_moderate' );
+					}
+					break;
+
+				default:
+					$can = false;
+					break;
+			}
+		} else {
+			$can = bp_current_user_can( 'bp_moderate' );
+		}
+	} elseif ( 'buddydrive_edit' === $capability || 'buddydrive_bulk_edit' === $capability ) {
+		$can = bp_current_user_can( 'bp_moderate' );
+
+		if ( ! $can && ! empty( $args['item'] ) && is_a( $args['item'], 'WP_Post' ) ) {
+			$can = (int) $args['item']->user_id === (int) $user_id;
+
+			if ( 'buddydrive_bulk_edit' === $capability && ! $can && bp_is_my_profile() && ! empty( $args['item']->post_parent ) ) {
+				$can = (int) $user_id === (int) get_post_field( 'post_author', $args['item']->post_parent );
+			}
+		}
+
+		if ( 'buddydrive_bulk_edit' === $capability && ! $can && bp_is_group() ) {
+			$can = (bool) groups_is_user_admin( $user_id, bp_get_current_group_id() );
+		}
+	} elseif ( 'buddydrive_remove_group' === $capability ) {
+		$can = bp_current_user_can( 'bp_moderate' );
+
+		if ( ! $can && ! empty( $args['item'] ) && is_a( $args['item'], 'WP_Post' ) ) {
+			$can = (int) $args['item']->user_id === (int) $user_id;
+		}
+
+		if ( ! $can && ! empty( $args['group_id'] ) ) {
+			$can = (bool) groups_is_user_admin( $user_id, $args['group_id'] );
+		}
+	}
+
+	return apply_filters( 'buddydrive_current_user_can', $can, $capability, $user_id, $args );
 }

@@ -88,13 +88,33 @@ class BuddyDrive_Admin {
 	 */
 	private function setup_globals() {
 		$buddydrive = buddydrive();
-		$this->admin_dir           = trailingslashit( $buddydrive->includes_dir . 'admin'  ); // Admin path
-		$this->admin_url           = trailingslashit( $buddydrive->includes_url . 'admin'  ); // Admin url
-		$this->styles_url          = trailingslashit( $this->admin_url   . 'css' ); // Admin styles URL*/
-		$this->js_url              = trailingslashit( $this->admin_url   . 'js' );
-		$this->settings_page       = bp_core_do_network_admin() ? 'settings.php' : 'options-general.php';
-		$this->notice_hook         = bp_core_do_network_admin() ? 'network_admin_notices' : 'admin_notices' ;
-		$this->user_columns_filter = bp_core_do_network_admin() ? 'wpmu_users_columns' : 'manage_users_columns';
+		$this->admin_dir            = trailingslashit( $buddydrive->includes_dir . 'admin'  ); // Admin path
+		$this->admin_url            = trailingslashit( $buddydrive->includes_url . 'admin'  ); // Admin url
+		$this->styles_url           = trailingslashit( $this->admin_url   . 'css' ); // Admin styles URL*/
+		$this->js_url               = trailingslashit( $this->admin_url   . 'js' );
+		$this->settings_page        = 'options-general.php';
+		$this->notice_hook          = 'admin_notices' ;
+		$this->user_columns_filter  = 'manage_users_columns';
+		$this->requires_db_upgrade  = buddydrive_get_db_number_version() < buddydrive_get_number_version();
+
+		if ( bp_core_do_network_admin() ) {
+			$this->settings_page       = 'settings.php';
+			$this->notice_hook         = 'network_admin_notices';
+			$this->user_columns_filter = 'wpmu_users_columns';
+			$this->buddydrive_page     = esc_url( add_query_arg( 'page','buddydrive-files', network_admin_url( 'admin.php' ) ) );
+		} else {
+			$this->buddydrive_page     = esc_url( add_query_arg( 'page','buddydrive-files', admin_url( 'admin.php' ) ) );
+		}
+
+		// We are now using a BackBone UI
+		$this->items_admin_callback = array( $this, 'items_admin_screen' );
+
+		/**
+		 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+		 */
+		if ( true === buddydrive_use_deprecated_ui() ) {
+			$this->items_admin_callback = 'buddydrive_files_admin';
+		}
 	}
 
 	/**
@@ -105,7 +125,13 @@ class BuddyDrive_Admin {
 	 */
 	private function includes() {
 		require( $this->admin_dir . 'buddydrive-settings.php'  );
-		require( $this->admin_dir . 'buddydrive-items.php'  );
+
+		/**
+		 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+		 */
+		if ( true === buddydrive_use_deprecated_ui() ) {
+			require( $this->admin_dir . 'buddydrive-items.php'  );
+		}
 	}
 
 	/**
@@ -125,11 +151,12 @@ class BuddyDrive_Admin {
 
 		/** General Actions ***************************************************/
 
-		add_action( bp_core_admin_hook(),                 array( $this, 'admin_menus'             ) ); // Add menu item to settings menu
-		add_action( 'buddydrive_admin_head',              array( $this, 'admin_head'              ) ); // Add some general styling to the admin area
-		add_action( $this->notice_hook,                   array( $this, 'activation_notice'       ) ); // Checks for BuddyDrive Upload directory once activated
-		add_action( 'buddydrive_admin_register_settings', array( $this, 'register_admin_settings' ) ); // Add settings
+		add_action( bp_core_admin_hook(),                 array( $this, 'admin_menus'             )        ); // Add menu item to settings menu
+		add_action( 'buddydrive_admin_head',              array( $this, 'admin_head'              )        ); // Add some general styling to the admin area
+		add_action( $this->notice_hook,                   array( $this, 'activation_notice'       ),     9 ); // Checks for BuddyDrive Upload directory once activated
+		add_action( 'buddydrive_admin_register_settings', array( $this, 'register_admin_settings' )        ); // Add settings
 		add_action( 'admin_enqueue_scripts',              array( $this, 'enqueue_scripts'         ), 10, 1 ); // Add enqueued JS and CSS
+		add_action( 'wp_ajax_buddydrive_upgrader',        array( $this, 'do_upgrade'              )        );
 
 		/** Filters ***********************************************************/
 
@@ -137,8 +164,9 @@ class BuddyDrive_Admin {
 		add_filter( 'plugin_action_links',               array( $this, 'modify_plugin_action_links' ), 10, 2 );
 		add_filter( 'network_admin_plugin_action_links', array( $this, 'modify_plugin_action_links' ), 10, 2 );
 
-		// Filters the user space left output to strip html tags
-		add_filter( 'buddydrive_get_user_space_left',    'buddydrive_filter_user_space_left'         , 10, 2 );
+		if ( ! buddydrive_use_deprecated_ui() ) {
+			add_filter( 'bp_admin_menu_order', array( $this, 'items_admin_menu_order' ), 10, 1 );
+		}
 
 		// Allow plugins to modify these actions
 		do_action_ref_array( 'buddydrive_admin_loaded', array( &$this ) );
@@ -173,7 +201,7 @@ class BuddyDrive_Admin {
 			_x( 'BuddyDrive', 'BuddyDrive User Files Admin menu title',  'buddydrive' ),
 			'manage_options',
 			'buddydrive-files',
-			'buddydrive_files_admin',
+			$this->items_admin_callback,
 			'div'
 		);
 
@@ -188,9 +216,25 @@ class BuddyDrive_Admin {
 			array( $this, 'about_screen' )
 		);
 
+		// Upgrade DB Screen
+		if ( $this->requires_db_upgrade ) {
+			$this->hook_suffixes['upgrade'] = add_dashboard_page(
+				__( 'BuddyDrive Upgrades',  'buddydrive' ),
+				__( 'BuddyDrive Upgrades',  'buddydrive' ),
+				'manage_options',
+				'buddydrive-upgrade',
+				array( $this, 'upgrade_screen' )
+			);
+		}
 
-		// Hook into early actions to load custom CSS and our init handler.
-		add_action( "load-$hook", 'buddydrive_files_admin_load' );
+
+		/**
+		 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+		 */
+		if ( true === buddydrive_use_deprecated_ui() ) {
+			// Hook into early actions to load custom CSS and our init handler.
+			add_action( "load-$hook", 'buddydrive_files_admin_load' );
+		}
 
 		// Putting user edit hooks there, this way we're sure they will load at the right place
 		add_action( 'edit_user_profile',          array( $this, 'edit_user_quota'           ), 10, 1 );
@@ -216,6 +260,10 @@ class BuddyDrive_Admin {
 
 		// Hide About page
 		remove_submenu_page( 'index.php', 'buddydrive-about'   );
+
+		if ( $this->requires_db_upgrade ) {
+			remove_submenu_page( 'index.php', 'buddydrive-upgrade' );
+		}
 
 		$version = buddydrive_get_version();
 
@@ -303,6 +351,20 @@ class BuddyDrive_Admin {
 		if ( empty( $buddydrive_upload['dir'] ) || ! file_exists( $buddydrive_upload['dir'] ) ){
 			bp_core_add_admin_notice( __( 'The main BuddyDrive directory is missing', 'buddydrive' ) );
 		}
+
+		$display_upgrade_notice = true;
+		$current_screen = get_current_screen();
+
+		if ( isset( $current_screen->id ) && in_array( $current_screen->id, $this->hook_suffixes ) ) {
+			$display_upgrade_notice = false;
+		}
+
+		if ( $this->requires_db_upgrade && $display_upgrade_notice ) {
+			bp_core_add_admin_notice( sprintf(
+				__( 'BuddyDrive is almost ready. It needs to update some of the datas it is using. If you have not done a database backup yet, please do it <strong>before</strong> clicking on <a href="%s">this link</a>.', 'buddydrive' ),
+				esc_url( add_query_arg( array( 'page' => 'buddydrive-upgrade' ), bp_get_admin_url( 'index.php' ) ) )
+			), 'error' );
+		}
 	}
 
 	/**
@@ -358,15 +420,36 @@ class BuddyDrive_Admin {
 	 * @uses wp_enqueue_script() to enqueue the script
 	 */
 	public function enqueue_scripts( $hook = false ) {
-
-		if( in_array( $hook, $this->hook_suffixes ) )
-			wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url .'buddydrive-admin.css' );
-
-		if( !empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && !empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
-			wp_enqueue_script ( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
-			wp_localize_script( 'buddydrive-admin-js', 'buddydrive_admin', buddydrive_get_js_l10n() );
+		if ( ! in_array( $hook, $this->hook_suffixes ) ) {
+			return;
 		}
 
+		$min = '.min';
+		if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG )  {
+			$min = '';
+		}
+
+		wp_enqueue_style( 'buddydrive-admin-css', $this->styles_url . "buddydrive-admin{$min}.css", array(), buddydrive_get_version() );
+
+		if ( ! empty( $this->hook_suffixes[1] ) && $hook == $this->hook_suffixes[1] && ! empty( $_REQUEST['action'] ) && $_REQUEST['action'] == 'edit' ) {
+			/**
+			 * Use add_filter( 'buddydrive_use_deprecated_ui', '__return_true' ); to use the deprecated UI
+			 */
+			if ( true === buddydrive_use_deprecated_ui() ) {
+				wp_enqueue_script ( 'buddydrive-admin-js', $this->js_url .'buddydrive-admin.js' );
+				wp_localize_script( 'buddydrive-admin-js', 'buddydrive_admin', buddydrive_get_js_l10n() );
+			}
+		}
+
+		if ( isset( $this->hook_suffixes['upgrade'] ) && $hook === $this->hook_suffixes['upgrade'] ) {
+			wp_register_script(
+				'buddydrive-upgrader-js',
+				$this->js_url . "buddydrive-upgrader{$min}.js",
+				array( 'jquery', 'json2', 'wp-backbone' ),
+				buddydrive_get_version(),
+				true
+			);
+		}
 	}
 
 	/**
@@ -400,7 +483,6 @@ class BuddyDrive_Admin {
 	 * @uses add_query_arg() to add args to the url
 	 */
 	public function about_screen() {
-		global $wp_version;
 		$display_version = buddydrive_get_version();
 		$settings_url = add_query_arg( array( 'page' => 'buddydrive'), bp_get_admin_url( $this->settings_page ) );
 		?>
@@ -415,132 +497,74 @@ class BuddyDrive_Admin {
 				</a>
 			</h2>
 
-			<div class="headline-feature">
-				<h3><?php esc_html_e( 'Meet the BuddyDrive Editor', 'buddydrive' ); ?></h3>
+			<div class="headline-feature feature-section one-col">
+				<h2><?php _e( 'This is the new BuddyDrive User Interface', 'buddydrive' ); ?></h2>
 
-				<div class="featured-image">
-					<img src="<?php echo esc_url( buddydrive_get_images_url() . '/buddydrive-editor.png' );?>" alt="<?php esc_attr_e( 'The BuddyDrive Editor', 'buddydrive' ); ?>">
+				<div class="media-container" style="text-align:center">
+					<img src="<?php echo esc_url( buddydrive_get_images_url() . '/buddydrive-ui.gif' );?>" alt="<?php esc_attr_e( 'The BuddyDrive Editor', 'buddydrive' ); ?>">
 				</div>
 
-				<div class="feature-section">
-					<h3><?php esc_html_e( 'BuddyDrive is now using the BuddyPress Attachments API!', 'buddydrive' ); ?></h3>
-					<p><?php esc_html_e( 'Introduced in BuddyPress 2.3, BuddyDrive uses this API to manage user uploads the BuddyPress way. It gave birth to a new BuddyDrive Editor. Now, you and plugins can use it to easily share public files with your community members.', 'buddydrive' ); ?> <a href="https://github.com/imath/buddydrive/wiki/The-BuddyDrive-Editor"><?php esc_html_e( 'Learn more &rarr;', 'buddydrive' ); ?></a></p>
+				<div class="col" style="margin-right: auto;margin-left: auto; float: none">
+					<h4><?php _e( 'The UI has been completely revamped and is bringing multiple file uploads!', 'buddydrive' ); ?></h4>
+					<p><?php _e( 'Uploading files has never been so easy! Drag, drop it&#8217;s uploaded. The default privacy does not match your need? No worries, you can edit it at any time!', 'buddydrive' ); ?></p>
 				</div>
 
 				<div class="clear"></div>
 			</div>
 
-			<div class="feature-list">
+			<div class="feature-section two-col">
+				<h2><?php _e( 'BuddyPress Groups integration Improvements', 'buddydrive' ); ?></h2>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-1.png">
+					<h3><?php _e( 'Share with multiple Groups', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'Have you ever uploaded the same file several times to share it with different groups? That was before! Now, you can attach a file to as many Group as you need.', 'buddydrive' ); ?></p>
+				</div>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-2.png">
+					<h3><?php _e( 'Create new items directly from the Group.', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'Tired of going back to your profile to share items within a Group? That&#8217;s history! Now you can create folders and upload new files directly from the Group.', 'buddydrive' ); ?></p>
+				</div>
+			</div>
+
+			<hr />
+
+			<div class="feature-section two-col">
+				<h2><?php _e( 'Sharing Improvements', 'buddydrive' ); ?></h2>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-3.png">
+					<h3><?php _e( 'The members of your choice!', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'Now you can restrict the access to your folders and files to the happy fiew you chose! Find all the files and folders the other shared with you into the new &quot;Between Members&quot; tab of your BuddyDrive.', 'buddydrive' ); ?></p>
+				</div>
+				<div class="col">
+					<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-4.png">
+					<h3><?php _e( 'Real shared folders', 'buddydrive' ); ?></h3>
+					<p><?php _e( 'The user can access to your folder? Now he can also add new files in it. The folder owner still has the last word and will be able to remove all added files.', 'buddydrive' ); ?></p>
+				</div>
+			</div>
+
+			<hr />
+
+			<div class="changelog">
 				<h2><?php printf( __( 'The other improvements in %s', 'buddydrive' ), $display_version ); ?></h2>
 
-				<div class="feature-section col two-col">
-					<div>
-						<h4><?php esc_html_e( 'Bulk-deleting files in the Administration screen', 'buddydrive' ); ?></h4>
-						<p><?php _e( 'When the community administrator bulk-deletes files having different owners, each owner&#39;s quota will now be updated.', 'buddydrive' ); ?></p>
-
-						<h4><?php esc_html_e( 'Representation of embed public image files.', 'buddydrive' ); ?></h4>
-						<p><?php esc_html_e( 'When you share a link to a file into the activity stream, a private message, a post, a page, ..., BuddyDrive is catching this link to build some specific output.', 'buddydrive' ); ?></p>
-						<p><?php esc_html_e( 'Now, if this link is about a public image, a thumbnail will be displayed next to the file title (and description if provided).', 'buddydrive' ); ?></p>
+				<div class="under-the-hood three-col">
+					<div class="col">
+						<h3><?php _e( 'Administrators privileges', 'buddydrive' ); ?></h3>
+						<p><?php _e( 'Administrators can now browse a specific user&#8217;s files and folders from the BuddyDrive Administration screen and add/edit or remove any file or folder.', 'buddydrive' ); ?></p>
 					</div>
-					<div class="last-feature">
-						<h4><?php esc_html_e( 'BuddyPress single group&#39;s latest activity', 'buddydrive' ); ?></h4>
-						<p><?php esc_html_e( 'When a file is shared with the members of a group, the latest activity of the group will be updated.', 'buddydrive' ); ?></p>
-						
-						<h4><?php esc_html_e( 'Reassign deleted files', 'buddydrive' ); ?></h4>
-						<p><?php esc_html_e( 'If you need to keep files when a user leaves your community (sad), you can use the following filter making sure to return the ID of a user having the bp_moderate capability.', 'buddydrive' ); ?></p>
-						<p><code>buddydrive_set_owner_on_user_deleted</code></p>
+					<div class="col">
+						<h3><?php _e( 'Search', 'buddydrive' ); ?></h3>
+						<p><?php _e( 'A new search field has been added to the UI so that you can easily find your old items!', 'buddydrive' ); ?></p>
+					</div>
+					<div class="col">
+						<h3><?php _e( 'Detailed user statistics', 'buddydrive' ); ?></h3>
+						<p><?php _e( 'In addition to disk usage, detailed statistics will be displayed to specify the distribution of the number of files by visibility.', 'buddydrive' ); ?></p>
 					</div>
 				</div>
 			</div>
 
-			<?php if ( ! empty( $_REQUEST['is_new_install' ] ) ) : ?>
-
-			<div class="changelog">
-				<h2 class="about-headline-callout"><?php esc_html_e( 'and always..', 'buddydrive' ); ?></h2>
-				<div class="feature-section col two-col">
-					<div>
-						<h4><?php _e( 'User&#39;s BuddyDrive', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'It lives in the member&#39;s page just under the BuddyDrive tab.', 'buddydrive' ); ?>
-							<?php _e( 'The BuddyDrive edit bar allows the user to manage from one unique place his content.', 'buddydrive' ); ?>
-							<?php _e( 'He can add new files, new folders, set their privacy settings, edit them and of course delete them at any time.', 'buddydrive' ); ?>
-						</p>
-						<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-1.png" style="width:90%">
-					</div>
-
-					<div class="last-feature">
-						<h4><?php _e( 'BuddyDrive Uploader', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'BuddyDrive uses WordPress HTML5 uploader and do not add any third party script to handle uploads.', 'buddydrive' ); ?>
-							<?php _e( 'WordPress is a fabulous tool and already knows how to deal with attachments for its content.', 'buddydrive' ); ?>
-							<?php _e( 'So BuddyDrive is managing uploads, the WordPress way!', 'buddydrive' ); ?>
-						</p>
-						<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-2.png" style="width:90%">
-					</div>
-				</div>
-			</div>
-
-			<div class="changelog">
-				<div class="feature-section col two-col">
-					<div>
-						<h4><?php _e( 'BuddyDrive Folders', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'Using folders is a convenient way to share a list of files at once.', 'buddydrive' ); ?>
-							<?php _e( 'Users just need to create a folder, open it an add the files of their choice to it.', 'buddydrive' ); ?>
-							<?php _e( 'When sharing a folder, a member actually shares the list of files that is attached to it.', 'buddydrive' ); ?>
-						</p>
-						<img src="<?php echo buddydrive_get_images_url();?>/folder-demo.png" style="width:90%">
-					</div>
-
-					<div class="last-feature">
-						<h4><?php _e( 'BuddyDrive privacy options', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'There are five levels of privacy for the files or folders.', 'buddydrive' ); ?>&nbsp;
-							<?php _e( 'Depending on your BuddyPress settings, a user can set the privacy of a BuddyDrive item to:', 'buddydrive' ); ?>
-						</p>
-						<ul>
-							<li><?php _e( 'Private: the owner of the item will be the only one to be able to download the file.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Password protected: a password will be required before being able to download the file.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Public: everyone can download the file.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Friends only: if the BuddyPress friendship component is active, a user can restrict a download to his friends only.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'One of the user&#39;s group: if the BuddyPress user groups component is active, and if the administrator of the group enabled BuddyDrive, a user can restrict the download to members of the group only.', 'buddydrive' ); ?></li>
-						</ul>
-					</div>
-				</div>
-			</div>
-
-			<div class="changelog">
-				<div class="feature-section col two-col">
-					<div>
-						<h4><?php _e( 'Sharing BuddyDrive items', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'Depending on the privacy option of an item and the activated BuddyPress components, a user can :', 'buddydrive' ); ?>
-						</p>
-						<ul>
-							<li><?php _e( 'Share a public BuddyDrive item in his personal activity.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Share a password protected item using the private messaging BuddyPress component.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Alert his friends he shared a new item using the private messaging BuddyPress component.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Share his file in a group activity to inform the other members of the group.', 'buddydrive' ); ?></li>
-							<li><?php _e( 'Copy the link to his item and paste it anywhere in the blog or in a child blog (in case of a multisite configuration). This link will automatically be converted into a nice piece of html.', 'buddydrive' ); ?></li>
-						</ul>
-					</div>
-
-					<div class="last-feature">
-						<h4><?php _e( 'Supervising BuddyDrive', 'buddydrive' ); ?></h4>
-						<p>
-							<?php _e( 'The administrator of the community can manage all BuddyDrive items from the backend of WordPress.', 'buddydrive' ); ?>
-						</p>
-						<img src="<?php echo buddydrive_get_plugin_url();?>/screenshot-4.png" style="width:90%">
-					</div>
-				</div>
-			</div>
-
-			<?php endif; ?>
-
-			<div class="changelog">
-				<div class="return-to-dashboard">
-					<a href="<?php echo esc_url( $settings_url );?>" title="<?php esc_attr_e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php esc_html_e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
-				</div>
+			<div class="return-to-dashboard">
+				<a href="<?php echo esc_url( $settings_url );?>" title="<?php esc_attr_e( 'Configure BuddyDrive', 'buddydrive' ); ?>"><?php esc_html_e( 'Go to the BuddyDrive Settings page', 'buddydrive' );?></a>
 			</div>
 
 		</div>
@@ -578,7 +602,7 @@ class BuddyDrive_Admin {
 		$user_quota = buddydrive_get_quota_by_user_id( $profileuser->ID );
 		?>
 
-		<h3><?php esc_html_e( 'User&#39;s BuddyDrive quota', 'bbpress' ); ?></h3>
+		<h3><?php esc_html_e( 'User&#39;s BuddyDrive quota', 'buddydrive' ); ?></h3>
 
 		<table class="form-table">
 			<tbody>
@@ -603,7 +627,6 @@ class BuddyDrive_Admin {
 	 *
 	 * @param  integer $user_id (the on being edited)
 	 * @global $wpdb the WordPress db class
-	 * @global $blog_id the id of the current blog
 	 * @uses bp_get_root_blog_id() to make sure we're on the blog BuddyPress is activated on
 	 * @uses current_user_can() to check for edit user capability
 	 * @uses get_user_meta() to get user's preference
@@ -612,24 +635,29 @@ class BuddyDrive_Admin {
 	 * @uses update_user_meta() to save user's quota
 	 */
 	public static function save_user_quota( $user_id ) {
-		global $wpdb, $blog_id;
+		global $wpdb;
 
-		if( $blog_id != bp_get_root_blog_id() )
+		if ( ! bp_is_root_blog() ) {
 			return;
+		}
 
-		if ( ! current_user_can( 'edit_user', $user_id ) )
+		if ( ! current_user_can( 'edit_user', $user_id ) ) {
 			return;
+		}
 
-		if( empty( $_POST['_buddydrive_user_quota'] ) )
+		if ( empty( $_POST['_buddydrive_user_quota'] ) ) {
 			return;
+		}
 
 		$user_roles = get_user_meta( $user_id, $wpdb->get_blog_prefix( bp_get_root_blog_id() ) . 'capabilities', true );
-		$user_roles = array_keys( $user_roles );
-		$user_role = is_array( $user_roles ) ? $user_roles[0] : bp_get_option('default_role');
+		$user_role  = bp_get_option( 'default_role' );
+
+		if ( ! empty( $user_roles ) && is_array( $user_roles ) ) {
+			$user_role = reset( $user_roles );
+		}
 
 		// temporarly setting old role
 		buddydrive()->old_role = $user_role;
-
 
 		update_user_meta( $user_id, '_buddydrive_user_quota', intval( $_POST['_buddydrive_user_quota'] ) );
 	}
@@ -641,31 +669,34 @@ class BuddyDrive_Admin {
 	 *
 	 * @param  integer $user_id the id of the user being edited
 	 * @param  string $role the new role of the user
-	 * @global $blog_id the id of the current blog
 	 * @uses bp_get_root_blog_id() to make sure we're on the blog BuddyPress is activated on
 	 * @uses buddydrive() to get the old role global
 	 * @uses bp_get_option() to get main blog option
 	 * @uses update_user_meta() to save user's preference
 	 */
 	public static function update_user_quota_to_role( $user_id, $role ) {
-		global $blog_id;
-
-		if( $blog_id != bp_get_root_blog_id() )
+		if ( ! bp_is_root_blog() ) {
 			return;
+		}
 
 		$buddydrive = buddydrive();
+		$old_role   = false;
 
-		$old_role = !empty( $buddydrive->old_role ) ? $buddydrive->old_role : false;
+		if ( ! empty( $buddydrive->old_role ) ) {
+			$old_role = $buddydrive->old_role;
+		}
 
-		if( isset( $_POST['_buddydrive_user_quota'] ) && $old_role == $role )
+		if ( isset( $_POST['_buddydrive_user_quota'] ) && $old_role === $role ) {
 			return;
+		}
 
 		$option_user_quota = bp_get_option( '_buddydrive_user_quota', 1000 );
 
-		if( is_array( $option_user_quota ) )
-			$user_quota = !empty( $option_user_quota[$role] ) ? $option_user_quota[$role] : 1000;
-		else
+		if ( is_array( $option_user_quota ) && ! empty( $option_user_quota[ $role ] ) ) {
+			$user_quota = $option_user_quota[ $role ];
+		} else {
 			$user_quota = $option_user_quota;
+		}
 
 		update_user_meta( $user_id, '_buddydrive_user_quota', $user_quota );
 	}
@@ -697,13 +728,143 @@ class BuddyDrive_Admin {
 	 */
 	public static function user_quota_row( $retval = '', $column_name = '', $user_id = 0 ) {
 
-		if ( 'user_quota' === $column_name && ! empty( $user_id ) )
-			$retval = buddydrive_get_user_space_left( false, $user_id ) .'%';
+		if ( 'user_quota' === $column_name && ! empty( $user_id ) ) {
+			$quota = buddydrive_get_user_space_data( $user_id );
+
+			if ( ! empty( $quota['percent'] ) && 0 < (float) $quota['percent'] ) {
+				$retval = sprintf(
+					'<a href="%1$s" title="%2$s">%3$s<a>',
+					buddydrive()->admin->buddydrive_page . '#user/' . $user_id,
+					esc_attr__( 'View all items for this user', 'buddydrive' ),
+					$quota['percent'] . '%'
+				);
+			} else {
+				$retval = $quota['percent'] . '%';
+			}
+		}
 
 		// Pass retval through
 		return $retval;
 	}
 
+	public function upgrade_screen() {
+		global $wpdb;
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'BuddyDrive Upgrade', 'buddydrive' ); ?></h1>
+			<div id="message" class="fade updated buddydrive-hide">
+				<p><?php esc_html_e( 'Thank you for your patience, you can now fully enjoy BuddyDrive!', 'buddydrive' ); ?></p>
+			</div>
+			<p>
+		<?php
+		$tasks = buddydrive_get_upgrade_tasks();
+
+		if ( ! isset( $tasks ) || empty( $tasks ) ) {
+			esc_html_e( 'No tasks to run. BuddyDrive is ready.', 'buddydrive' );
+		} else {
+			foreach ( $tasks as $key => $task ) {
+				if ( ! empty( $task['count'] ) && 'upgrade_db_version' !== $task['action_id'] ) {
+					$tasks[ $key ]['count'] = $wpdb->get_var( $task['count'] );
+
+					// If nothing needs to be ugraded, remove the task.
+					if ( empty( $tasks[ $key ]['count'] ) ) {
+						unset( $tasks[ $key ] );
+					} else {
+						$tasks[ $key ]['message'] = sprintf( $task['message'], $tasks[ $key ]['count'] );
+					}
+				}
+			}
+
+			printf( _n( 'BuddyDrive is almost ready, please wait for the %s following task to proceed.', 'BuddyDrive is almost ready, please wait for the %s following tasks to proceed.', count( $tasks ), 'buddydrive' ), number_format_i18n( count( $tasks ) ) );
+		}
+		?>
+			</p>
+			<div id="buddydrive-upgrader"></div>
+		</div>
+		<?php
+		// Add The Upgrader UI
+		wp_enqueue_script ( 'buddydrive-upgrader-js' );
+		wp_localize_script( 'buddydrive-upgrader-js', 'BuddyDrive_Upgrader', array(
+			'tasks' => array_values( $tasks ),
+			'nonce' => wp_create_nonce( 'buddydrive-upgrader' ),
+		) );
+		?>
+		<script type="text/html" id="tmpl-progress-window">
+			<div id="{{data.id}}">
+				<div class="task-description">{{data.message}}</div>
+				<div class="buddydrive-progress">
+					<div class="buddydrive-bar"></div>
+				</div>
+			</div>
+		</script>
+		<?php
+	}
+
+	public function do_upgrade() {
+		$error = array(
+			'message'   => __( 'The task could not process due to an error', 'buddydrive' ),
+			'type'      => 'error'
+		);
+
+		if ( empty( $_POST['id'] ) || ! isset( $_POST['count'] ) || ! isset( $_POST['done'] ) ) {
+			wp_send_json_error( $error );
+		}
+
+		// Add the action to the error
+		$error['action_id'] = $_POST['id'];
+
+		// Check nonce
+		if ( empty( $_POST['_buddydrive_nonce'] ) || ! wp_verify_nonce( $_POST['_buddydrive_nonce'], 'buddydrive-upgrader' ) ) {
+			wp_send_json_error( $error );
+		}
+
+		// Check capability
+		if ( ! bp_current_user_can( 'bp_moderate' ) ) {
+			wp_send_json_error( $error );
+		}
+
+		$tasks = wp_list_pluck( buddydrive_get_upgrade_tasks(), 'callback', 'action_id' );
+
+		$did = 0;
+
+		// Upgrading the DB version
+		if ( 'upgrade_db_version' === $_POST['id'] ) {
+			$did = 1;
+			update_option( '_buddydrive_db_version', buddydrive_get_number_version() );
+
+		// Processing any other tasks
+		} elseif ( isset( $tasks[ $_POST['id'] ] ) && function_exists( $tasks[ $_POST['id'] ] ) ) {
+			$did = call_user_func_array( $tasks[ $_POST['id'] ], array( 20 ) );
+
+			// This shouldn't happen..
+			if ( 0 === $did && ( (int) $_POST['count'] > ( (int) $_POST['done'] + (int) $did ) ) ) {
+				wp_send_json_error( array( 'message' => __( '%d item(s) could not be updated', 'buddydrive' ), 'type' => 'warning', 'action_id' => $_POST['id'] ) );
+			}
+		} else {
+			wp_send_json_error( $error );
+		}
+
+		wp_send_json_success( array( 'done' => $did, 'action_id' => $_POST['id'] ) );
+	}
+
+	public function items_admin_menu_order( $custom_menus = array() ) {
+		array_push( $custom_menus, 'buddydrive-files' );
+		return $custom_menus;
+	}
+
+	public function items_admin_screen() {
+		?>
+		<div class="wrap">
+			<h1><?php esc_html_e( 'BuddyDrive Items', 'buddydrive' ); ?></h1>
+
+			<?php
+			/**
+			 * Load The BuddyDrive UI
+			 */
+			buddydrive_ui(); ?>
+		</div>
+		<?php
+	}
 }
 
 endif;

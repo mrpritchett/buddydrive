@@ -1,7 +1,10 @@
 <?php
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * BuddyDrive Item filters
+ */
 
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
  * filters wp_upload_dir to replace its datas by buddydrive ones
@@ -30,7 +33,6 @@ function buddydrive_temporarly_filters_wp_upload_dir( $upload_data ) {
 	return $r;
 }
 
-
 /**
  * filters WordPress mime types
  *
@@ -43,7 +45,6 @@ function buddydrive_temporarly_filters_wp_upload_dir( $upload_data ) {
 function buddydrive_allowed_upload_mimes( $allowed_file_types ) {
 	return buddydrive_allowed_file_types( $allowed_file_types );
 }
-
 
 /**
  * Checks file uploaded size upon user's space left and max upload size
@@ -102,9 +103,12 @@ function buddydrive_check_upload_size( $file ) {
  * @return string $quota
  */
 function buddydrive_filter_user_space_left( $output, $quota ) {
-	return $quota;
-}
+	if ( isset( $quota['percent'] ) ) {
+		$output = $quota['percent'];
+	}
 
+	return $output;
+}
 
 /**
  * filters bp_get_message_get_recipient_usernames if needed
@@ -136,7 +140,6 @@ function buddydrive_add_friend_to_recipients( $recipients ) {
 
 }
 
-
 /**
  * removes the BuddyDrive directory page from wp header menu
  *
@@ -151,10 +154,11 @@ function buddydrive_hide_item( $args ) {
 
 	$directory_pages = bp_core_get_directory_page_ids();
 
-	if ( empty( $args['exclude'] ) )
+	if ( empty( $args['exclude'] ) ) {
 		$args['exclude'] = $directory_pages[$buddydrive_slug];
-	else
+	} else {
 		$args['exclude'] .= ',' . $directory_pages[$buddydrive_slug];
+	}
 
 	return $args;
 }
@@ -242,6 +246,27 @@ function buddydrive_editor_settings( $settings = array() ) {
 
 	return $settings;
 }
+
+/**
+ * Prepare script data for the Public Editor
+ *
+ * @since 2.0.0
+ *
+ * @param array $script_data the BP Uploader script datas
+ * @return array
+ */
+ function buddydrive_editor_script_data( $script_data = array() ) {
+ 	$public_data = array_merge( $script_data, array(
+		'extra_css' => array( 'buddydrive-public-style' ),
+		'extra_js'  => array( 'buddydrive-public-js' )
+ 	) );
+
+ 	if ( ! empty( $public_data['bp_params'] ) ) {
+ 		$public_data['bp_params']['privacy'] = 'public';
+ 	}
+
+ 	return $public_data;
+ }
 
 /**
  * Only keep the Thumbnail sizes for BuddyDrive public files

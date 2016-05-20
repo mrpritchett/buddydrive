@@ -1,7 +1,10 @@
 <?php
+/**
+ * BuddyDrive Actions
+ */
 
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 
 // BuddyPress / WordPress actions to BuddyDrive ones

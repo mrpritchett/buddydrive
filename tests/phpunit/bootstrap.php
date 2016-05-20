@@ -17,6 +17,8 @@ function _bootstrap_buddydrive() {
 
 	// load WP Idea Stream
 	require dirname( __FILE__ ) . '/../../buddydrive.php';
+
+	update_option( '_buddydrive_db_version', buddydrive_get_number_version() );
 }
 tests_add_filter( 'muplugins_loaded', '_bootstrap_buddydrive' );
 

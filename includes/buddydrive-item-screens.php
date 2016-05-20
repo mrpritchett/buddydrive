@@ -1,6 +1,10 @@
 <?php
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+/**
+ * BuddyDrive Item screens
+ */
+
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 /**
  * Main Screen Class.
@@ -57,7 +61,7 @@ class BuddyDrive_Screens {
 		$this->is_bp_default = in_array( 'bp-default', array( get_template(), get_stylesheet() ) );
 
 		// Path to the component templates
-		$this->template_dir  = buddydrive_get_plugin_dir() . '/templates';
+		$this->template_dir  = buddydrive_get_plugin_dir() . 'templates';
 	}
 
 	/**
@@ -92,8 +96,9 @@ class BuddyDrive_Screens {
 		 * Current theme do use theme compat, no need to carry on
 		 * Retuning false will fire bp_setup_theme_compat action
 		 */
-		if ( $bp->theme_compat->use_with_current_theme )
+		if ( $bp->theme_compat->use_with_current_theme ) {
 			return false;
+		}
 
 		/**
 		 * Current theme is BP Default or a chilf theme of it
@@ -208,8 +213,14 @@ class BuddyDrive_Screens {
 			if ( ! bp_is_directory() ) {
 
 				$buddydrive->screens->template = 'members/single/plugins';
-				add_action( 'bp_template_title',   "buddydrive_{$screen}_title"   );
-				add_action( 'bp_template_content', "buddydrive_{$screen}_content" );
+
+				if ( buddydrive_use_deprecated_ui() ) {
+					add_action( 'bp_template_title',   "buddydrive_{$screen}_title"   );
+					add_action( 'bp_template_content', "buddydrive_{$screen}_content" );
+				} else {
+					// Use a unique Callback function, everything will be managed in Javascript
+					add_action( 'bp_template_content', 'buddydrive_user_content' );
+				}
 			}
 		}
 
@@ -320,105 +331,11 @@ class BuddyDrive_Screens {
 }
 add_action( 'bp_init', array( 'BuddyDrive_Screens', 'manage_screens' ) );
 
-
-function buddydrive_user_files_title() {
-	buddydrive_item_nav();
-}
-
-function buddydrive_user_files_content() {
-	?>
-	<div id="buddydrive-forms">
-		<div class="buddydrive-crumbs"><a href="<?php esc_url( buddydrive_component_home_url() );?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php esc_html_e( 'Root folder', 'buddydrive' );?></span></a></div>
-
-		<?php if ( buddydrive_is_user_buddydrive() ):?>
-
-			<div id="buddydrive-file-uploader" class="hide">
-				<?php buddydrive_upload_form();?>
-			</div>
-			<div id="buddydrive-folder-editor" class="hide">
-				<?php buddydrive_folder_form()?>
-			</div>
-			<div id="buddydrive-edit-item" class="hide"></div>
-
-		<?php endif;?>
-
-	</div>
-
-	<?php do_action( 'buddydrive_after_member_upload_form' ); ?>
-	<?php do_action( 'buddydrive_before_member_body' );?>
-
-	<div class="buddydrive single-member" role="main">
-		<?php bp_get_template_part( 'buddydrive-loop' );?>
-	</div><!-- .buddydrive.single-member -->
-
-	<?php do_action( 'buddydrive_after_member_body' );
-}
-
-function buddydrive_friends_files_title() {
-	buddydrive_item_nav();
-}
-
-function buddydrive_friends_files_content() {
-	?>
-	<div id="buddydrive-forms">
-		<div class="buddydrive-crumbs"><a href="<?php esc_url( buddydrive_component_home_url() );?>" name="home" id="buddydrive-home"><i class="icon bd-icon-root"></i> <span id="folder-0" class="buddytree current"><?php esc_html_e( 'Root folder', 'buddydrive' );?></span></a></div>
-	</div>
-
-	<?php do_action( 'buddydrive_after_member_upload_form' ); ?>
-	<?php do_action( 'buddydrive_before_member_body' );?>
-
-	<div class="buddydrive single-member" role="main">
-		<?php bp_get_template_part( 'buddydrive-loop' );?>
-	</div><!-- .buddydrive.single-member -->
-
-	<?php do_action( 'buddydrive_after_member_body' );
-}
-
 /**
- * Checks if the active theme is  BP Default or a child or a standalone
+ * Displays the current user's BuddyDrive content
  *
- * @uses get_stylesheet() to check for BP Default
- * @uses get_template() to check for a Child Theme of BP Default
- * @uses current_theme_supports() to check for a standalone BuddyPress theme
- * @return boolean true or false
+ * @since 2.0.0
  */
-function buddydrive_is_bp_default() {
-	if ( in_array( 'bp-default', array( get_stylesheet(), get_template() ) ) )
-        return true;
-
-    if ( current_theme_supports( 'buddypress') )
-    	return true;
-
-    else
-        return false;
-}
-
-
-/**
- * Chooses the best way to load BuddyDrive templates
- *
- * @param string $template the template needed
- * @param boolean $require_once if we need to load it only once or more
- * @uses buddydrive_is_bp_default() to check for BP Default
- * @uses load_template()
- * @uses bp_get_template_part()
- */
-function buddydrive_get_template( $template = false, $require_once = true ) {
-	if ( empty( $template ) )
-		return false;
-
-	if ( buddydrive_is_bp_default() ) {
-
-		$template = $template . '.php';
-
-		if ( file_exists( STYLESHEETPATH . '/' . $template ) )
-			$filtered_templates = STYLESHEETPATH . '/' . $template;
-		else
-			$filtered_templates = buddydrive_get_plugin_dir() . '/templates/' . $template;
-
-		load_template( apply_filters( 'buddydrive_get_template', $filtered_templates ),  $require_once);
-
-	} else {
-		bp_get_template_part( $template );
-	}
+function buddydrive_user_content() {
+	buddydrive_ui();
 }

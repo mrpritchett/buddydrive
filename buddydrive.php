@@ -3,7 +3,7 @@
 Plugin Name: BuddyDrive
 Plugin URI: http://imathi.eu/tag/buddydrive/
 Description: A plugin to share files, the BuddyPress way!
-Version: 1.3.3
+Version: 2.0.0
 Author: imath
 Author URI: http://imathi.eu/
 License: GPLv2
@@ -11,8 +11,8 @@ Text Domain: buddydrive
 Domain Path: /languages/
 */
 
-// Exit if accessed directly
-if ( ! defined( 'ABSPATH' ) ) exit;
+// Exit if accessed directly.
+defined( 'ABSPATH' ) || exit;
 
 
 if ( ! class_exists( 'BuddyDrive' ) ) :
@@ -35,7 +35,7 @@ class BuddyDrive {
 	 *
 	 * @var      string
 	 */
-	public static $required_bp_version = '2.3.0';
+	public static $required_bp_version = '2.5.0';
 
 	/**
 	 * BuddyPress config.
@@ -104,7 +104,8 @@ class BuddyDrive {
 
 		/** Version ***********************************************************/
 
-		$this->version    = '1.3.3';
+		$this->version    = '2.0.0';
+		$this->db_version = 200;
 
 		/** Paths *************************************************************/
 
@@ -138,7 +139,6 @@ class BuddyDrive {
 		$this->domain           = 'buddydrive';
 		$this->errors           = new WP_Error(); // Feedback
 		$this->users_file_count = array();
-
 	}
 
 	/**
@@ -173,8 +173,8 @@ class BuddyDrive {
 		add_action( 'activate_'   . $this->basename, 'buddydrive_activation'   );
 		add_action( 'deactivate_' . $this->basename, 'buddydrive_deactivation' );
 
-		add_action( 'bp_init',    array( $this, 'load_textdomain' ), 6 );
-		add_action( 'bp_include', array( $this, 'load_component'  )    );
+		add_action( 'bp_loaded',  array( $this, 'load_textdomain' ) );
+		add_action( 'bp_include', array( $this, 'load_component'  ) );
 
 		do_action_ref_array( 'buddydrive_after_setup_actions', array( &$this ) );
 	}

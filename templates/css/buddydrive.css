@@ -1,0 +1,154 @@
+body.buddydrive #buddypress #item-body h3:empty {
+	display: none;
+}
+
+#buddydrive-main p {
+	font-size: 13px;
+	line-height: 1.5;
+	margin: 1em 0;
+}
+
+#buddydrive-main ul.subsubsub {
+	list-style: none;
+	font-size: 13px;
+	color: #666;
+}
+
+#buddydrive-main ul.subsubsub li {
+	display: inline-block;
+	margin: 0;
+	white-space: nowrap;
+}
+
+#buddydrive-main nav.buddydrive-toolbar #buddydrive-manage-actions {
+	width: 40%;
+}
+
+#buddydrive-main nav.buddydrive-toolbar input[type=search]#buddydrive-search-input {
+	width: 30%;
+}
+
+div#buddydrive-main .buddydrive-toolbar input[type="search"]::-webkit-search-cancel-button {
+	-webkit-appearance: searchfield-cancel-button;
+}
+
+div#buddydrive-main .buddydrive-toolbar,
+div#buddydrive-main #buddydrive-actions-form,
+div#buddydrive-main #buddydrive-load-more,
+div#buddydrive-main #buddydrive-status div.buddydrive-feedback {
+	margin: 12px 0;
+	width: 99%;
+}
+
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui {
+	margin-right: 8px;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop #drag-drop-area {
+	width: 100%;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop #drag-drop-area {
+	border: 4px dashed #b4b9be;
+	height: 200px;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop .drag-drop-inside {
+	margin: 70px auto 0;
+	width: 250px;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop-inside p {
+	color: #a0a5aa;
+	font-size: 14px;
+	margin: 5px 0;
+	display: none;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop .drag-drop-inside p {
+	text-align: center;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop-inside p.drag-drop-info {
+	font-size: 20px;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop .drag-drop-inside p,
+div#buddydrive-main #buddydrive-uploader .drag-drop-inside p.drag-drop-buttons {
+	display: block;
+}
+
+div#buddydrive-main #buddydrive-uploader .drag-drop.drag-over #drag-drop-area {
+	border-color: #83b4d8;
+}
+
+div#buddydrive-main .button-primary,
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui:not(.drag-drop) #bp-browse-button {
+	background-color: #1a1a1a;
+	color: #FFF;
+}
+
+div#buddydrive-main .button-primary:hover {
+	background-color: #444;
+	color: #FFF;
+}
+
+div#buddydrive-main .button-large:not(.buddydrive-hide),
+div#buddydrive-main #buddydrive-uploader #bp-upload-ui:not(.drag-drop) #bp-browse-button {
+	padding: 0.84375em 0.875em 0.78125em;
+}
+
+div#buddydrive-main .button-large:not(.buddydrive-hide) {
+	display: inline-block;
+	margin: auto 0.625em;
+}
+
+div#buddydrive-main #buddydrive-new-folder input[type=text] {
+	width: 40%;
+}
+
+div#buddydrive-main #buddydrive-actions-form #buddydrive-bulk-edit {
+	width: 80%;
+}
+
+div#buddydrive-main ul#buddydrive-browser li .buddydrive-progress {
+	margin: 5.5% auto;
+}
+
+div#buddydrive-main form.buddydrive-item-details #buddydrive-autocomplete {
+	width: 34%;
+}
+
+div#buddydrive-main form.buddydrive-item-details select#buddydrive-privacy-filter {
+	max-width: 30%;
+}
+
+div#buddydrive-main form.buddydrive-item-details #buddydrive-autocomplete {
+	margin-left: 30%;
+}
+
+div#buddydrive-main form.buddydrive-item-details ul#buddydrive-object-selection {
+	margin-top: 1em;
+}
+
+div#buddydrive-main form.buddydrive-item-details .submit {
+	padding: 1.5em 0;
+	margin: 5px 0;
+}
+
+div#buddydrive-main #buddydrive-item-header h2.buddydrive-title {
+	clear: none;
+	font-size: 1.3em;
+}
+
+div#buddydrive-main img.avatar {
+	display: inline-block;
+}
+
+div#buddydrive-main ul#buddydrive-browser li .buddydrive-content .buddydrive-actions {
+	background-color: #FFF;
+}
+
+div#buddydrive-main #buddydrive-user-stats ul li {
+	list-style: none;
+}

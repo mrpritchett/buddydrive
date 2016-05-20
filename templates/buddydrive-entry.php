@@ -1,4 +1,8 @@
-<?php if( empty( $_POST['createdid'] ) ) :?>
+<?php
+/**
+ * @deprecated 2.0.0
+ */
+if( empty( $_POST['createdid'] ) ) :?>
 
 	<tr id="item-<?php buddydrive_item_id();?>">
 

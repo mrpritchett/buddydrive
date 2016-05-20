@@ -1,4 +1,10 @@
 <?php
+/**
+ * Functions & classes to manage BuddyDrive items
+ *
+ * @since  1.0
+ * @deprecated 2.0.0
+ */
 
 // Exit if accessed directly
 if ( !defined( 'ABSPATH' ) ) exit;
@@ -67,9 +73,9 @@ function buddydrive_files_admin_load() {
 
 		$item_ids = wp_parse_id_list( $_GET['bid'] );
 
-		$count = buddydrive_delete_item( array( 'ids' => $item_ids, 'user_id' => false ) );
+		$deleted = buddydrive_delete_item( array( 'ids' => $item_ids, 'user_id' => false ) );
 
-		$redirect_to = add_query_arg( 'deleted', $count, $redirect_to );
+		$redirect_to = add_query_arg( 'deleted', count( $deleted ), $redirect_to );
 
 		bp_core_redirect( $redirect_to );
 
@@ -390,7 +396,7 @@ function buddydrive_admin_edit_metabox_status( $item ) {
  */
 function buddydrive_admin_edit_metabox_privacy( $item ) {
 
-	$privacy_status = get_post_meta( $item->ID, '_buddydrive_sharing_option', true );
+	$privacy_status = buddydrive_get_privacy( $item->ID );
 	$owner = $item->user_id;
 	$avatar  = buddydrive_get_show_owner_avatar( $owner );
 	?>
@@ -980,7 +986,7 @@ class BuddyDrive_List_Table extends WP_List_Table {
 	 *
 	 */
 	function column_status( $item = array() ) {
-		$privacy = get_post_meta( $item['ID'], '_buddydrive_sharing_option', true );
+		$privacy = buddydrive_get_privacy( $item['ID'] );
 		$status_desc = '';
 
 		if( !empty( $privacy ) ) {

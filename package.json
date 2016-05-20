@@ -1,0 +1,37 @@
+{
+  "author": "imath",
+  "bugs": {
+    "url": "https://github.com/imath/buddydrive/issues"
+  },
+  "description": "Share files, the BuddyPress way!",
+  "devDependencies": {
+    "grunt": "~0.4.5",
+    "grunt-checktextdomain": "~1.0.0",
+    "grunt-contrib-clean": "~0.7.0",
+    "grunt-contrib-copy": "~0.8.2",
+    "grunt-contrib-cssmin": "~0.14.0",
+    "grunt-contrib-imagemin": "~1.0.0",
+    "grunt-contrib-jshint": "~0.11.2",
+    "grunt-contrib-uglify": "~0.10.1",
+    "grunt-contrib-watch": "~0.6.1",
+    "grunt-cssjanus": "~0.2.4",
+    "grunt-exec": "~0.4.6",
+    "grunt-check-dependencies": "~0.11.2",
+    "grunt-jsvalidate": "~0.2.2",
+    "grunt-legacy-util": "^0.2.0",
+    "grunt-wp-i18n": "~0.5.3",
+    "matchdep": "~1.0.0"
+  },
+  "keywords": [
+    "files",
+    "folders"
+  ],
+  "homepage": "https://imathi.eu",
+  "license": "GPL-2.0+",
+  "name": "BuddyDrive",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imath/buddydrive.git"
+  },
+  "version": "2.0.0-beta1"
+}
