@@ -478,6 +478,10 @@ class BuddyDrive_Item {
 
 				$query_args['post__not_in'] = $r['exclude'];
 			}
+			/*
+			* Filter to customise Query Args
+			*/
+			$query_args = apply_filters('buddydrive_get_items',$query_args);
 
 			// Search!
 			if ( ! empty( $query_args ) && ! empty( $r['search'] ) ) {
