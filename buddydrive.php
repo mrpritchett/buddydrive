@@ -3,7 +3,7 @@
 Plugin Name: BuddyDrive
 Plugin URI: https://wordpress.org/plugins/buddydrive/
 Description: A plugin to share files, the BuddyPress way!
-Version: 2.1.0
+Version: 2.1.1
 Author: mrpritchett
 Author URI: http://pritchett.media
 License: GPLv2
@@ -20,11 +20,10 @@ function buddydrive_fs() {
         require_once dirname(__FILE__) . '/freemius/start.php';
 
         $buddydrive_fs = fs_dynamic_init( array(
-            'id'                  => '620',
+            'id'                  => '619',
             'slug'                => 'buddydrive',
             'type'                => 'plugin',
-            'public_key'          => 'pk_f59f7a28d4b805bc588f44cc8e283',
-            'is_live'             => false,
+            'public_key'          => 'pk_c302f2a54e3a828af10c04778ebc5',
             'is_premium'          => false,
             'has_addons'          => false,
             'has_paid_plans'      => false,
@@ -33,7 +32,6 @@ function buddydrive_fs() {
                 'first-path'     => 'index.php?page=buddydrive-about',
                 'account'        => false,
                 'contact'        => false,
-                'support'        => false,
             ),
         ) );
     }
@@ -139,8 +137,8 @@ class BuddyDrive {
 
 		/** Version ***********************************************************/
 
-		$this->version    = '2.1.0';
-		$this->db_version = 210;
+		$this->version    = '2.1.1';
+		$this->db_version = 211;
 
 		/** Paths *************************************************************/
 

@@ -3,7 +3,7 @@ Contributors: mrpritchett, imath
 Tags: BuddyPress, files, folders
 Requires at least: 4.5
 Tested up to: 4.7.0
-Stable tag: 2.1.0
+Stable tag: 2.1.1
 License: GPLv2
 
 Share files the BuddyPress way!
@@ -31,7 +31,7 @@ Activate BuddyDrive in the "Plugins" admin panel using the "Network Activate" if
 
 = Help! No files show up. What do I do? =
 
-Upgrade to version 2.1.0 and run the database upgrade.
+Upgrade to version 2.1.1 and run the database upgrade.
 
 = How do you upload files in BuddyDrive from the front end? =
 
@@ -59,7 +59,7 @@ No, currently only one level of directories is allowed.
 
 = Can you add ____ feature? =
 
-We love hearing your needs, want, desires, and ideas for BuddyPress! Our goal is to provide the product that you need. This questions helps us know what you are looking for in BuddyPress and we try to accommodate these requests via updates as much as possible. 
+We love hearing your needs, want, desires, and ideas for BuddyPress! Our goal is to provide the product that you need. This questions helps us know what you are looking for in BuddyPress and we try to accommodate these requests via updates as much as possible.
 
 == Screenshots ==
 
@@ -70,6 +70,10 @@ We love hearing your needs, want, desires, and ideas for BuddyPress! Our goal is
 5. BuddyDrive items administration.
 
 == Changelog ==
+
+= 2.1.1 =
+* Fixes issue where upgrader wanted to run endlessly.
+* Fixes Freemius integration issue.
 
 = 2.1.0 =
 * Plugin changed ownership, updated files to reflect this.
