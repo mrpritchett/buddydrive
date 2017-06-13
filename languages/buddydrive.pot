@@ -1,59 +1,59 @@
-# Copyright (C) 2016 imath
+# Copyright (C) 2017 mrpritchett
 # This file is distributed under the GPLv2.
 msgid ""
 msgstr ""
-"Project-Id-Version: BuddyDrive 2.0.0\n"
+"Project-Id-Version: BuddyDrive 2.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/buddydrive\n"
-"POT-Creation-Date: 2016-05-19 21:39:13+00:00\n"
+"POT-Creation-Date: 2017-04-11 23:17:16+00:00\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"PO-Revision-Date: 2016-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: 2017-MO-DA HO:MI+ZONE\n"
 "Last-Translator: imath <imath@chat.wordpress.org>\n"
 "Language-Team: ENGLISH <imath@chat.wordpress.org>\n"
 "X-Generator: grunt-wp-i18n 0.5.4\n"
 
-#: buddydrive.php:78 buddydrive.php:80
+#: buddydrive.php:113 buddydrive.php:115
 msgid "Cheatin&#8217; huh?"
 msgstr ""
 
-#: buddydrive.php:325
+#: buddydrive.php:360
 msgid "BuddyDrive requires at least version %s of BuddyPress."
 msgstr ""
 
-#: buddydrive.php:326
+#: buddydrive.php:361
 msgid "Upgrade BuddyPress to at least version %s"
 msgstr ""
 
-#: buddydrive.php:336
+#: buddydrive.php:371
 msgid ""
 "BuddyDrive requires to be activated on the blog where BuddyPress is "
 "activated."
 msgstr ""
 
-#: buddydrive.php:337
+#: buddydrive.php:372
 msgid "Activate BuddyDrive on the same blog than BuddyPress"
 msgstr ""
 
-#: buddydrive.php:341
+#: buddydrive.php:376
 msgid "BuddyDrive and BuddyPress need to share the same network configuration."
 msgstr ""
 
-#: buddydrive.php:342
+#: buddydrive.php:377
 msgid ""
 "Make sure BuddyDrive is activated at the same level than BuddyPress on the "
 "network"
 msgstr ""
 
-#: buddydrive.php:349
+#: buddydrive.php:384
 msgid "deactivate"
 msgstr ""
 
-#: buddydrive.php:350
+#: buddydrive.php:385
 msgid "You should %s BuddyDrive"
 msgstr ""
 
-#: buddydrive.php:357
+#: buddydrive.php:392
 msgid "Once done try to activate BuddyDrive again."
 msgstr ""
 
@@ -1318,7 +1318,7 @@ msgid "BuddyDrive"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
-msgid "http://imathi.eu/tag/buddydrive/"
+msgid "https://wordpress.org/plugins/buddydrive/"
 msgstr ""
 
 #. Description of the plugin/theme
@@ -1326,11 +1326,11 @@ msgid "A plugin to share files, the BuddyPress way!"
 msgstr ""
 
 #. Author of the plugin/theme
-msgid "imath"
+msgid "mrpritchett"
 msgstr ""
 
 #. Author URI of the plugin/theme
-msgid "http://imathi.eu/"
+msgid "http://pritchett.media"
 msgstr ""
 
 #: includes/admin/buddydrive-admin.php:192

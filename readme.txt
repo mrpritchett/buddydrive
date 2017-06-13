@@ -1,28 +1,25 @@
 === BuddyDrive ===
-Contributors: imath
-Donate link: http://imathi.eu/donations/
+Contributors: mrpritchett, imath
 Tags: BuddyPress, files, folders
 Requires at least: 4.5
-Tested up to: 4.5.2
-Stable tag: 2.0.0
+Tested up to: 4.7.0
+Stable tag: 2.1.0
 License: GPLv2
 
 Share files the BuddyPress way!
 
 == Description ==
 
-BuddyDrive is a BuddyPress (2.5+) plugin that uses the BP Attachment API to allow the members of a community to share files or folders. Depending on the BuddyPress settings, the access to the BuddyDrive user's content can be restricted to:
+As a plugin for BuddyPress, BuddyDrive allows community members to share files or folders with ease. Via the BP attachment API, BuddyPress makes sharing content possible in a variety of ways, including:
 
-* the owner of the item only (private),
-* people that know the password the owner set for his item (protected),
-* the friends of the owner of the file (Restricted to friends),
-* the members of the group the content is attached to (Restricted to groups),
-* specific members the owner selects (Restricted to members),
-* or everybody (public) !
+* Owner only (private)
+* Password protected content
+* Owner and friends
+* Owner and specified groups
+* Owner and specified members
+* Public sharing (everybody)
 
-This plugin is available in english and french.
-
-https://vimeo.com/167316544
+BuddyPress is available in English, French, Dutch and Brazilian Portuguese.
 
 == Installation ==
 
@@ -32,9 +29,37 @@ Activate BuddyDrive in the "Plugins" admin panel using the "Network Activate" if
 
 == Frequently Asked Questions ==
 
-= If you have any question =
+= Help! No files show up. What do I do? =
 
-Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
+Upgrade to version 2.1.0 and run the database upgrade.
+
+= How do you upload files in BuddyDrive from the front end? =
+
+Click the icon of a file with a plus icon to add a file. You can then click the button to find a file or drag and drop a file into the selected area.
+
+= How do you delete files? =
+
+Click the edit button in the control panel. Select the file or files you wish to delete. Click the Remove button.
+
+= Can you use video and mp3 files?  =
+
+Yes. Multiple file types are allowed in BuddyDrive. You can edit which filetypes are allowed on the BuddyDrive settings page in the WordPress dashboard.
+
+= Where can I find information about bugs, quick fixes, common problems, etc? =
+
+http://wpbuddydrive.com
+
+= Is there a limit to how many people I can share files with? =
+
+No, you can share access with as many people as you desire.
+
+= Can I have more than one folder or folders within folders? =
+
+No, currently only one level of directories is allowed.
+
+= Can you add ____ feature? =
+
+We love hearing your needs, want, desires, and ideas for BuddyPress! Our goal is to provide the product that you need. This questions helps us know what you are looking for in BuddyPress and we try to accommodate these requests via updates as much as possible. 
 
 == Screenshots ==
 
@@ -45,6 +70,11 @@ Please add a comment <a href="http://imathi.eu/tag/buddydrive/">here</a>
 5. BuddyDrive items administration.
 
 == Changelog ==
+
+= 2.1.0 =
+* Plugin changed ownership, updated files to reflect this.
+* Integrated Freemius Insights to better serve users.
+* Fixed issue where database upgrade wasn't possible, thereby breaking plugin on upgrade to 2.x.x series.
 
 = 2.0.0 =
 * !important Requires WordPress 4.5 and BuddyPress 2.5.

@@ -59,7 +59,7 @@ function buddydrive_is_install() {
 function buddydrive_is_update() {
 	$buddydrive_version = get_option( '_buddydrive_version', '' );
 
-	if ( ! empty( $buddydrive_version ) && version_compare( $buddydrive_version, buddydrive_get_version(), '<' ) ) {
+	if ( ! empty( $buddydrive_version ) && version_compare( $buddydrive_version, buddydrive_get_version(), '<=' ) ) {
 		return true;
 	}
 
