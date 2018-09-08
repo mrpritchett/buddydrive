@@ -3,46 +3,13 @@
 Plugin Name: BuddyDrive
 Plugin URI: https://wordpress.org/plugins/buddydrive/
 Description: A plugin to share files, the BuddyPress way!
-Version: 2.1.1
+Version: 3.0.0
 Author: mrpritchett
 Author URI: http://pritchett.media
 License: GPLv2
 Text Domain: buddydrive
 Domain Path: /languages/
 */
-
-// Create a helper function for easy SDK access.
-function buddydrive_fs() {
-    global $buddydrive_fs;
-
-    if ( ! isset( $buddydrive_fs ) ) {
-        // Include Freemius SDK.
-        require_once dirname(__FILE__) . '/freemius/start.php';
-
-        $buddydrive_fs = fs_dynamic_init( array(
-            'id'                  => '619',
-            'slug'                => 'buddydrive',
-            'type'                => 'plugin',
-            'public_key'          => 'pk_c302f2a54e3a828af10c04778ebc5',
-            'is_premium'          => false,
-            'has_addons'          => false,
-            'has_paid_plans'      => false,
-            'menu'                => array(
-                'slug'           => 'buddydrive-files',
-                'first-path'     => 'index.php?page=buddydrive-about',
-                'account'        => false,
-                'contact'        => false,
-            ),
-        ) );
-    }
-
-    return $buddydrive_fs;
-}
-
-// Init Freemius.
-buddydrive_fs();
-// Signal that SDK was initiated.
-do_action( 'buddydrive_fs_loaded' );
 
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
@@ -137,8 +104,8 @@ class BuddyDrive {
 
 		/** Version ***********************************************************/
 
-		$this->version    = '2.1.1';
-		$this->db_version = 211;
+		$this->version    = '3.0.0';
+		$this->db_version = 300;
 
 		/** Paths *************************************************************/
 
@@ -149,8 +116,8 @@ class BuddyDrive {
 		$this->plugin_url = apply_filters( 'buddydrive_plugin_dir_url',  plugin_dir_url ( $this->file ) );
 
 		// Includes
-		$this->includes_dir = apply_filters( 'buddydrive_includes_dir', trailingslashit( $this->plugin_dir . 'includes'  ) );
-		$this->includes_url = apply_filters( 'buddydrive_includes_url', trailingslashit( $this->plugin_url . 'includes'  ) );
+		$this->includes_dir = apply_filters( 'buddydrive_includes_dir', trailingslashit( $this->plugin_dir . 'inc'  ) );
+		$this->includes_url = apply_filters( 'buddydrive_includes_url', trailingslashit( $this->plugin_url . 'inc'  ) );
 		$this->upload_dir   = false;
 		$this->upload_url   = false;
 		$this->images_url = apply_filters( 'buddydrive_images_url', trailingslashit( $this->includes_url . 'images'  ) );
@@ -183,11 +150,11 @@ class BuddyDrive {
 	 * @uses is_admin() for the settings files
 	 */
 	private function includes() {
-		require( $this->includes_dir . 'buddydrive-actions.php'         );
-		require( $this->includes_dir . 'buddydrive-functions.php'       );
+		require( $this->includes_dir . 'class-buddydrive-profile.php' );
+		//require( $this->includes_dir . 'buddydrive-functions.php'       );
 
-		if( is_admin() ){
-			require( $this->includes_dir . 'admin/buddydrive-admin.php' );
+		if ( is_admin() ) {
+			//require( $this->includes_dir . 'admin/buddydrive-admin.php' );
 		}
 	}
 
@@ -247,7 +214,7 @@ class BuddyDrive {
 		if ( self::bail() ) {
 			add_action( self::$bp_config['network_admin'] ? 'network_admin_notices' : 'admin_notices', array( $this, 'warning' ) );
 		} else {
-			require( $this->includes_dir . 'buddydrive-component.php' );
+			//require( $this->includes_dir . 'buddydrive-component.php' );
 		}
 	}
 
@@ -261,8 +228,9 @@ class BuddyDrive {
 	 */
 	public static function version_check() {
 		// taking no risk
-		if ( ! defined( 'BP_VERSION' ) )
+		if ( ! defined( 'BP_VERSION' ) ) {
 			return false;
+		}
 
 		return version_compare( BP_VERSION, self::$required_bp_version, '>=' );
 	}
@@ -274,6 +242,7 @@ class BuddyDrive {
 	 * @since 1.2.0
 	 */
 	public static function config_check() {
+
 		/**
 		 * blog_status    : true if your plugin is activated on the same blog
 		 * network_active : true when your plugin is activated on the network
@@ -299,8 +268,9 @@ class BuddyDrive {
 		$network_plugins = get_site_option( 'active_sitewide_plugins', array() );
 
 		// No Network plugins
-		if ( empty( $network_plugins ) )
+		if ( empty( $network_plugins ) ) {
 			return self::$bp_config;
+		}
 
 		$buddydrive = plugin_basename( __FILE__ );
 
@@ -308,16 +278,18 @@ class BuddyDrive {
 		$check = array( $buddydrive );
 
 		// And for BuddyPress if set
-		if ( ! empty( $buddypress ) )
+		if ( ! empty( $buddypress ) ) {
 			$check = array_merge( array( $buddypress ), $check );
+		}
 
 		// Are they active on the network ?
 		$network_active = array_diff( $check, array_keys( $network_plugins ) );
 
 		// If result is 1, your plugin is network activated
 		// and not BuddyPress or vice & versa. Config is not ok
-		if ( count( $network_active ) == 1 )
+		if ( count( $network_active ) == 1 ) {
 			self::$bp_config['network_status'] = false;
+		}
 
 		self::$bp_config['network_active'] = isset( $network_plugins[ $buddydrive ] );
 
@@ -339,8 +311,9 @@ class BuddyDrive {
 
 		$config = self::config_check();
 
-		if ( ! self::version_check() || ! $config['blog_status'] || ! $config['network_status'] )
+		if ( ! self::version_check() || ! $config['blog_status'] || ! $config['network_status'] ) {
 			$retval = true;
+		}
 
 		return $retval;
 	}
