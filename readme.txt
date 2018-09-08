@@ -1,9 +1,9 @@
 === BuddyDrive ===
-Contributors: mrpritchett, imath
-Tags: BuddyPress, files, folders
+Contributors: mrpritchett
+Tags: BuddyPress, files, folders, file sharing
 Requires at least: 4.5
-Tested up to: 4.7.0
-Stable tag: 2.1.1
+Tested up to: 4.9.8
+Stable tag: 3.0.0
 License: GPLv2
 
 Share files the BuddyPress way!
