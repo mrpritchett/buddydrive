@@ -24,46 +24,54 @@ class BuddyDrive_Group extends BP_Group_Extension {
 		parent::init( $args );
 	}
 
+	/**
+	 * display() contains the markup that will be displayed on the main
+	 * plugin tab
+	 */
 	function display( $group_id = NULL ) {
 		$group_id = bp_get_group_id();
-		echo 'This plugin is 2x cooler!';
-	}
-
-	function settings_screen( $group_id = NULL ) {
-		$setting = groups_get_groupmeta( $group_id, 'group_extension_example_2_setting' );
-
-		?>
-		Save your plugin setting here: <input type="text" name="group_extension_example_2_setting" value="<?php echo esc_attr( $setting ) ?>" />
-		<?php
-	}
-
-	function settings_screen_save( $group_id = NULL ) {
-		$setting = isset( $_POST['group_extension_example_2_setting'] ) ? $_POST['group_extension_example_2_setting'] : '';
-		groups_update_groupmeta( $group_id, 'group_extension_example_2_setting', $setting );
+		echo 'What a cool plugin!';
 	}
 
 	/**
-	 * create_screen() is an optional method that, when present, will
-	 * be used instead of settings_screen() in the context of group
-	 * creation.
-	 *
-	 * Similar overrides exist via the following methods:
-	 *   * create_screen_save()
-	 *   * edit_screen()
-	 *   * edit_screen_save()
-	 *   * admin_screen()
-	 *   * admin_screen_save()
+	 * settings_screen() is the catch-all method for displaying the content
+	 * of the edit, create, and Dashboard admin panels
 	 */
-	function create_screen( $group_id = NULL ) {
-		$setting = groups_get_groupmeta( $group_id, 'group_extension_example_2_setting' );
+	function settings_screen( $group_id = NULL ) {
+		$setting = groups_get_groupmeta( $group_id, 'group_extension_example_1_setting' );
 
 		?>
-		Welcome to your new group! You are neat.
-		Save your plugin setting here: <input type="text" name="group_extension_example_2_setting" value="<?php echo esc_attr( $setting ) ?>" />
+		Save your plugin setting here: <input type="text" name="group_extension_example_1_setting" value="<?php echo esc_attr( $setting ) ?>" />
 		<?php
 	}
 
+	/**
+	 * settings_sceren_save() contains the catch-all logic for saving
+	 * settings from the edit, create, and Dashboard admin panels
+	 */
+	function settings_screen_save( $group_id = NULL ) {
+		$setting = '';
+
+		if ( isset( $_POST['group_extension_example_1_setting'] ) ) {
+			$setting = $_POST['group_extension_example_1_setting'];
+		}
+
+		groups_update_groupmeta( $group_id, 'group_extension_example_1_setting', $setting );
+
+	}
+
 }
-bp_register_group_extension( 'BuddyDrive_Group' );
+
+/**
+ * Waits for bp_init hook before loading the BuddyDrive Group
+ *
+ * @since 3.0.0
+ *
+ * @uses bp_register_group_extension() to register the group extension
+ */
+function buddydrive_register_group_extension() {
+	bp_register_group_extension( 'BuddyDrive_Group' );
+}
+add_action( 'bp_init', 'buddydrive_register_group_extension' );
 
 endif;
