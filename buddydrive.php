@@ -151,7 +151,7 @@ class BuddyDrive {
 	 */
 	private function includes() {
 		require( $this->includes_dir . 'class-buddydrive-profile.php' );
-		//require( $this->includes_dir . 'buddydrive-functions.php'       );
+		require( $this->includes_dir . 'class-buddydrive-group.php'       );
 
 		if ( is_admin() ) {
 			//require( $this->includes_dir . 'admin/buddydrive-admin.php' );
