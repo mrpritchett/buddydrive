@@ -150,12 +150,7 @@ class BuddyDrive {
 	 * @uses is_admin() for the settings files
 	 */
 	private function includes() {
-		require( $this->includes_dir . 'class-buddydrive-profile.php' );
-		//require( $this->includes_dir . 'buddydrive-functions.php'       );
-
-		if ( is_admin() ) {
-			//require( $this->includes_dir . 'admin/buddydrive-admin.php' );
-		}
+		require( $this->includes_dir . 'buddydrive-functions.php'       );
 	}
 
 
@@ -214,7 +209,7 @@ class BuddyDrive {
 		if ( self::bail() ) {
 			add_action( self::$bp_config['network_admin'] ? 'network_admin_notices' : 'admin_notices', array( $this, 'warning' ) );
 		} else {
-			//require( $this->includes_dir . 'buddydrive-component.php' );
+			require( $this->includes_dir . 'buddydrive-component.php' );
 		}
 	}
 
