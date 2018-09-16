@@ -38,10 +38,10 @@ class BuddyDrive_Group extends BP_Group_Extension {
 	 * of the edit, create, and Dashboard admin panels
 	 */
 	function settings_screen( $group_id = NULL ) {
-		$setting = groups_get_groupmeta( $group_id, 'group_extension_example_1_setting' );
+		$setting = groups_get_groupmeta( $group_id, 'buddydrive_group_setting' );
 
 		?>
-		Save your plugin setting here: <input type="text" name="group_extension_example_1_setting" value="<?php echo esc_attr( $setting ) ?>" />
+		Save your plugin setting here: <input type="text" name="buddydrive_group_setting" value="<?php echo esc_attr( $setting ) ?>" />
 		<?php
 	}
 
@@ -52,11 +52,11 @@ class BuddyDrive_Group extends BP_Group_Extension {
 	function settings_screen_save( $group_id = NULL ) {
 		$setting = '';
 
-		if ( isset( $_POST['group_extension_example_1_setting'] ) ) {
-			$setting = $_POST['group_extension_example_1_setting'];
+		if ( isset( $_POST['buddydrive_group_setting'] ) ) {
+			$setting = $_POST['buddydrive_group_setting'];
 		}
 
-		groups_update_groupmeta( $group_id, 'group_extension_example_1_setting', $setting );
+		groups_update_groupmeta( $group_id, 'buddydrive_group_setting', $setting );
 
 	}
 
