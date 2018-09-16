@@ -21,6 +21,7 @@ class BuddyDrive_Component extends BP_Component {
 	 * @since 1.0
 	 */
 	public function __construct() {
+		global $bp;
 
 		parent::start(
 			buddydrive_get_slug(),
@@ -58,6 +59,33 @@ class BuddyDrive_Component extends BP_Component {
 		}
 
 		parent::includes( $includes );
+	}
+
+	/**
+	 * Set up BuddyDrive globals
+	 *
+	 * @package BuddyDrive
+	 * @since 1.0
+	 *
+	 * @global obj $bp BuddyPress's global object
+	 * @uses buddypress() to get the instance data
+	 * @uses buddydrive_get_slug() to get BuddyDrive root slug
+	 */
+	public function setup_globals( $args = array() ) {
+		$bp = buddypress();
+
+		// Set up the $globals array to be passed along to parent::setup_globals()
+		$globals = array(
+			'slug'                  => buddydrive_get_slug(),
+			'root_slug'             => isset( $bp->pages->{$this->id}->slug ) ? $bp->pages->{$this->id}->slug : buddydrive_get_slug(),
+			'has_directory'         => true,
+			'directory_title'       => sprintf( __( '%s download page', 'buddydrive' ), buddydrive_get_name() ),
+			'notification_callback' => 'buddydrive_format_notifications',
+			'search_string'         => __( 'Search files...', 'buddydrive' )
+		);
+
+		// Let BP_Component::setup_globals() do its work.
+		parent::setup_globals( $globals );
 	}
 
 }
