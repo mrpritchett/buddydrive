@@ -26,7 +26,7 @@ class BuddyDrive_Upload extends BP_Attachment {
 
 		parent::__construct( array(
 			'action'               => 'buddydrive_upload',
-			'file_input'           => 'buddyfile-upload',
+			'file_input'           => 'buddyfile-file',
 			'base_dir'             => 'buddydrive',
 			'upload_error_strings' => buddydrive_get_upload_error_strings(),
 			'allowed_mime_types'   => buddydrive_get_allowed_upload_exts(),
@@ -196,6 +196,74 @@ class BuddyDrive_Upload extends BP_Attachment {
 
 }
 
-$buddydrive_upload = new BuddyDrive_Upload();
-
+/**
+ *
+ * buddydrive_form
+ *
+ * Upload form for BuddyDrive files
+ *
+ */
+function buddydrive_form() {
+	?>
+	<form action="" method="post" id="custom-upload-form" class="standard-form" enctype="multipart/form-data">
+		<input type="hidden" name="action" id="action" value="buddydrive_upload" />
+		<input type="file" name="buddydrive-file" id="custom-file-id" />
+		<input type="submit" name="upload" id="upload" value="<?php esc_attr_e( 'Upload File', 'buddydrive' ); ?>" />
+	</form>
+	<?php
 }
+add_filter( 'buddydrive_form_action', 'buddydrive_form' );
+
+/**
+ * Assuming you have defined your attachment class and a function to
+ * intercept the submitted form.
+ */
+function buddydrive_handle_upload() {
+
+	$buddydrive_upload = new BuddyDrive_Upload();
+
+	$result = $buddydrive_upload->upload( $_FILES );
+
+	$redirect = trailingslashit( bp_loggedin_user_domain() );
+
+	/**
+	 * If there's an error during the upload process
+	 * $result will be an array containing the error message
+	 */
+	if ( ! empty( $result['error'] ) ) {
+
+		// Add a feedback message containing the upload error
+		bp_core_add_message( $result['error'], 'error' );
+
+		// Safely redirect the user
+		bp_core_redirect( $redirect );
+
+	/**
+	 * If the file was successfully uploaded
+	 * $result will be an array containing the path to the file,
+	 * its url and its mime type.
+	 *
+	 * array {
+	 *  $file Absolute path to the file
+	 *  $url  Absolute url to the file
+	 *  $type the file mime type
+	 * }
+	 */
+	} else {
+		// Add a feedback containing the success message
+		bp_core_add_message( __( 'Bingo! file successfully uploaded.', 'custom-domain' ) );
+
+		/**
+		 * In our example, the result could be:
+		 * array {
+		 *  'file' => ABSPATH . 'wp-content/uploads/custom/custom_image.png',
+		 *  'url'  => 'http://site.url/wp-content/uploads/custom/custom_image.png',
+		 *  'type' = 'image/png',
+		 * }
+		 */
+
+		// Safely redirect the user
+		bp_core_redirect( $redirect );
+	}
+}
+add_action( 'bp_actions', 'buddydrive_handle_upload', 9 );

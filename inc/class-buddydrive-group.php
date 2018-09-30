@@ -31,6 +31,7 @@ class BuddyDrive_Group extends BP_Group_Extension {
 	function display( $group_id = NULL ) {
 		$group_id = bp_get_group_id();
 		echo 'What a cool plugin!';
+		do_action( 'groups_custom_group_fields' );
 	}
 
 	/**

@@ -1069,3 +1069,22 @@ function buddydrive_current_user_can( $capability = 'buddydrive_upload', $args =
 
 	return apply_filters( 'buddydrive_current_user_can', $can, $capability, $user_id, $args );
 }
+
+/**
+ *
+ * buddydrive_form
+ *
+ * Upload form for BuddyDrive files
+ *
+ */
+function buddydrive_form() {
+	?>
+	<h1>Hello</h1>
+	<form action="" method="post" id="custom-upload-form" class="standard-form" enctype="multipart/form-data">
+		<input type="hidden" name="action" id="action" value="buddydrive_upload" />
+		<input type="file" name="buddydrive-file" id="custom-file-id" />
+		<input type="submit" name="upload" id="upload" value="<?php esc_attr_e( 'Upload File', 'buddydrive' ); ?>" />
+	</form>
+	<?php
+}
+add_action( 'bp_after_messages_compose_content', 'buddydrive_form' );
